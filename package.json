@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "images": "node scripts/process-images.mjs"
   },
   "dependencies": {
     "next": "^14.2.0",
@@ -19,6 +20,7 @@
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
+    "sharp": "^0.35.4",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.0"
   }

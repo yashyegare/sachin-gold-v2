@@ -24,7 +24,7 @@ export default function Footer() {
         </nav>
 
         <div className="space-y-2 text-sm text-ink/70">
-          <p>{company.address}</p>
+          <p>{company.facilities[0]?.address}</p>
           <p>
             <a href={`tel:${company.phone.replace(/[^+\d]/g, "")}`} className="hover:text-pine">
               {company.phone}
@@ -39,7 +39,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-ink/10 px-6 py-6 text-center text-xs text-ink/50">
-        © {new Date().getFullYear()} {company.name}. All rights reserved.
+        © {new Date().getFullYear()} {company.legalName}. All rights reserved.
       </div>
     </footer>
   );

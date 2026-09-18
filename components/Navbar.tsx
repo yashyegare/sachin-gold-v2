@@ -19,6 +19,7 @@ export default function Navbar() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const servicesRef = useRef<HTMLLIElement>(null);
+  const servicesButtonRef = useRef<HTMLButtonElement>(null);
 
   // Close the services dropdown on outside click or Escape.
   useEffect(() => {
@@ -32,23 +33,51 @@ export default function Navbar() {
     }
     function handleKey(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        // Return focus to the trigger when the dropdown was open — otherwise
+        // focus dangles where it was and keyboard users lose their place.
+        if (servicesOpen) servicesButtonRef.current?.focus();
         setServicesOpen(false);
         setMobileOpen(false);
       }
     }
+
+    // Tab out of the open dropdown must close it too (mousedown-only close
+    // misses keyboard users). Runs on capture to see focusout before focus
+    // moves into the mobile panel or elsewhere.
+    function handleFocusIn(event: FocusEvent) {
+      if (
+        servicesRef.current &&
+        !servicesRef.current.contains(event.target as Node)
+      ) {
+        setServicesOpen(false);
+      }
+    }
+    document.addEventListener("focusin", handleFocusIn);
     document.addEventListener("mousedown", handlePointer);
     document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("mousedown", handlePointer);
       document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("focusin", handleFocusIn);
     };
-  }, []);
+    // servicesOpen is read by the Escape handler to decide whether to return
+    // focus — keep it fresh without re-binding listeners every toggle.
+  }, [servicesOpen]);
 
   // Close the mobile panel on route change.
   useEffect(() => {
     setMobileOpen(false);
     setServicesOpen(false);
   }, [pathname]);
+
+  // Lock body scroll while the mobile panel is open — the page behind a
+  // full-width menu shouldn't scroll.
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   function isActive(href: string) {
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -80,9 +109,15 @@ export default function Navbar() {
                   >
                     <button
                       type="button"
-                      className="flex items-center gap-1 py-2 text-ink/80 transition-colors hover:text-pine aria-expanded:text-pine"
+                      ref={servicesButtonRef}
+                      className={`flex items-center gap-1 py-2 transition-colors hover:text-pine aria-expanded:text-pine ${
+                        pathname.startsWith(item.href)
+                          ? "text-pine"
+                          : "text-ink/80"
+                      }`}
                       aria-expanded={servicesOpen}
                       aria-haspopup="true"
+                      aria-controls="services-dropdown"
                       onClick={() => setServicesOpen((open) => !open)}
                     >
                       {item.label}
@@ -92,21 +127,31 @@ export default function Navbar() {
                         viewBox="0 0 10 6"
                         fill="none"
                         aria-hidden="true"
-                        className={`transition-transform ${servicesOpen ? "rotate-180" : ""}`}
+                        className={`transition-transform duration-200 ${servicesOpen ? "rotate-180" : ""}`}
                       >
                         <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
                       </svg>
                     </button>
 
                     {servicesOpen && (
-                      <div className="absolute left-1/2 top-full w-[30rem] -translate-x-1/2 pt-3">
+                      <div
+                        id="services-dropdown"
+                        className="animate-fade-in absolute left-1/2 top-full w-[30rem] -translate-x-1/2 pt-3"
+                      >
                         <div className="rounded-sm border border-ink/10 bg-white p-2 shadow-[0_12px_32px_-12px_rgba(22,35,28,0.18)]">
                           <ul className="grid grid-cols-1 gap-0.5">
                             {item.children.map((child) => (
                               <li key={child.href}>
                                 <Link
                                   href={child.href}
-                                  className="block rounded-sm px-4 py-3 text-ink/80 transition-colors hover:bg-linen hover:text-pine"
+                                  aria-current={
+                                    isActive(child.href) ? "page" : undefined
+                                  }
+                                  className={`block rounded-sm px-4 py-3 transition-colors hover:bg-linen hover:text-pine ${
+                                    isActive(child.href)
+                                      ? "text-pine"
+                                      : "text-ink/80"
+                                  }`}
                                 >
                                   <span className="block text-sm font-medium">
                                     {child.label}
@@ -148,7 +193,9 @@ export default function Navbar() {
           </a>
           <Link
             href="/contact"
-            className="rounded-sm bg-pine px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-pine-deep"
+            className={`rounded-sm px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-pine-deep ${
+              isActive("/contact") ? "bg-pine-deep" : "bg-pine"
+            }`}
           >
             Get in touch
           </Link>
@@ -188,13 +235,14 @@ export default function Navbar() {
         <nav
           id="mobile-nav"
           aria-label="Primary"
-          className="border-t border-ink/10 bg-white md:hidden"
+          className="animate-fade-in max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-ink/10 bg-white md:hidden"
         >
-          <ul className="flex flex-col divide-y divide-ink/10 px-6">
+          <ul className="flex flex-col divide-y divide-ink/10 px-6 pb-4">
             {primaryNav.map((item) => (
               <li key={item.href} className="py-1">
                 <Link
                   href={item.href}
+                  aria-current={isActive(item.href) ? "page" : undefined}
                   className={`block py-3 text-base ${
                     isActive(item.href) ? "text-pine" : "text-ink/80"
                   }`}
@@ -209,7 +257,14 @@ export default function Navbar() {
                         <li key={child.href}>
                           <Link
                             href={child.href}
-                            className="block py-2 text-sm text-ink/60 hover:text-pine"
+                            aria-current={
+                              isActive(child.href) ? "page" : undefined
+                            }
+                            className={`block py-2 text-sm hover:text-pine ${
+                              isActive(child.href)
+                                ? "text-pine"
+                                : "text-ink/60"
+                            }`}
                           >
                             {child.label}
                           </Link>

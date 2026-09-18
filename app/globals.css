@@ -11,6 +11,11 @@
     @apply bg-white text-ink antialiased;
   }
 
+  /* Brand-tinted text selection instead of the browser default blue. */
+  ::selection {
+    @apply bg-pine text-linen;
+  }
+
   /* Visible keyboard focus everywhere — don't rely on the browser default,
      but don't remove it either. */
   :focus-visible {
@@ -23,6 +28,40 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Entrance for hero/section content — subtle rise, runs once. */
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out both;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Micro-entrance for dropdowns, mobile panel and FAQ answers. */
+  .animate-fade-in {
+    animation: fade-in 0.15s ease-out both;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }

@@ -1,0 +1,43 @@
+import type { Testimonial } from "@/lib/types";
+
+/**
+ * Renders exactly one real testimonial. This is intentionally singular,
+ * not a "Testimonials" carousel — see data/testimonial.ts and the README
+ * for why: the old site's testimonials.html page is unedited template
+ * filler (fake names, Lorem ipsum), while this one quote, found on the
+ * About page instead, is genuine. Don't pad this out with invented quotes
+ * to make it look like more social proof than exists. Role label uses
+ * wheat-dark for AA contrast on the linen band.
+ */
+export default function Testimonial({
+  testimonial,
+}: {
+  testimonial: Testimonial;
+}) {
+  return (
+    <figure className="border-l-4 border-wheat bg-linen p-6 sm:p-10">
+      <p className="font-display text-4xl leading-none text-pine" aria-hidden="true">
+        &ldquo;
+      </p>
+      <blockquote className="mt-2 text-lg italic leading-relaxed text-ink/80">
+        {testimonial.quote}
+      </blockquote>
+      <figcaption className="mt-6 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-pine font-display text-sm text-linen"
+        >
+          {testimonial.name.charAt(0)}
+        </span>
+        <span>
+          <span className="block font-display text-ink">
+            {testimonial.name}
+          </span>
+          <span className="block text-sm uppercase tracking-wide text-wheat-dark">
+            {testimonial.role}
+          </span>
+        </span>
+      </figcaption>
+    </figure>
+  );
+}

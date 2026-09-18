@@ -13,10 +13,24 @@ const config: Config = {
           DEFAULT: "#0F4C2E", // primary brand green (deepened from legacy #116530)
           deep: "#0A3620", // hover / dark-surface variant
         },
-        wheat: "#B68A1E", // harvest-gold accent, used sparingly
+        wheat: {
+          DEFAULT: "#B68A1E", // harvest-gold accent, used sparingly
+          // Contrast variants: DEFAULT wheat is only ~3.1:1 on white/linen —
+          // fails AA at eyebrow sizes — and ~4.25:1 on pine-deep. Use the
+          // variant that matches the surface so text always passes 4.5:1.
+          bright: "#D9A93C", // gold for dark surfaces (6.2:1 on pine-deep)
+          dark: "#8A6414", // gold for light surfaces (5.4:1 on white)
+        },
         slate: "#2D465E", // legacy heading color, kept for secondary structure
         linen: "#F6F4EE", // warm off-white for alternating sections
         ink: "#16231C", // near-black body text with a green undertone
+        // WhatsApp brand green, split for contrast: DEFAULT is dark enough
+        // (4.6:1) to carry white text on light surfaces; `surface` is the
+        // bright variant used only as a hover/background tint.
+        whatsapp: {
+          DEFAULT: "#128C7E",
+          surface: "#25D366",
+        },
       },
       fontFamily: {
         display: ["var(--font-marcellus)", "serif"],

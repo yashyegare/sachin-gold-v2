@@ -1,111 +1,114 @@
-# Sachin Gold V2a — scaffold
+# Sachin Gold V2a
 
-This is the starting skeleton for the V2a migration described in the
-roadmap: Next.js + TypeScript + Tailwind, componentized, static data
-layer, no backend yet. It's meant to run locally and be iterated on —
-it is not deployed anywhere.
+The V2 rebuild of sachingold.com: Next.js + TypeScript + Tailwind,
+componentized, typed static data layer. The live site at sachingold.com is
+untouched until cutover (Phase 10 of `sachin-gold-v2-plan.md`) — everything
+here deploys to a separate preview URL.
 
 ## Running it
 
-You'll need Node.js 18.18+ installed.
-
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
+npm run build      # production build
+npm run images     # Phase 2 batch image converter (see scripts/process-images.mjs)
 ```
 
-Then open http://localhost:3000. The Navbar, Footer, and a placeholder
-home page are wired up, plus stub routes for `/about`, `/services`,
-`/services/[slug]`, `/rates`, and `/contact` so you can click around the
-real navigation structure immediately.
+## Contact form setup (Phase 6)
+
+The form posts straight to Web3Forms — no backend code:
+
+1. Create a free access key at web3forms.com using the **client's email**,
+   so submissions land somewhere the client actually reads.
+2. Copy `.env.local.example` to `.env.local` and set
+   `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY`.
+3. Restart `npm run dev`, submit the form yourself, and confirm the email
+   arrives. That end-to-end test is an explicit Phase 6 gate — don't assume,
+   don't demo it to the client before you've seen a real submission land.
+
+The key is safe to expose client-side by design: it only routes
+submissions to the pre-registered inbox, it doesn't grant API access to
+anything else. Until the key is set, the form renders disabled rather
+than accepting submissions into the void. Spam protection: honeypot
+field, dropped by Web3Forms when filled.
+
+## Design language
+
+Green carries the UI (pine `#0F4C2E`, deepened from the legacy brand
+green); gold is a deliberate accent, not a second base color — it appears
+in exactly three places: the hero eyebrow, the hero primary CTA, and the
+StatsBand numbers. That restraint is what makes it read as premium
+rather than decorative, and it's literal to the business: the products
+(soya DOC, dal, oil) genuinely are golden/amber.
+
+Type: `Marcellus` for display, `Inter` for body/UI. Both via `next/font`
+with `display: swap`.
+
+Contrast variants: raw wheat fails AA on light backgrounds (~3.1:1), so
+light-surface gold text uses `wheat-dark` (`#8A6414`, 5.4:1 on white) and
+dark-surface gold uses `wheat-bright` (`#D9A93C`, 6.2:1 on pine-deep).
+Don't reach for raw `text-wheat` on white/linen.
+
+## Testimonials — deliberately not built
+
+`testimonials.html` on the old site is entirely unedited BootstrapMade
+template content — "James Smith" / "Kate Smith" with stock photos and
+literal Lorem ipsum text; the page title still reads "Testimonials -
+AgriCulture Bootstrap Template". None of it is real (verified during the
+Phase 1 content inventory; recorded in `docs/v1-baseline.md`).
+
+Rather than build a component around fake quotes, this needs a decision
+with the client: skip testimonials for launch (the StatsBand plus real
+facility photography likely carries more trust for a B2B trading
+audience than generic-sounding quotes would anyway), or ask 2–3 real
+buyers for short quotes. If real quotes materialize, the component is a
+small job — but it is gated on that client conversation, not on
+markdown. This note is permanent so the reasoning isn't lost later.
 
 ## What's here
 
 ```text
 app/
-  layout.tsx          Root layout — fonts, <Navbar/>, <Footer/>, base metadata
-  page.tsx             Home (placeholder)
-  about/page.tsx
-  services/page.tsx    Services overview, rendered from data/services.ts
-  services/[slug]/page.tsx   One dynamic route for all 5 service pages
-  rates/page.tsx
-  contact/page.tsx
-  globals.css
+  layout.tsx                 Root layout — fonts, skip link, metadata, JSON-LD
+  page.tsx                   Home: Hero → StatsBand → rates strip → services → products → CTA
+  about/page.tsx             Partial copy; full history TODO from client
+  services/page.tsx          Services overview from data/services.ts
+  services/[slug]/page.tsx   One dynamic route, per-service products + JSON-LD
+  rates/page.tsx             Grouped tables; "On request" until real prices
+  contact/page.tsx           Details + working form (needs the access key above)
+  not-found.tsx              On-brand 404
+  sitemap.ts, robots.ts      Generated from the data layer
 
-components/
-  Navbar.tsx           <- start here, see below
-  Footer.tsx
-  ServiceCard.tsx
+components/                   Navbar, Footer, Hero, StatsBand, SectionHeading,
+                              ServiceCard, ProductCard, CTA, ContactForm
 
-data/
-  services.ts          The 5 services as typed data (was 5 near-duplicate HTML files)
-  navigation.ts         Primary nav, derived from services.ts
-  company.ts            Phone/email/address/stats — has TODOs, needs real values
-  rates.ts               Static for now; swap for an API call in V2b without touching the page
+data/                         services, products, rates, company, home, stats,
+                              navigation — all typed via lib/types.ts
 
-lib/
-  types.ts              Shared interfaces (Service, NavLink, CompanyInfo)
+scripts/process-images.mjs    Phase 2 pipeline: old repo images → optimized
+                              WebP/AVIF under public/images/
+
+docs/
+  v1-baseline.md              Phase 1 audit template, pre-filled with captures
+  phase5-checklist.md         Per-page remaining work
+
+next.config.mjs               301 redirect map from the legacy .html URLs
 ```
 
-Everything under `data/` has `TODO` placeholders for real client
-numbers (phone, address, years of experience, rates). Fill these in
-before this goes anywhere near production — don't ship a placeholder
-stat.
+## Deliberate rules (don't break these)
 
-`public/images/` is empty on purpose. Nothing has been migrated from
-the old site's `assets/img` yet — that's Phase 2 (image cleanup),
-which should happen before or alongside this, not after.
+- No invented numbers, quotes, or stats — every figure traces to the
+  client's published site or the project's own data files.
+- Rates show "On request" until the client supplies real numbers; the
+  "Last updated" line stays hidden until a real date exists.
+- Gold stays rare (see Design language); eyebrows on light surfaces are
+  pine, not gold.
+- The legacy `.html` redirect map must keep working — verify against
+  `docs/v1-baseline.md` §6 before cutover.
 
-## Why Navbar first
+## Still TODO before launch (Phase 5 gate)
 
-It's the one component every page depends on, it's where the
-duplicated header markup from the old 10 HTML pages consolidates into
-one place, and it exercises most of the patterns the rest of the site
-will reuse: typed data from `data/navigation.ts`, `next/link`,
-active-route styling, and a fully keyboard/click-outside-accessible
-dropdown — patterns `ServiceCard` and later `Hero`/`Testimonials`
-will follow.
-
-## Design tokens (`tailwind.config.ts`)
-
-Kept close to the existing brand rather than a from-scratch restyle,
-per the roadmap ("I would not completely redesign it"):
-
-- `pine` (#0F4C2E) — primary green, a deepened version of the legacy
-  `#116530` accent
-- `wheat` (#B68A1E) — muted harvest-gold, used sparingly (not as a
-  background wash)
-- `slate` (#2D465E) — the legacy heading color, kept for secondary
-  structure
-- `linen` (#F6F4EE) — warm off-white for alternating sections
-- `ink` (#16231C) — near-black body text with a slight green undertone
-
-Type: `Marcellus` for headings (already the brand's display face —
-kept, not replaced) paired with `Inter` for body/UI text.
-
-The header uses a hairline bottom border rather than a drop shadow,
-and the services dropdown is a short list of real sub-pages rather
-than a generic mega-menu — both were deliberate calls to avoid the
-"SaaS card kit" look for what's meant to read as a serious B2B
-commodities company.
-
-## Suggested next components, in order
-
-1. **Hero** — home page banner; this is the first thing a visitor
-   sees, worth getting right before anything else
-2. **SectionHeading** — small, but used everywhere; do it once
-3. **ProductCard** — for the dal/oil products, similar shape to
-   `ServiceCard`
-4. **CTA** — the repeated "get in touch" band used on service pages
-5. **Testimonials**
-
-## Not in this scaffold yet
-
-- Real images (Phase 2 — optimize before importing)
-- Contact form submission (old site used a PHP handler; decide
-  whether to keep PHP or move to a Next.js API route / form service)
-- SEO metadata beyond the basics in `layout.tsx` (sitemap, OG images,
-  structured data — Phase 8 in the roadmap)
-- Anything backend: dynamic rates, admin dashboard — that's V2b,
-  scoped separately per the client conversation about whether they
-  actually want to self-manage content
+Real copy for About/service pages, real photos (run `npm run images`),
+confirmed prices + address + second phone number, and the four unverified
+legacy filenames in `docs/v1-baseline.md` §6. Tracked in
+`docs/phase5-checklist.md`.
