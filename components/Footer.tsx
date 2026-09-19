@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { primaryNav } from "@/data/navigation";
 import { company } from "@/data/company";
 
@@ -20,18 +21,34 @@ export default function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link href="/privacy" className="text-ink/70 hover:text-pine">
+                Privacy Policy
+              </Link>
+            </li>
           </ul>
         </nav>
 
         <div className="space-y-2 text-sm text-ink/70">
-          <p>{company.facilities[0]?.address}</p>
+          <p className="flex items-start gap-2">
+            <MapPin size={14} className="mt-0.5 shrink-0 text-pine" aria-hidden="true" />
+            {company.facilities[0]?.address}
+          </p>
           <p>
-            <a href={`tel:${company.phone.replace(/[^+\d]/g, "")}`} className="hover:text-pine">
+            <a
+              href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
+              className="inline-flex items-center gap-2 hover:text-pine"
+            >
+              <Phone size={14} className="shrink-0 text-pine" aria-hidden="true" />
               {company.phone}
             </a>
           </p>
           <p>
-            <a href={`mailto:${company.email}`} className="hover:text-pine">
+            <a
+              href={`mailto:${company.email}`}
+              className="inline-flex items-center gap-2 hover:text-pine"
+            >
+              <Mail size={14} className="shrink-0 text-pine" aria-hidden="true" />
               {company.email}
             </a>
           </p>

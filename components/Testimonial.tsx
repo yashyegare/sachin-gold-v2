@@ -1,4 +1,4 @@
-import type { Testimonial } from "@/lib/types";
+import type { Testimonial as TestimonialType } from "@/lib/types";
 
 /**
  * Renders exactly one real testimonial. This is intentionally singular,
@@ -12,7 +12,7 @@ import type { Testimonial } from "@/lib/types";
 export default function Testimonial({
   testimonial,
 }: {
-  testimonial: Testimonial;
+  testimonial: TestimonialType;
 }) {
   return (
     <figure className="border-l-4 border-wheat bg-linen p-6 sm:p-10">
@@ -38,6 +38,25 @@ export default function Testimonial({
           </span>
         </span>
       </figcaption>
+      {/* The customer's real video from the old About page, migrated to
+          /videos/. Click-to-play with preload="none": the 6.6MB file costs
+          zero bandwidth until the visitor explicitly asks for it, unlike
+          the old site's autoplay-lightbox pattern. */}
+      {testimonial.video && (
+        <details className="mt-6">
+          <summary className="cursor-pointer text-sm font-semibold text-pine transition-colors hover:text-pine-deep">
+            ▶ Watch the customer&apos;s video feedback
+          </summary>
+          <video
+            controls
+            preload="none"
+            src={testimonial.video}
+            className="mt-4 aspect-video w-full rounded-sm"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </details>
+      )}
     </figure>
   );
 }

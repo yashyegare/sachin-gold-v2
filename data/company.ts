@@ -18,16 +18,20 @@ export const company: CompanyInfo = {
       address:
         "289/1 At- Post Her, Near Karadkhel Pati, Udgir, Dist. Latur, MH - 413517",
       phone: "+91 88060 17000",
+      // Real Google Maps links from the old contact page's "Find Us" section.
+      mapUrl: "https://maps.app.goo.gl/dZe4A2sK7KoPiQt2A",
     },
     {
       name: "Sandeep Dal Industry & Warehouses",
       address: "C37Q+5C Loni, MIDC Udgir, Dist. Latur, MH - 413517",
       phone: "+91 85509 64764",
+      mapUrl: "https://maps.app.goo.gl/6qkLbHqM1SVEJ1LXA",
     },
     {
       name: "SP Cold Storage",
       address: "C38V+VXP, Nanded Road, Somnathpur, Udgir, Dist. Latur, MH - 413517",
       phone: "+91 82085 58227",
+      mapUrl: "https://maps.app.goo.gl/Ca3oMVPf7dyYVyVY9",
     },
   ],
   locations: ["Udgir", "Latur", "Solapur", "Bhalki", "Bidar"],

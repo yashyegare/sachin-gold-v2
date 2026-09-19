@@ -56,12 +56,24 @@ export interface Testimonial {
   quote: string;
   name: string;
   role: string;
+  /** Path under /public for the customer's real video, if one exists.
+   *  Rendered click-to-play (preload="none") so it never costs bandwidth
+   *  until the visitor asks for it. */
+  video?: string;
+}
+
+export interface Customer {
+  name: string;
+  logo: string; // path under /public
 }
 
 export interface Facility {
   name: string;
   address: string;
   phone: string;
+  /** Real Google Maps short URL from the old site's contact page, one per
+   *  facility. Optional only so older data without a link still typechecks. */
+  mapUrl?: string;
 }
 
 export interface FAQItem {
@@ -71,13 +83,24 @@ export interface FAQItem {
 
 export interface RateItem {
   product: string;
+  /** Display string. "On request" until the client supplies real numbers —
+   *  never "TODO" (a literal TODO string would render on the page). */
   price: string;
   unit: string;
+  /** Numeric price for schema.org Offer markup. Optional: the structured
+   *  data on /rates only emits offers for items that have one, so filling
+   *  this in later automatically activates pricing rich-results — no
+   *  component changes. Currency is assumed INR. */
+  priceValue?: number;
 }
 
 export interface RateGroup {
   title: string;
   items: RateItem[];
+  /** Per-group "last updated" date (ISO or display string). Dals and soya
+   *  derivatives move on different cycles — one page-wide date would be a
+   *  small lie. null/undefined hides the line for that group. */
+  updatedOn?: string | null;
 }
 
 export interface CompanyInfo {

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 // Design tokens for Sachin Gold V2.
 // Grounded in the existing brand (pine green + gold accent, Marcellus
@@ -41,7 +42,10 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  // @tailwindcss/typography: prose defaults for long narrative blocks.
+  // Brand theming lives in globals.css (.prose-pine sets the plugin's
+  // --tw-prose-* variables from our tokens).
+  plugins: [typography],
 };
 
 export default config;

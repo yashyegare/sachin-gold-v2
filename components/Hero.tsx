@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { homeHero } from "@/data/home";
 
 /**
@@ -84,9 +85,15 @@ export default function Hero() {
         >
           <Link
             href={primaryCta.href}
-            className="rounded-sm bg-wheat px-6 py-3 text-sm font-medium text-ink transition-all hover:-translate-y-0.5 hover:bg-wheat/90 hover:shadow-lg"
+            className="group inline-flex items-center gap-2 rounded-sm bg-wheat px-6 py-3 text-sm font-medium text-ink transition-all hover:-translate-y-0.5 hover:bg-wheat/90 hover:shadow-lg"
           >
             {primaryCta.label}
+            <ArrowRight
+              size={14}
+              strokeWidth={2}
+              aria-hidden="true"
+              className="transition-transform group-hover:translate-x-0.5"
+            />
           </Link>
           {secondaryCta && (
             <Link

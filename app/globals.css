@@ -32,7 +32,44 @@
   }
 }
 
+@layer components {
+  /* @tailwindcss/typography, branded: prose-pine re-themes the plugin's
+     variables from our tokens so long narrative blocks (About intro,
+     service descriptions) get sensible defaults without hand-tuned
+     margins — and links/bullets carry the brand, not Tailwind gray. */
+  .prose-pine {
+    --tw-prose-body: rgba(22, 35, 28, 0.8);
+    --tw-prose-headings: #16231c;
+    --tw-prose-lead: rgba(22, 35, 28, 0.7);
+    --tw-prose-links: #0f4c2e;
+    --tw-prose-bold: #16231c;
+    --tw-prose-quotes: #16231c;
+    --tw-prose-quote-borders: #b68a1e;
+    --tw-prose-bullets: #0f4c2e;
+    --tw-prose-counters: #0f4c2e;
+    --tw-prose-hr: rgba(22, 35, 28, 0.1);
+    --tw-prose-captions: rgba(22, 35, 28, 0.5);
+    --tw-prose-code: #16231c;
+    --tw-prose-th-borders: rgba(22, 35, 28, 0.2);
+    --tw-prose-td-borders: rgba(22, 35, 28, 0.1);
+  }
+}
+
 @layer utilities {
+  /* Print view: the Rates page gets screenshotted or printed at counters.
+     Strip navigation and chrome; keep only the content and tables. */
+  @media print {
+    header,
+    footer,
+    nav {
+      display: none !important;
+    }
+
+    body {
+      background: white !important;
+    }
+  }
+
   /* Entrance for hero/section content — subtle rise, runs once. */
   .animate-fade-up {
     animation: fade-up 0.6s ease-out both;
@@ -63,5 +100,60 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Rates ticker marquee — one full sequence per loop; the component
+     renders the sequence twice for a seamless wrap. Paused state is set
+     inline via [animation-play-state:paused]. */
+  .animate-ticker {
+    animation: ticker 40s linear infinite;
+  }
+
+  @keyframes ticker {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Infinite CSS marquee for the customers logo strip — same technique
+     as the ticker, no JS shipped. Pauses on hover (desktop) and while
+     the strip has keyboard focus; the global reduced-motion rule stops
+     it entirely for visitors who want stillness. */
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .marquee-paused:hover .animate-marquee,
+  .marquee-paused:focus-within .animate-marquee {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Scroll-reveal (lib/useReveal.ts) — hidden until .is-revealed lands.
+     Under prefers-reduced-motion the global rule collapses the transition
+     and the hook adds .is-revealed immediately, so content is never
+     hidden from motion-sensitive visitors. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s ease-out,
+      transform 0.6s ease-out;
+  }
+
+  .reveal.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

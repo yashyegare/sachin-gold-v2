@@ -24,7 +24,7 @@ export const services: Service[] = [
       "Bhalki, Karnataka — Sourcing & Trading",
       "Bidar, Karnataka — Sourcing & Trading",
     ],
-    image: "/images/services/commodity-trading.jpg",
+    image: "/images/services/commodity-trading.webp",
     href: "/services/commodity-trading",
   },
   {
@@ -44,7 +44,7 @@ export const services: Service[] = [
       "Latur, Maharashtra",
       "Solapur, Maharashtra",
     ],
-    image: "/images/services/pulses-processing.jpg",
+    image: "/images/services/pulses-processing.webp",
     href: "/services/pulses-processing",
   },
   {
@@ -62,7 +62,7 @@ export const services: Service[] = [
       "Soya Lecithin — natural emulsifier for food processing and pharmaceuticals",
     ],
     locations: ["Udgir, Maharashtra - 413517"],
-    image: "/images/services/oil-extraction.jpg",
+    image: "/images/services/oil-extraction.webp",
     href: "/services/oil-extraction",
   },
   {
@@ -82,7 +82,7 @@ export const services: Service[] = [
       "Latur, Maharashtra",
       "Udgir, Maharashtra",
     ],
-    image: "/images/services/cold-storage.jpg",
+    image: "/images/services/cold-storage.webp",
     href: "/services/cold-storage",
   },
   {
@@ -97,7 +97,7 @@ export const services: Service[] = [
       "Efficient routing — optimized networks to minimize transit times and maintain freshness",
     ],
     locations: ["Across Maharashtra & Karnataka"],
-    image: "/images/services/logistics.jpg",
+    image: "/images/services/logistics.webp",
     href: "/services/logistics",
   },
 ];

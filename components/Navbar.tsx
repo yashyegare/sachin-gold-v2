@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { primaryNav } from "@/data/navigation";
 import { company } from "@/data/company";
 
@@ -121,16 +122,12 @@ export default function Navbar() {
                       onClick={() => setServicesOpen((open) => !open)}
                     >
                       {item.label}
-                      <svg
-                        width="10"
-                        height="6"
-                        viewBox="0 0 10 6"
-                        fill="none"
+                      <ChevronDown
+                        size={14}
+                        strokeWidth={1.5}
                         aria-hidden="true"
                         className={`transition-transform duration-200 ${servicesOpen ? "rotate-180" : ""}`}
-                      >
-                        <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" />
-                      </svg>
+                      />
                     </button>
 
                     {servicesOpen && (

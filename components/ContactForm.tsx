@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { CircleCheck, TriangleAlert } from "lucide-react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -62,7 +63,10 @@ export default function ContactForm() {
         role="status"
         className="animate-fade-in border border-pine/30 bg-linen p-6 text-ink"
       >
-        <p className="font-display text-lg">Thank you — message sent.</p>
+        <p className="flex items-center gap-2 font-display text-lg">
+          <CircleCheck size={20} className="text-pine" aria-hidden="true" />
+          Thank you — message sent.
+        </p>
         <p className="mt-2 text-sm text-ink/70">
           We&apos;ll get back to you shortly with pricing and availability.
         </p>
@@ -112,7 +116,8 @@ export default function ContactForm() {
       </div>
 
       {status === "error" && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="flex items-center gap-2 text-sm text-red-700">
+          <TriangleAlert size={16} aria-hidden="true" />
           Something went wrong sending your message — please try again, or
           call us directly.
         </p>

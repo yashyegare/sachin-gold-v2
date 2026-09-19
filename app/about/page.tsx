@@ -3,6 +3,7 @@ import Link from "next/link";
 import SectionHeading from "@/components/SectionHeading";
 import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
+import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { company } from "@/data/company";
 import { team } from "@/data/team";
@@ -25,7 +26,7 @@ export default function AboutPage() {
           <h1 className="font-display text-3xl text-white sm:text-4xl">
             About {company.name}
           </h1>
-          <div className="mt-6 space-y-4 text-white/80">
+          <div className="prose-pine mt-6 max-w-none space-y-4 text-white/80 [&_a:hover]:text-white">
             <p>
               Since {company.foundedYear}, {company.groupName} has been
               serving the nation with the finest Sortex-quality agro
@@ -114,7 +115,7 @@ export default function AboutPage() {
 
       {/* Team */}
       <section className="border-t border-ink/10 bg-linen px-6 py-20">
-        <div className="mx-auto max-w-6xl">
+        <Reveal className="mx-auto max-w-6xl">
           <SectionHeading eyebrow="Leadership" title="Team" align="center" />
           <div className="mx-auto mt-12 grid max-w-3xl gap-10 sm:grid-cols-3">
             {team.map((member) => (
@@ -135,7 +136,7 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* The one real testimonial — see data/testimonial.ts for why this
