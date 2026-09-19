@@ -86,18 +86,22 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+      {/* Top hairline in brand gold — a quiet premium cue. */}
+      <div className="h-0.5 w-full bg-gradient-to-r from-pine-deep via-wheat to-pine-deep" aria-hidden="true" />
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6">
+        {/* Wordmark in brand gold — the real logo file returns once a
+            redesigned mark is provided. */}
         <Link
           href="/"
-          className="font-display text-xl tracking-tight text-ink"
+          className="shrink-0 font-display text-2xl font-bold tracking-tight text-wheat transition-opacity hover:opacity-80"
           aria-label={`${company.name} — home`}
         >
           {company.name}
         </Link>
 
         {/* Desktop nav */}
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex items-center gap-8 text-sm">
+        <nav aria-label="Primary" className="hidden lg:block">
+          <ul className="flex items-center gap-1 text-sm">
             {primaryNav.map((item) => {
               if (item.children) {
                 return (
@@ -111,10 +115,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       ref={servicesButtonRef}
-                      className={`flex items-center gap-1 py-2 transition-colors hover:text-pine aria-expanded:text-pine ${
+                      className={`flex items-center gap-1 rounded-sm px-3 py-2 transition-colors hover:bg-linen hover:text-pine aria-expanded:bg-linen aria-expanded:text-pine ${
                         pathname.startsWith(item.href)
-                          ? "text-pine"
-                          : "text-ink/80"
+                          ? "font-semibold text-pine"
+                          : "font-medium text-ink/75"
                       }`}
                       aria-expanded={servicesOpen}
                       aria-haspopup="true"
@@ -169,11 +173,19 @@ export default function Navbar() {
                   <Link
                     href={item.href}
                     aria-current={isActive(item.href) ? "page" : undefined}
-                    className={`py-2 transition-colors hover:text-pine ${
-                      isActive(item.href) ? "text-pine" : "text-ink/80"
+                    className={`relative rounded-sm px-3 py-2 transition-colors hover:bg-linen hover:text-pine ${
+                      isActive(item.href)
+                        ? "font-semibold text-pine"
+                        : "font-medium text-ink/75"
                     }`}
                   >
                     {item.label}
+                    {isActive(item.href) && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-wheat"
+                      />
+                    )}
                   </Link>
                 </li>
               );
@@ -181,16 +193,16 @@ export default function Navbar() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden shrink-0 items-center gap-3 lg:flex">
           <a
             href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
-            className="text-sm text-ink/70 hover:text-pine"
+            className="whitespace-nowrap text-sm font-medium tabular-nums text-ink/70 transition-colors hover:text-pine"
           >
             {company.phone}
           </a>
           <Link
             href="/contact"
-            className={`rounded-sm px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-pine-deep ${
+            className={`whitespace-nowrap rounded-sm px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_-8px_rgba(10,54,32,0.5)] transition-all hover:-translate-y-px hover:shadow-[0_8px_20px_-8px_rgba(10,54,32,0.55)] ${
               isActive("/contact") ? "bg-pine-deep" : "bg-pine"
             }`}
           >
@@ -201,7 +213,7 @@ export default function Navbar() {
         {/* Mobile toggle */}
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center md:hidden"
+          className="flex h-10 w-10 items-center justify-center lg:hidden"
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -232,7 +244,7 @@ export default function Navbar() {
         <nav
           id="mobile-nav"
           aria-label="Primary"
-          className="animate-fade-in max-h-[calc(100vh-5rem)] overflow-y-auto border-t border-ink/10 bg-white md:hidden"
+          className="animate-fade-in max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-ink/10 bg-white lg:hidden"
         >
           <ul className="flex flex-col divide-y divide-ink/10 px-6 pb-4">
             {primaryNav.map((item) => (

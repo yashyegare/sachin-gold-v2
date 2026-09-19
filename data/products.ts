@@ -178,3 +178,23 @@ export const products: Product[] = [
 export function getProductsByService(serviceSlug: string): Product[] {
   return products.filter((product) => product.service === serviceSlug);
 }
+
+/** Homepage teaser: six hand-picked items spanning all three categories
+ *  (2 Trading, 2 Processing, 2 Extraction), flagship items first. The full
+ *  catalogue stays on the service pages via getProductsByService — the
+ *  homepage signals range and invites a click, it doesn't duplicate all
+ *  twenty. */
+const featuredSlugs = [
+  "soyabean", // Trading — flagship raw commodity
+  "bajra", // Trading
+  "toor-dal", // Processing — flagship dal
+  "chana-dal", // Processing
+  "soya-doc", // Extraction — the old ticker's lead product
+  "soya-refined-oil", // Extraction
+];
+
+export function getFeaturedProducts(): Product[] {
+  return featuredSlugs
+    .map((slug) => products.find((product) => product.slug === slug))
+    .filter((product): product is Product => product !== undefined);
+}

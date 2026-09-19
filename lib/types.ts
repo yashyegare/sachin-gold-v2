@@ -2,6 +2,10 @@ export interface Service {
   title: string;
   slug: string;
   shortDescription: string; // shown in the nav dropdown / cards, ~1 sentence
+  /** One fact-led line for the home value-chain card (real figures only —
+   *  sourced from this service's own description/advantages). Falls back
+   *  to shortDescription where unset. */
+  stageNote?: string;
   description: string; // longer intro copy for the service's own page
   advantages: string[]; // real "Key Advantages" / "Highlights" bullets from the old site
   locations: string[]; // "Our Network" / "Our Presence" for this specific service
@@ -25,6 +29,16 @@ export interface HeroContent {
    *  real facility photo is ready — Hero renders a brand-color gradient
    *  instead of a broken image. */
   image: string;
+}
+
+/** One slide of the home hero carousel — all content real, pulled from
+ *  the old site's own carousel copy. */
+export interface HeroSlide {
+  image: string;
+  alt: string;
+  eyebrow: string;
+  headline: string;
+  subheadline: string;
 }
 
 export interface StatItem {

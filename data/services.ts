@@ -9,6 +9,8 @@ export const services: Service[] = [
     slug: "commodity-trading",
     shortDescription:
       "Bulk sourcing and trading of pulses, grains and oilseeds.",
+    stageNote:
+      "Sourced at the farm gate across Maharashtra & Karnataka.",
     description:
       "At Sachin Gold, we specialize in the procurement and supply of premium-grade bulk agro commodities. Our deep-rooted relationships with farming communities across Maharashtra and Karnataka allow us to source the finest raw materials directly from the field. We ensure that every grain meets rigorous international quality standards before it enters our supply chain. Our trading portfolio is tailored to meet the massive demands of large-scale retailers, food processors, and international exporters.",
     advantages: [
@@ -31,6 +33,8 @@ export const services: Service[] = [
     title: "Pulses & Gram Flour Unit",
     slug: "pulses-processing",
     shortDescription: "Toor, chana and gram flour, processed and milled.",
+    stageNote:
+      "550 tonnes/day on Buhler machinery — unpolished, additive-free.",
     description:
       "As one of the leading players in processed pulses, Sachin Gold operates a highly advanced facility with a combined capacity of 550 tonnes per day. By merging traditional sun-drying methods with sophisticated Buhler machinery, we ensure unmatched purity and consistency. Our flagship products, including protein-rich, unpolished Toor and Chana Dal, are processed with absolute precision to retain their natural essence. Our Besan (Gram Flour) is finely milled from premium chana dal, ensuring a pure, aromatic, additive-free product for household and industrial use.",
     advantages: [
@@ -52,6 +56,8 @@ export const services: Service[] = [
     slug: "oil-extraction",
     shortDescription:
       "Soya DOC, refined oils and derivatives for feed and industry.",
+    stageNote:
+      "Solvent extraction & refining — Soya DOC through lecithin.",
     description:
       "Our advanced extraction facility transforms premium Soya beans into high-yield, top-tier commodities, carefully preserving their peak nutritional and industrial value. Using advanced solvent extraction and refining processes, we ensure our products meet the requirements of both the food processing and animal feed industries.",
     advantages: [
@@ -70,6 +76,8 @@ export const services: Service[] = [
     slug: "cold-storage",
     shortDescription:
       "Dry warehousing and climate-controlled cold storage.",
+    stageNote:
+      "Dry + chilled capacity — engineered to cut post-harvest losses.",
     description:
       "Agriculture is highly time-sensitive. At Sachin Gold, we offer a dual-infrastructure approach: expansive dry warehousing for bulk grains and pulses, alongside cold storage units for temperature-sensitive agro-commodities. Whether protecting raw seeds from moisture, housing large volumes of goods, or extending the shelf life of perishables, our facilities are engineered to minimize post-harvest losses and maintain peak market value for farmers, suppliers and exporters.",
     advantages: [
@@ -89,6 +97,8 @@ export const services: Service[] = [
     title: "Logistics & Transportation",
     slug: "logistics",
     shortDescription: "Dedicated fleet and freight for bulk agro shipments.",
+    stageNote:
+      "Company-owned fleet serving 1,000+ retail stores.",
     description:
       "A robust supply chain is the backbone of the agro-industry. At Sachin Gold, we provide reliable, efficient transportation services to ensure that bulk commodities, processed pulses, and refined oils reach their destinations seamlessly. With our own dedicated fleet of vehicles and an expansive logistics network, we serve over 1,000+ retail stores and enterprise clients, with every product handled with care and delivered on schedule.",
     advantages: [

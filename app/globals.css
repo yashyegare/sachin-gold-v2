@@ -156,4 +156,97 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Brand splash (components/BrandSplash.tsx) — logo beat + underline
+     sweep + tagline, then the veil lifts. Runs once per session; the
+     global reduced-motion rule collapses these to near-instant, and the
+     component never shows at all for reduced-motion visitors. */
+  .animate-splash-logo {
+    animation: splash-logo 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes splash-logo {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-sweep {
+    transform-origin: center;
+    animation: sweep 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+  }
+
+  @keyframes sweep {
+    from {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-splash-tagline {
+    animation: splash-tagline 0.8s ease-out 0.7s both;
+  }
+
+  @keyframes splash-tagline {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-splash-progress {
+    animation: splash-progress 1.7s linear both;
+  }
+
+  @keyframes splash-progress {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+
+  /* Hero carousel — slow Ken Burns drift on the active frame (scale, no
+     pan, so the composition never fights the overlay), and the active
+     indicator's progress fill. Both collapse under the global
+     reduced-motion rule; the carousel also disables autoplay entirely. */
+  .animate-kenburns {
+    animation: kenburns 14s ease-out both;
+  }
+
+  @keyframes kenburns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.07);
+    }
+  }
+
+  .animate-slide-progress {
+    animation: slide-progress 3.5s linear both;
+  }
+
+  @keyframes slide-progress {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
 }
