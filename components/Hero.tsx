@@ -9,16 +9,22 @@ import { homeHero, heroSlides } from "@/data/home";
 /**
  * Home hero — the old site's rotating banner, rebuilt properly:
  *
- * - Real crossfade between five frames (opacity, not slides), each with
- *   its own verbatim copy from the old carousel.
- * - Auto-advances every 6.5s; pauses while hovered, focused, or tapped,
+ * - Real crossfade between frames, each with its own verbatim copy from
+ *   the old carousel.
+ * - **Bandwidth discipline (the Phase 2 principle, applied to the hero):**
+ *   only the active slide and the upcoming one are mounted. The first
+ *   paint downloads exactly one hero image (~180KB) — the other frames'
+ *   files are not requested until their turn approaches. An unmounted
+ *   slide costs nothing; a stacked-but-hidden one costs its full download,
+ *   because at inset-0 every frame is "on screen" to the lazy-loader.
+ * - Auto-advances every 3.5s; pauses while hovered, focused, or tapped,
  *   and via an explicit pause button — WCAG 2.2.2 requires a way to pause
  *   moving content that isn't hover-only.
  * - Slide indicators double as progress bars: the active bar fills over
  *   the slide's duration, so the timing is visible, not a surprise.
- * - Keyboard: dots are real buttons (arrow keys move between slides).
+ * - Keyboard: dots are real buttons (click to jump between slides).
  * - Reduced motion: no autoplay at all — a static hero with manual dots.
- * - The first image is `priority` (LCP); the rest load on demand.
+ * - The active image is `priority` (LCP).
  */
 const SLIDE_MS = 3500;
 
@@ -54,6 +60,14 @@ export default function Hero() {
     };
   }, [paused, reducedMotion, next]);
 
+  // Which frames are mounted: the active one always; the upcoming one
+  // mounted mid-slide so it's decoded and ready the moment the crossfade
+  // starts. Everything else is unmounted — its file is never requested.
+  const mounted = new Set<number>([index]);
+  if (!reducedMotion) mounted.add((index + 1) % slides.length);
+  // While paused there is no "upcoming" — don't preload for nothing.
+  if (paused && slides.length > 1) mounted.delete((index + 1) % slides.length);
+
   const slide = slides[index] ?? slides[0];
   if (!slide) return null;
 
@@ -67,29 +81,33 @@ export default function Hero() {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      {/* Background layers — every slide mounted, opacity-crossfaded.
-          Only the active slide is exposed to assistive tech. */}
+      {/* Background layers — only the mounted frames render; the active
+          frame eases in over 300ms (transition, not a keyframe, so it
+          never fights the hidden frame's opacity-0). Only the active
+          slide is exposed to assistive tech. */}
       <div className="absolute inset-0 -z-10">
-        {slides.map((s, i) => (
-          <div
-            key={s.image}
-            aria-hidden={i !== index}
-            className={`absolute inset-0 transition-opacity duration-[1200ms] ease-out ${
-              i === index ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <Image
-              src={s.image}
-              alt=""
-              fill
-              priority={i === 0}
-              sizes="100vw"
-              className={`object-cover ${
-                i === index && !reducedMotion ? "animate-kenburns" : ""
+        {slides.map((s, i) =>
+          mounted.has(i) ? (
+            <div
+              key={s.image}
+              aria-hidden={i !== index}
+              className={`absolute inset-0 transition-opacity duration-300 ease-out ${
+                i === index ? "opacity-100" : "opacity-0"
               }`}
-            />
-          </div>
-        ))}
+            >
+              <Image
+                src={s.image}
+                alt=""
+                fill
+                priority={i === index}
+                sizes="100vw"
+                className={`object-cover ${
+                  i === index && !reducedMotion ? "animate-kenburns" : ""
+                }`}
+              />
+            </div>
+          ) : null,
+        )}
         {/* Dark gradient so left-aligned copy stays readable on any frame;
             slightly stronger than the old single-image version because the
             frames vary in brightness. */}

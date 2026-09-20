@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Marcellus } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BrandSplash from "@/components/BrandSplash";
 import { company, siteUrl } from "@/data/company";
 import "./globals.css";
 
@@ -117,9 +116,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Once-per-session brand splash over everything (skipped for
-            reduced-motion visitors and repeat views in the session). */}
-        <BrandSplash />
         <Navbar />
         <main
           id="main-content"
