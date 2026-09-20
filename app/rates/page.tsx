@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
+  Droplets,
   PhoneCall,
   ShieldCheck,
   TimerReset,
+  Wheat,
 } from "lucide-react";
 import { siteUrl } from "@/data/company";
 import CTA from "@/components/CTA";
+import PageIntro from "@/components/PageIntro";
 import {
   rateGroups,
   ratesLastUpdated,
@@ -15,6 +19,25 @@ import {
 } from "@/data/rates";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
+
+// Group-heading anchors: a real product photo (the same treated assets
+// from the catalogue) plus the site-wide icon language (Droplets/Wheat,
+// as used on the home value chain) — so the one page that is all text
+// and tables still reads as part of the same brand.
+const groupImages: Record<string, string> = {
+  "Soya Derivatives": "/images/products/soya-doc.webp",
+  "Dals & Flour": "/images/products/toor-dal.webp",
+};
+
+const groupIcons: Record<string, typeof Droplets> = {
+  "Soya Derivatives": Droplets,
+  "Dals & Flour": Wheat,
+};
+
+// The old site's own page title was literally "Bulk Soya DOC Supplier &
+// Manufacturer" — a real signal of what the business leads with. Tagged
+// sparingly: the DOC rows only, never on every row.
+const FLAGSHIP = "Soya DOC";
 
 export const metadata: Metadata = {
   title: "Market Rates",
@@ -99,41 +122,19 @@ export default function RatesPage() {
         />
       )}
 
-      {/* ————— Header: pine-deep band with the real logo mark, echoing the
-              splash so the page opens with the brand ————— */}
-      <section className="relative overflow-hidden bg-pine-deep">
-        <svg
-          className="absolute inset-0 h-full w-full opacity-[0.06]"
-          aria-hidden="true"
-        >
-          <pattern
-            id="rates-dots"
-            width="24"
-            height="24"
-            patternUnits="userSpaceOnUse"
-          >
-            <circle cx="2" cy="2" r="1.5" fill="#B68A1E" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#rates-dots)" />
-        </svg>
+      {/* ————— Header: the shared PageIntro band (dot texture, one canonical
+              treatment across all inner pages) ————— */}
+      <PageIntro
+        eyebrow="Market Rates"
+        title="Current Market Rates"
+        description="Indicative rates for our full trading, processing and extraction lines — reconfirmed at booking, quoted in writing when you enquire."
+      >
+        <div className="flex flex-wrap items-end justify-between gap-8">
+          <p className="font-display text-2xl font-bold tracking-tight text-wheat sm:text-3xl">
+            {company.name}
+          </p>
 
-        <div className="relative mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="flex flex-wrap items-end justify-between gap-8">
-            <div>
-              <p className="font-display text-2xl font-bold tracking-tight text-wheat sm:text-3xl">
-                {company.name}
-              </p>
-              <h1 className="mt-5 font-display text-3xl text-white sm:text-4xl">
-                Current Market Rates
-              </h1>
-              <p className="mt-4 max-w-xl leading-relaxed text-white/75">
-                Indicative rates for our full trading, processing and
-                extraction lines — reconfirmed at booking, quoted in writing
-                when you enquire.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
               <a
                 href={whatsappLink(
                   company.whatsapp,
@@ -157,10 +158,9 @@ export default function RatesPage() {
                 <PhoneCall size={15} aria-hidden="true" />
                 Call {company.phone}
               </a>
-            </div>
           </div>
         </div>
-      </section>
+      </PageIntro>
 
       {/* ————— Trust strip: three signals on white ————— */}
       <section
@@ -186,10 +186,37 @@ export default function RatesPage() {
 
       {/* ————— The tables ————— */}
       <section className="mx-auto max-w-4xl px-6 py-16 print:px-0 print:py-0">
-        {rateGroups.map((group, gi) => (
+        {rateGroups.map((group, gi) => {
+          const GroupIcon = groupIcons[group.title] ?? Wheat;
+          const groupImage = groupImages[group.title];
+          return (
           <div key={group.title} className={gi > 0 ? "mt-16" : ""}>
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl text-ink">{group.title}</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                {/* Anchor image — the same treated product photography as
+                    the catalogue, at thumbnail size, so the price list
+                    still reads as part of the photo-led brand. */}
+                {groupImage && (
+                  <Image
+                    src={groupImage}
+                    alt=""
+                    width={56}
+                    height={56}
+                    className="h-14 w-14 rounded-sm border border-ink/10 object-cover [filter:saturate(0.94)_contrast(1.05)_sepia(0.05)]"
+                  />
+                )}
+                <div className="flex items-center gap-2.5">
+                  <GroupIcon
+                    size={20}
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                    className="text-pine"
+                  />
+                  <h2 className="font-display text-2xl text-ink">
+                    {group.title}
+                  </h2>
+                </div>
+              </div>
               {group.updatedOn && (
                 <p className="flex items-center gap-1.5 text-xs text-ink/50">
                   <TimerReset size={13} aria-hidden="true" />
@@ -233,6 +260,11 @@ export default function RatesPage() {
                       >
                         <td className="px-2 py-4 font-medium text-ink first:pl-0 print:py-2.5">
                           {rate.product}
+                          {rate.product.startsWith(FLAGSHIP) && (
+                            <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
+                              Flagship
+                            </span>
+                          )}
                         </td>
                         <td className="whitespace-nowrap px-2 py-4 text-right print:py-2.5">
                           <span className="font-semibold text-ink">
@@ -268,6 +300,11 @@ export default function RatesPage() {
                     <div className="flex items-start justify-between gap-3">
                       <p className="font-display text-base text-ink">
                         {rate.product}
+                        {rate.product.startsWith(FLAGSHIP) && (
+                          <span className="ml-2 inline-block rounded-full border border-wheat-dark/50 px-1.5 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark">
+                            Flagship
+                          </span>
+                        )}
                       </p>
                       <a
                         href={enquireLink(rate.product)}
@@ -295,7 +332,8 @@ export default function RatesPage() {
               </p>
             )}
           </div>
-        ))}
+          );
+        })}
 
         {ratesLastUpdated && (
           <p className="mt-10 text-xs text-ink/50 print:mt-4">

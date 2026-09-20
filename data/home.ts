@@ -26,15 +26,17 @@ export const heroSlides: HeroSlide[] = [
     image: "/images/hero/facility.webp",
     alt: "Sachin Gold processing facility at dusk",
     eyebrow: "Bulk Agro Commodities, Since 1969",
-    headline: "Trusted trading and processing for India's agro commodities",
+    // The old site's own hero line — more confident than our literal
+    // rewrite of it. Kept verbatim in substance; confirmed in Phase 9.
+    headline: "Your trusted partner in bulk agro commodity trading",
     subheadline:
-      "From bulk sourcing and pulses processing to oil extraction, cold storage and logistics — moved from field to buyer across Maharashtra and Karnataka, with consistency you can plan around.",
+      "An unwavering commitment to quality, innovation and customer satisfaction — from bulk sourcing and pulses processing to oil extraction, cold storage and logistics across Maharashtra and Karnataka.",
   },
   {
     image: "/images/hero/trading.webp",
     alt: "Agro commodity trading operations",
     eyebrow: "Commodity Trading",
-    headline: "Your trusted partner in bulk agro commodity trading",
+    headline: "Straight from the farm gate, quality-checked at every tier",
     subheadline:
       "Directly sourced, premium-grade bulk agricultural commodities — quality-checked at every tier before they enter our supply chain.",
   },

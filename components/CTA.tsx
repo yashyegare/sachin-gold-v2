@@ -23,7 +23,7 @@ export default function CTA({
 }: CTAProps) {
   return (
     <section className="bg-pine-deep">
-      <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 sm:flex-row sm:items-center">
+      <div className="section-airy mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 sm:flex-row sm:items-center">
         <div>
           <h2 className="font-display text-2xl text-white sm:text-3xl">
             {title}

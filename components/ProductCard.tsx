@@ -1,4 +1,4 @@
-import Image from "next/image";
+import BrandPhoto from "@/components/BrandPhoto";
 import type { Product } from "@/lib/types";
 
 /**
@@ -17,12 +17,11 @@ export default function ProductCard({ product }: { product: Product }) {
     <div className="group border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-[0_10px_28px_-14px_rgba(22,35,28,0.25)]">
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-linen">
         {hasImage ? (
-          <Image
+          <BrandPhoto
             src={product.image}
             alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center transition-colors group-hover:bg-[#efeadd]">

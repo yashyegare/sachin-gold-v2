@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
+import BrandPhoto from "@/components/BrandPhoto";
 import { services } from "@/data/services";
 
 /**
@@ -36,7 +36,7 @@ const stageIcons: Record<string, LucideIcon> = {
 
 export default function ServicesShowcase() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20" aria-labelledby="what-we-do">
+    <section className="mx-auto max-w-6xl px-6 py-24 md:py-28" aria-labelledby="what-we-do">
       <Reveal>
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-wheat-dark">
           What We Do
@@ -83,12 +83,11 @@ export default function ServicesShowcase() {
                     className="group mt-4 block border border-ink/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-pine/40 hover:shadow-[0_18px_40px_-18px_rgba(22,35,28,0.35)] md:mt-5"
                   >
                     <div className="relative aspect-[16/10] overflow-hidden">
-                      <Image
+                      <BrandPhoto
                         src={service.image}
                         alt=""
-                        fill
                         sizes="(min-width: 768px) 20vw, 100vw"
-                        className="object-cover opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+                        imageClassName="opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
                       />
                       <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-pine-deep/80 text-linen backdrop-blur-sm">
                         <Icon size={15} aria-hidden="true" />

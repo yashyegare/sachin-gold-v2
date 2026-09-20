@@ -5,6 +5,8 @@ import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
+import PageIntro from "@/components/PageIntro";
+import BrandPhoto from "@/components/BrandPhoto";
 import { company } from "@/data/company";
 import { team } from "@/data/team";
 import { testimonial } from "@/data/testimonial";
@@ -21,12 +23,9 @@ export default function AboutPage() {
     <>
       {/* Intro band — same pine-deep language as the Hero, scaled down for
           an inner page rather than a full banner. */}
-      <section className="bg-pine-deep px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="font-display text-3xl text-white sm:text-4xl">
-            About {company.name}
-          </h1>
-          <div className="prose-pine mt-6 max-w-none space-y-4 text-white/80 [&_a:hover]:text-white">
+      <PageIntro eyebrow="About Us" title={`About ${company.name}`}>
+        <div className="max-w-3xl">
+          <div className="prose-pine max-w-none space-y-4 text-white/80 [&_a:hover]:text-white">
             <p>
               Since {company.foundedYear}, {company.groupName} has been
               serving the nation with the finest Sortex-quality agro
@@ -61,10 +60,10 @@ export default function AboutPage() {
             </p>
           </div>
         </div>
-      </section>
+      </PageIntro>
 
       {/* State-of-the-art processing */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="section-standard mx-auto max-w-6xl px-6">
         <div className="grid gap-10 md:grid-cols-2 md:items-center">
           <div>
             <SectionHeading
@@ -85,15 +84,24 @@ export default function AboutPage() {
             </Link>
           </div>
 
-          {/* TODO: assets/img/video_img_2.png + the YouTube facility tour
-              (youtu.be/v8zIFCYXlDs) exist on the old site — placeholder
-              tile until that's migrated. */}
+          {/* Real processing-interior photo behind the facility-tour link —
+              the tile previews the real thing it opens (the YouTube tour). */}
           <a
             href="https://youtu.be/v8zIFCYXlDs"
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-sm bg-gradient-to-br from-pine-deep via-pine to-[#0c3a24] transition-shadow hover:shadow-[0_14px_36px_-16px_rgba(10,54,32,0.5)]"
+            className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-sm border border-ink/10 transition-shadow hover:shadow-[0_14px_36px_-16px_rgba(10,54,32,0.5)]"
           >
+            <BrandPhoto
+              src="/images/home/processing-interior.webp"
+              alt=""
+              sizes="(min-width: 768px) 50vw, 100vw"
+              imageClassName="transition-transform duration-700 group-hover:scale-[1.03]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-br from-pine-deep/70 via-pine-deep/45 to-pine-deep/25"
+            />
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-wheat transition-transform group-hover:scale-105">
               <svg
                 width="20"
@@ -114,7 +122,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="border-t border-ink/10 bg-linen px-6 py-20">
+      <section className="section-standard border-t border-ink/10 bg-linen px-6">
         <Reveal className="mx-auto max-w-6xl">
           <SectionHeading eyebrow="Leadership" title="Team" align="center" />
           <div className="mx-auto mt-12 grid max-w-3xl gap-10 sm:grid-cols-3">
@@ -141,7 +149,7 @@ export default function AboutPage() {
 
       {/* The one real testimonial — see data/testimonial.ts for why this
           is intentionally singular. */}
-      <section className="mx-auto max-w-4xl px-6 py-20">
+      <section className="mx-auto max-w-4xl px-6 py-28 md:py-32">
         <SectionHeading
           eyebrow="Partner Success Story"
           title="Hear from a partner who trusts us"

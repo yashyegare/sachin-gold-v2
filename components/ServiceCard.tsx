@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import BrandPhoto from "@/components/BrandPhoto";
 import type { Service } from "@/lib/types";
 
 /**
@@ -19,12 +19,11 @@ export default function ServiceCard({ service }: { service: Service }) {
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-linen">
         {hasImage ? (
-          <Image
+          <BrandPhoto
             src={service.image}
             alt=""
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center transition-colors group-hover:bg-[#efeadd]">

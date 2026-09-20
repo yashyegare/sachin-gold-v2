@@ -1,4 +1,4 @@
-import Image from "next/image";
+import BrandPhoto from "@/components/BrandPhoto";
 import type { TeamMember } from "@/lib/types";
 
 // Team card with the same image-placeholder pattern as ProductCard/Hero:
@@ -17,12 +17,11 @@ export default function TeamMemberCard({ member }: { member: TeamMember }) {
     <div className="text-center">
       <div className="relative mx-auto aspect-square w-full max-w-[12rem] overflow-hidden rounded-full bg-linen">
         {hasImage ? (
-          <Image
+          <BrandPhoto
             src={member.image}
             alt={member.name}
-            fill
-            className="object-cover"
             sizes="192px"
+            tone="portrait"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

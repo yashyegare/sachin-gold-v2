@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 // actually does. If the form handler ever changes, update this page too.
 export default function PrivacyPage() {
   return (
-    <section className="mx-auto max-w-3xl px-6 py-20">
+    <section className="section-standard mx-auto max-w-3xl px-6">
       <h1 className="font-display text-3xl text-ink sm:text-4xl">
         Privacy Policy
       </h1>

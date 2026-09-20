@@ -57,7 +57,7 @@ export default function ServiceDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
       />
-      <section className="mx-auto max-w-3xl px-6 py-20">
+      <section className="section-standard mx-auto max-w-3xl px-6">
         {/* Wayfinding: cheap, obvious way back to the overview. */}
         <Link
           href="/services"

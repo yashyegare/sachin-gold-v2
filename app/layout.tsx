@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Marcellus } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { company, siteUrl } from "@/data/company";
 import "./globals.css";
 
@@ -125,6 +126,10 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        {/* Persistent floating WhatsApp action — the expected always-visible
+            chat affordance on Indian B2B sites. Slides away while the home
+            hero controls own that corner (see the component). */}
+        <WhatsAppFloat />
       </body>
     </html>
   );

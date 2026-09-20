@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import RatesTicker from "@/components/RatesTicker";
 import StatsBand from "@/components/StatsBand";
 import ServicesShowcase from "@/components/ServicesShowcase";
+import WhySachinGold from "@/components/WhySachinGold";
 import ProductCard from "@/components/ProductCard";
 // SectionHeading retained for other pages; home uses inline headings now
 // so the two home sections can sit on distinct eyebrow colors (wheat-dark
@@ -70,12 +71,18 @@ export default function HomePage() {
       {/* What We Do — the five services as one visual value chain. */}
       <ServicesShowcase />
 
+      {/* The one genuinely dark section — the condensed "Why Choose Us"
+          narrative the old site put on its homepage, with the real team
+          photograph and the real figures. Gives the page its high-contrast
+          beat between two light sections. */}
+      <WhySachinGold />
+
       {/* Real customer logos from the old services page — strong credibility
           signal at zero cost since the assets already existed. */}
       <CustomerLogos />
 
       <section className="bg-linen">
-        <div className="mx-auto max-w-6xl px-6 py-20">
+        <div className="mx-auto max-w-6xl px-6 py-16">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pine">
             Our Products
           </p>

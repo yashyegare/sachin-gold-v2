@@ -157,6 +157,35 @@
     transform: translateY(0);
   }
 
+  /* ————— Design system: rhythm, photo grade, shape rule —————
+
+     VERTICAL RHYTHM — three deliberate paces, never one default value
+     everywhere (uniform spacing is the loudest "template" signal):
+       .section-airy      page openers/closers, the lone testimonial
+       .section-standard  default content sections
+       .section-dense     grids, strips, tightly-related sections */
+  .section-airy {
+    @apply py-16 sm:py-24;
+  }
+  .section-standard {
+    @apply py-14 sm:py-20;
+  }
+  .section-dense {
+    @apply py-10 sm:py-14;
+  }
+
+  /* PHOTO GRADE — lives in components/BrandPhoto.tsx, not here: one
+     shared component wraps every real photo with a warm-neutral color
+     nudge (saturate/contrast/sepia) and, for "scene" photos only, a
+     soft pine-tinted grounding gradient at the base (portraits skip
+     it — a dark wash looks wrong tight-cropped on a face). Logos keep
+     their own grayscale treatment. */
+
+  /* SHAPE RULE — rounded-full is reserved for icon-only controls and
+     circular identity elements (pause button, live dots, icon chips,
+     numbered markers, avatars, thin progress bars). Every text-bearing
+     action is rounded-sm. Audited site-wide: zero violations. */
+
   /* Hero carousel — slow Ken Burns drift on the active frame (scale, no
      pan, so the composition never fights the overlay), and the active
      indicator's progress fill. Both collapse under the global

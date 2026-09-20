@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { company } from "@/data/company";
+import { customers } from "@/data/customers";
 import { faqs } from "@/data/faq";
 import { whatsappLink } from "@/lib/whatsapp";
 import ContactForm from "@/components/ContactForm";
+import PageIntro from "@/components/PageIntro";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -57,20 +59,13 @@ export default function ContactPage() {
       {/* Header band — same pine-deep language as the About intro, so inner
           pages share one voice. Quick-contact pills give immediate paths
           above the fold. */}
-      <section className="bg-pine-deep px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wheat-bright">
-            Contact
-          </p>
-          <h1 className="mt-3 font-display text-3xl text-white sm:text-4xl">
-            Get in touch
-          </h1>
-          <p className="mt-5 leading-relaxed text-white/80">
-            Tell us what you need — product, quantity and destination — and
-            we&apos;ll get back with the prevailing rate. We respond to form
-            submissions and emails within 24 hours.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
+      <PageIntro
+        eyebrow="Contact"
+        title="Get in touch"
+        description="Tell us what you need — product, quantity and destination — and we'll get back with the prevailing rate. We respond to form submissions and emails within 24 hours."
+        image="/images/home/cold-storage-branded.webp"
+      >
+          <div className="flex flex-wrap gap-3">
             <a
               href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
               className="rounded-sm border border-white/25 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
@@ -95,11 +90,10 @@ export default function ContactPage() {
               {company.salesEmail}
             </a>
           </div>
-        </div>
-      </section>
+      </PageIntro>
 
       {/* Facilities + form */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="section-standard mx-auto max-w-6xl px-6">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           <div>
             <h2 className="font-display text-2xl text-ink">
@@ -117,6 +111,11 @@ export default function ContactPage() {
                 >
                   <p className="font-display text-base text-ink">
                     {facility.name}
+                    {facility.name === "Main Plant" && (
+                      <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark">
+                        Headquarters
+                      </span>
+                    )}
                   </p>
                   <p className="mt-1.5 flex items-start gap-1.5 text-sm text-ink/60">
                     <PinIcon className="mt-0.5 shrink-0 text-pine/50" />
@@ -189,6 +188,12 @@ export default function ContactPage() {
               The fastest route to a quote — include the quantity and
               destination.
             </p>
+            {/* Trust line at the decision point — the moment before someone
+                commits to reaching out, not just a homepage signal. */}
+            <p className="mt-4 border-l-2 border-wheat-dark/40 pl-3 text-sm text-ink/70">
+              Trusted by {customers.slice(0, 3).map((c) => c.name).join(", ")} and
+              other industry leaders.
+            </p>
             <div className="mt-8">
               <ContactForm />
             </div>
@@ -196,58 +201,35 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Find us — the old site's map-split section, rebuilt with brand
-          tokens: facility buttons on the left (real Google Maps links),
-          embedded map of the Main Plant on the right. Lazy-loaded iframe:
-          zero cost until scrolled near. */}
-      <section className="border-y border-ink/10 bg-linen px-6 py-20">
+      {/* Find us — just the embed. The three facility cards above already
+          carry the per-facility Google Maps links; repeating the same
+          three names and links here was a "didn't I just see this" moment.
+          Lazy iframe: zero cost until scrolled near. */}
+      <section className="section-standard border-y border-ink/10 bg-linen px-6">
         <div className="mx-auto max-w-6xl">
-          <div className="grid overflow-hidden border border-ink/10 bg-white shadow-[0_10px_36px_-18px_rgba(22,35,28,0.3)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-            <div className="p-6 sm:p-10">
-              <h2 className="font-display text-2xl text-ink">Find us</h2>
-              <p className="mt-2 text-sm text-ink/60">
-                All three facilities sit within a few kilometres of Udgir,
-                Dist. Latur — click any location to open it in Google Maps.
-              </p>
-              <div className="mt-6 grid gap-3">
-                {company.facilities.map((facility) => (
-                  <a
-                    key={facility.name}
-                    href={facility.mapUrl ?? "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center gap-3 border border-ink/10 bg-white px-4 py-3 text-sm font-semibold text-ink/80 transition-all hover:translate-x-1 hover:border-pine hover:bg-pine hover:text-white"
-                  >
-                    <PinIcon className="shrink-0 text-wheat-dark transition-colors group-hover:text-wheat-bright" />
-                    <span className="flex-1">{facility.name}</span>
-                    <span
-                      aria-hidden="true"
-                      className="text-ink/30 transition-all group-hover:translate-x-0.5 group-hover:text-white/70"
-                    >
-                      →
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div className="min-h-[320px] border-t border-ink/10 lg:border-l lg:border-t-0">
-              <iframe
-                src={mapEmbedSrc}
-                title="Map — Sachin International Proteins Private Limited, Udgir"
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-                className="h-full min-h-[320px] w-full border-0"
-              />
-            </div>
+          <h2 className="font-display text-2xl text-ink">Find us</h2>
+          <p className="mt-2 max-w-2xl text-sm text-ink/60">
+            All three facilities sit within a few kilometres of Udgir,
+            Dist. Latur — each card above links its exact location in Google
+            Maps. The map below shows the Main Plant.
+          </p>
+          <div className="mt-6 overflow-hidden border border-ink/10 bg-white shadow-[0_10px_36px_-18px_rgba(22,35,28,0.3)]">
+            <iframe
+              src={mapEmbedSrc}
+              title="Map — Sachin International Proteins Private Limited, Udgir"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-[380px] w-full border-0"
+            />
           </div>
         </div>
       </section>
 
       {/* Real FAQ content — see data/faq.ts. Native details/summary keeps
           it keyboard-accessible with zero JS. */}
-      <section className="mx-auto max-w-3xl px-6 py-20">
-        <h2 className="text-center font-display text-2xl text-ink sm:text-3xl">
+      <section className="section-standard mx-auto max-w-3xl px-6">
+        <h2 className="font-display text-2xl text-ink sm:text-3xl">
           Frequently Asked Questions
         </h2>
         <div className="mt-8 divide-y divide-ink/10">

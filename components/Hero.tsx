@@ -101,7 +101,7 @@ export default function Hero() {
                 fill
                 priority={i === index}
                 sizes="100vw"
-                className={`object-cover ${
+                className={`object-cover [filter:saturate(0.94)_contrast(1.05)_sepia(0.05)] ${
                   i === index && !reducedMotion ? "animate-kenburns" : ""
                 }`}
               />
@@ -167,9 +167,11 @@ export default function Hero() {
         </div>
 
         {/* Controls row: progress indicators + pause. Hidden entirely when
-            reduced motion is on (single static hero, no controls needed). */}
+            reduced motion is on (single static hero, no controls needed).
+            data-hero-controls: the floating WhatsApp button watches this
+            corner via IntersectionObserver and yields while it's visible. */}
         {!reducedMotion && (
-          <div className="absolute inset-x-0 bottom-0">
+          <div className="absolute inset-x-0 bottom-0" data-hero-controls>
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pb-6">
               <div
                 role="tablist"
