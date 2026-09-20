@@ -34,8 +34,28 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ["var(--font-marcellus)", "serif"],
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        // Latin-first stacks: brand Latin type (Inter/Marcellus) renders
+        // every Latin glyph, and the Noto script fonts below pick up
+        // Devanagari/Kannada/Telugu/Tamil via unicode-range — headings in
+        // translated locales keep a serif voice (Noto Serif) instead of
+        // silently falling back to the browser default.
+        display: [
+          "var(--font-marcellus)",
+          "var(--font-noto-serif-devanagari)",
+          "var(--font-noto-serif-kannada)",
+          "var(--font-noto-serif-telugu)",
+          "var(--font-noto-serif-tamil)",
+          "serif",
+        ],
+        sans: [
+          "var(--font-inter)",
+          "var(--font-noto-sans-devanagari)",
+          "var(--font-noto-sans-kannada)",
+          "var(--font-noto-sans-telugu)",
+          "var(--font-noto-sans-tamil)",
+          "system-ui",
+          "sans-serif",
+        ],
       },
       maxWidth: {
         prose: "68ch",

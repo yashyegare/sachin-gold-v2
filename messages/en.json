@@ -1,0 +1,418 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "services": "Our Services",
+    "rates": "Rates",
+    "contact": "Contact",
+    "cta": "Get in touch",
+    "menu": "Menu",
+    "close": "Close",
+    "language": "Language",
+    "servicesOverview": "Overview",
+    "serviceSlugs": {
+      "overview": "Overview",
+      "commodity-trading": "Agro Commodity Trading",
+      "pulses-processing": "Pulses & Gram Flour Unit",
+      "oil-extraction": "Oil Seed Extraction & Bulk Soya DOC",
+      "cold-storage": "Cold Storage & Warehousing",
+      "logistics": "Logistics & Transportation"
+    }
+  },
+  "footer": {
+    "servicesTitle": "Services",
+    "companyTitle": "Company",
+    "contactTitle": "Reach us",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved.",
+    "legalLine": "Sachin International Proteins Private Limited",
+    "tagline": "Bulk Agro Commodity Trading & Processing"
+  },
+  "home": {
+    "ratesStrip": {
+      "live": "Live market rates",
+      "items": "— Soya DOC, Soya Refined Oil, Toor Dal, Chana Dal",
+      "view": "View current rates",
+      "today": "Today",
+      "tickerPause": "Pause rate ticker",
+      "tickerResume": "Resume rate ticker"
+    },
+    "hero": {
+      "primaryCta": "Explore Our Services",
+      "secondaryCta": "Today's Rates",
+      "slides": {
+        "facility": {
+          "eyebrow": "Bulk Agro Commodities, Since 1969",
+          "headline": "Your trusted partner in bulk agro commodity trading",
+          "subheadline": "An unwavering commitment to quality, innovation and customer satisfaction — from bulk sourcing and pulses processing to oil extraction, cold storage and logistics across Maharashtra and Karnataka."
+        },
+        "trading": {
+          "eyebrow": "Commodity Trading",
+          "headline": "Straight from the farm gate, quality-checked at every tier",
+          "subheadline": "Directly sourced, premium-grade bulk agricultural commodities — quality-checked at every tier before they enter our supply chain."
+        },
+        "extraction": {
+          "eyebrow": "Oil Seed Extraction",
+          "headline": "High-efficiency soya extraction & refining",
+          "subheadline": "High-protein Soya DOC, refined oils and lecithin — engineered for feed, food and industrial buyers alike."
+        },
+        "warehousing": {
+          "eyebrow": "Cold Storage & Warehousing",
+          "headline": "Strategically designed warehouses for bulk storage",
+          "subheadline": "We help farmers, suppliers, exporters and retailers minimize post-harvest losses and keep goods in optimal condition."
+        },
+        "logistics": {
+          "eyebrow": "Logistics",
+          "headline": "Reliable transportation, delivered on schedule",
+          "subheadline": "A dedicated fleet and an expansive network reaching 1,000+ retail stores and enterprise clients."
+        }
+      },
+      "chooseSlide": "Slide {index} of {total}: {name}",
+      "pause": "Pause carousel",
+      "play": "Play carousel",
+      "ariaLabel": "Sachin Gold highlights",
+      "slidePicker": "Choose slide"
+    },
+    "stats": {
+      "years": "Years of experience",
+      "locations": "Locations across Maharashtra & Karnataka",
+      "tons": "Tons processed per day",
+      "farmers": "Farmers connected via e-Choupal"
+    },
+    "showcase": {
+      "eyebrow": "What We Do",
+      "title": "Bulk agro commodities, handled end to end",
+      "subtitle": "One integrated chain — sourced at the farm gate, processed in our plants, stored in our warehouses, and delivered on our fleet. Five stages, one accountable partner.",
+      "stage": "Stage {n}",
+      "explore": "Explore",
+      "cta": "Dive into each stage"
+    },
+    "why": {
+      "eyebrow": "Why Choose Us",
+      "title": "{years}+ years of getting bulk agriculture right",
+      "body": "What began in 1969 under the Hude Group is today an end-to-end operation: our own sourcing relationships, our own processing lines, our own storage and our own fleet. Fewer handoffs means fewer surprises — the grain we source is the grain we process, store and deliver ourselves.",
+      "figTons": "tonnes processed daily",
+      "figLocations": "locations across two states",
+      "figStores": "retail stores served",
+      "readMore": "Read the full story",
+      "caption": "The team behind every consignment — and our own packaging."
+    },
+    "products": {
+      "eyebrow": "Our Products",
+      "title": "What we trade and process",
+      "subtitle": "A cross-section of what moves through our facilities — the full catalog lives on each service's page.",
+      "browseAll": "Browse all products by service",
+      "categories": {
+        "trading": "Trading",
+        "processing": "Processing",
+        "extraction": "Extraction"
+      }
+    },
+    "logos": {
+      "tagline": "Trusted by leading brands across the industry"
+    },
+    "cta": {
+      "title": "Looking to source in bulk?",
+      "description": "Tell us your requirement and we'll get back with pricing and availability.",
+      "button": "Get in touch",
+      "whatsapp": "WhatsApp us"
+    },
+    "float": {
+      "label": "Chat with Sachin Gold on WhatsApp",
+      "message": "Hi Sachin Gold, I'd like to enquire about bulk rates."
+    }
+  },
+  "services": {
+    "intro": {
+      "eyebrow": "Our Services",
+      "title": "Bulk agro commodities, handled end to end",
+      "description": "Sourcing, processing, extraction, storage and dispatch under one roof — five stages, one accountable partner. From the farm gate across Maharashtra and Karnataka to the buyer's dock.",
+      "notSure": "Not sure which service you need? Talk to us"
+    },
+    "inThisLine": "In this line:",
+    "explore": "Explore {title}",
+    "detail": {
+      "advantages": "Key advantages",
+      "locations": "Our network",
+      "products": "Products in this line",
+      "contact": "Discuss your requirement",
+      "backTitle": "Explore the service",
+      "backDescription": "Ask about availability, grades and pricing for this service line — the trading desk answers with a written quote.",
+      "ctaTitle": "Need {service}?",
+      "ctaDescription": "Tell us your requirement and we'll get back with pricing and availability.",
+      "overview": "Overview",
+      "atAGlance": "{title} at a glance",
+      "productsEyebrow": "Products",
+      "productsTitle": "Products in this line",
+      "networkEyebrow": "Our Network",
+      "networkTitle": "Where we operate",
+      "othersEyebrow": "Explore More",
+      "othersTitle": "Other services"
+    },
+    "items": {
+      "commodity-trading": {
+        "title": "Agro Commodity Trading",
+        "stageNote": "Sourced at the farm gate across Maharashtra & Karnataka.",
+        "description": "At Sachin Gold, we specialize in the procurement and supply of premium-grade bulk agro commodities. Our deep-rooted relationships with farming communities across Maharashtra and Karnataka allow us to source the finest raw materials directly from the field. We ensure that every grain meets rigorous international quality standards before it enters our supply chain. Our trading portfolio is tailored to meet the massive demands of large-scale retailers, food processors, and international exporters.",
+        "advantages": [
+          "Direct farm-to-business sourcing network",
+          "Uncompromising multi-tier quality checks",
+          "Scalable volume handling for enterprise clients",
+          "Transparent and competitive market pricing"
+        ],
+        "locations": [
+          "Udgir, Maharashtra — Headquarters, Sourcing, Trading, Processing & Storage",
+          "Latur, Maharashtra — Sourcing, Trading, Processing & Storage",
+          "Solapur, Maharashtra — Sourcing, Trading, Processing & Storage",
+          "Bhalki, Karnataka — Sourcing & Trading",
+          "Bidar, Karnataka — Sourcing & Trading"
+        ]
+      },
+      "pulses-processing": {
+        "title": "Pulses & Gram Flour Unit",
+        "stageNote": "550 tonnes/day on Buhler machinery — unpolished, additive-free.",
+        "description": "As one of the leading players in processed pulses, Sachin Gold operates a highly advanced facility with a combined capacity of 550 tonnes per day. By merging traditional sun-drying methods with sophisticated Buhler machinery, we ensure unmatched purity and consistency. Our flagship products, including protein-rich, unpolished Toor and Chana Dal, are processed with absolute precision to retain their natural essence. Our Besan (Gram Flour) is finely milled from premium chana dal, ensuring a pure, aromatic, additive-free product for household and industrial use.",
+        "advantages": [
+          "550 tonnes/day — high-capacity production ensuring uninterrupted supply",
+          "Buhler technology — world-class automated machinery for maximum hygiene",
+          "Unpolished pulses — 100% natural processing, free from artificial colors",
+          "Premium besan — fine-milled purity for culinary and industrial use"
+        ],
+        "locations": [
+          "Udgir, Maharashtra — Headquarters & Main Processing Unit",
+          "Latur, Maharashtra",
+          "Solapur, Maharashtra"
+        ]
+      },
+      "oil-extraction": {
+        "title": "Oil Seed Extraction & Bulk Soya DOC",
+        "stageNote": "Solvent extraction & refining — Soya DOC through lecithin.",
+        "description": "Our advanced extraction facility transforms premium Soya beans into high-yield, top-tier commodities, carefully preserving their peak nutritional and industrial value. Using advanced solvent extraction and refining processes, we ensure our products meet the requirements of both the food processing and animal feed industries.",
+        "advantages": [
+          "Soya DOC (Normal & High Pro) — high-protein, balanced de-oiled cake for animal and poultry feed",
+          "Soya Refined Oil — ultra-pure, neutral-tasting oil for high-smoke-point cooking",
+          "Soya Acid Oil — industrial byproduct suited to soap manufacturing and chemicals",
+          "Soya Fatty Oil — used in cosmetics, paints and specialized industrial formulations",
+          "Soya Lecithin — natural emulsifier for food processing and pharmaceuticals"
+        ],
+        "locations": [
+          "Udgir, Maharashtra - 413517"
+        ]
+      },
+      "cold-storage": {
+        "title": "Cold Storage & Warehousing",
+        "stageNote": "Dry + chilled capacity — engineered to cut post-harvest losses.",
+        "description": "Agriculture is highly time-sensitive. At Sachin Gold, we offer a dual-infrastructure approach: expansive dry warehousing for bulk grains and pulses, alongside cold storage units for temperature-sensitive agro-commodities. Whether protecting raw seeds from moisture, housing large volumes of goods, or extending the shelf life of perishables, our facilities are engineered to minimize post-harvest losses and maintain peak market value for farmers, suppliers and exporters.",
+        "advantages": [
+          "Dry warehousing — high-volume, moisture-controlled environments for bulk grains and pulses",
+          "Cold storage units — precision temperature and humidity management for perishables",
+          "Scientific pest management — strict hygiene, ventilation and fumigation protocols"
+        ],
+        "locations": [
+          "Solapur, Maharashtra",
+          "Latur, Maharashtra",
+          "Udgir, Maharashtra"
+        ]
+      },
+      "logistics": {
+        "title": "Logistics & Transportation",
+        "stageNote": "Company-owned fleet serving 1,000+ retail stores.",
+        "description": "A robust supply chain is the backbone of the agro-industry. At Sachin Gold, we provide reliable, efficient transportation services to ensure that bulk commodities, processed pulses, and refined oils reach their destinations seamlessly. With our own dedicated fleet of vehicles and an expansive logistics network, we serve over 1,000+ retail stores and enterprise clients, with every product handled with care and delivered on schedule.",
+        "advantages": [
+          "Dedicated fleet — company-owned vehicles ensuring priority dispatch and handling",
+          "Safe handling — specialized transport for sensitive commodities like edible oils and raw grains",
+          "Efficient routing — optimized networks to minimize transit times and maintain freshness"
+        ],
+        "locations": [
+          "Across Maharashtra & Karnataka"
+        ]
+      }
+    },
+    "backToOverview": "All services",
+    "stats": {
+      "commodity-trading": [
+        {
+          "v": "5",
+          "l": "Sourcing & trading hubs"
+        },
+        {
+          "v": "2",
+          "l": "States covered"
+        }
+      ],
+      "pulses-processing": [
+        {
+          "v": "550",
+          "l": "Tonnes/day capacity"
+        },
+        {
+          "v": "100%",
+          "l": "Unpolished, additive-free"
+        }
+      ],
+      "oil-extraction": [
+        {
+          "v": "5",
+          "l": "Soya product lines"
+        }
+      ],
+      "cold-storage": [
+        {
+          "v": "3",
+          "l": "Warehousing locations"
+        },
+        {
+          "v": "2",
+          "l": "Storage types — dry & cold"
+        }
+      ],
+      "logistics": [
+        {
+          "v": "1,000+",
+          "l": "Retail stores served"
+        },
+        {
+          "v": "2",
+          "l": "States covered"
+        }
+      ]
+    },
+    "learnMore": "Learn more"
+  },
+  "rates": {
+    "eyebrow": "Market Rates",
+    "title": "Current Market Rates",
+    "description": "Indicative rates for our full trading, processing and extraction lines — reconfirmed at booking, quoted in writing when you enquire.",
+    "waCta": "Get today's rate on WhatsApp",
+    "callCta": "Call {phone}",
+    "trust": {
+      "written": {
+        "title": "Quoted in writing",
+        "text": "Every enquiry gets a written quote — rate, grade, quantity and validity — so there's nothing to reconcile later."
+      },
+      "honest": {
+        "title": "\"On request\" means on request",
+        "text": "Commodity prices move daily. We don't publish stale numbers — the trading desk confirms the prevailing rate the moment you ask."
+      },
+      "direct": {
+        "title": "Straight from the source",
+        "text": "These are ex-plant rates from our own processing and storage facilities — no brokerage layers in between."
+      }
+    },
+    "groups": {
+      "soya": "Soya Derivatives",
+      "dals": "Dals & Flour"
+    },
+    "flagship": "Flagship",
+    "enquire": "Enquire",
+    "enquireAria": "Enquire about bulk rates for {product} on WhatsApp",
+    "cannotFind": "Can't find a grade or pack size? Message us — the trading desk answers with a written quote.",
+    "productHeader": "Product",
+    "rateHeader": "Rate",
+    "ctaTitle": "Confirm today's rate before you order.",
+    "ctaDescription": "Call or WhatsApp with your requirement and quantity, and we'll confirm the prevailing rate — in writing."
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Get in touch",
+    "description": "Tell us what you need — product, quantity and destination — and we'll get back with the prevailing rate. We respond to form submissions and emails within 24 hours.",
+    "pillCall": "Call {phone}",
+    "pillWhatsapp": "WhatsApp us",
+    "pillEmail": "Email us",
+    "facilitiesTitle": "Reach the right facility",
+    "facilitiesSubtitle": "Three locations, one network — each with a dedicated line.",
+    "headquarters": "Headquarters",
+    "mapsLink": "Open in Maps",
+    "generalEmail": "General inquiries:",
+    "salesEmail": "Sales & trading:",
+    "formTitle": "Send an enquiry",
+    "formSubtitle": "The fastest route to a quote — include the quantity and destination.",
+    "formTrust": "Trusted by {names} and other industry leaders.",
+    "findUsTitle": "Find us",
+    "findUsSubtitle": "All three facilities sit within a few kilometres of Udgir, Dist. Latur — each card above links its exact location in Google Maps. The map below shows the Main Plant.",
+    "mapTitle": "Map — Sachin International Proteins Private Limited, Udgir",
+    "faqTitle": "Frequently Asked Questions",
+    "faqs": [
+      {
+        "q": "Can we visit your manufacturing plants and cold storage facilities?",
+        "a": "Yes, we welcome site visits from prospective B2B partners. Our Main Processing Plant, Sandeep Dal Industry, and SP Cold Storage are all located in the MIDC area of Udgir (Dist. Latur, Maharashtra). Please contact our sales team in advance to schedule a guided facility tour."
+      },
+      {
+        "q": "How do I request a bulk quotation for Soya DOC, pulses, or edible oils?",
+        "a": "For wholesale pricing and bulk trade inquiries, fill out the contact form on this page, email us directly, or message us via WhatsApp. Please include your required commodity volume and delivery location for the most accurate quote."
+      },
+      {
+        "q": "Do you offer cold storage warehousing for third-party agricultural goods?",
+        "a": "Yes — our SP Cold Storage facility in Udgir is equipped to safely store pulses, seeds, and other temperature-sensitive agro commodities. For space availability and storage rates, call our cold storage support line directly."
+      },
+      {
+        "q": "Do you provide pan-India logistics and transportation for bulk orders?",
+        "a": "Yes. As an integrated supply chain partner, Hude Group handles end-to-end logistics, ensuring bulk orders of raw agro commodities, processed flours, and Soya DOC are transported securely from our units to your storefront or factory anywhere in India."
+      },
+      {
+        "q": "How often are the live market rates updated on your website?",
+        "a": "Our Rates page is updated regularly to reflect current market conditions for Soya derivatives, Toor Dal, and Chana Dal. As commodity markets fluctuate daily, all online prices are indicative and subject to final reconfirmation at the time of booking."
+      },
+      {
+        "q": "What is the standard response time for trade inquiries?",
+        "a": "We aim to respond to all website form submissions and emails within 24 hours. For immediate assistance during business hours, calling our main support line or using WhatsApp is fastest."
+      }
+    ]
+  },
+  "about": {
+    "eyebrow": "About Us",
+    "title": "About Sachin Gold",
+    "p1": "Since 1969, Hude Group has been serving the nation with the finest Sortex-quality agro commodities, along with premium finished products and related services such as transportation, warehousing, and cold storage. Backed by decades of trust and continuous investment in modern technology, we ensure that every grain reaches our customers with purity, nutrition, and natural goodness.",
+    "p2": "We are proudly present across Maharashtra and Karnataka, in regions including Udgir, Latur, Solapur, Bhalki and Bidar. Our strong geographical presence allows us to offer high-protein crops of superior quality while being strategically located for easy access and round-the-clock service.",
+    "p3Pre": "At the heart of our operations is a strong belief in empowering our agricultural community. Through the",
+    "p3Link": "ITC e-Choupal",
+    "p3Post": "initiative, we've fostered deep bonds with our growers, connecting over 1.5 lakh farmers and customers to promote sustainable, mutually beneficial trade.",
+    "facEyebrow": "Our Facilities",
+    "facTitle": "State-of-the-art processing",
+    "facDesc": "Today we are one of the leading players in processed pulses, operating with a combined capacity of 550 tons per day.",
+    "fac1": "Retains the natural essence of the grains",
+    "fac2": "Unpolished pulses",
+    "fac3": "Free of preservatives and artificial colors",
+    "facCta": "Get in touch",
+    "videoCaption": "Watch the facility tour",
+    "videoSr": "Watch our facility tour on YouTube",
+    "teamEyebrow": "Leadership",
+    "teamTitle": "Team",
+    "storyEyebrow": "Partner Success Story",
+    "storyTitle": "Hear from a partner who trusts us",
+    "testimonialWatch": "▶ Watch the customer's video feedback",
+    "testimonialFallback": "Your browser does not support the video tag."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "eyebrow": "Legal",
+    "updated": "Last updated: September 2026"
+  },
+  "contactForm": {
+    "name": "Name",
+    "company": "Company",
+    "email": "Email",
+    "phone": "Phone",
+    "requirement": "Requirement",
+    "requirementPlaceholder": "Product, quantity, destination…",
+    "submit": "Send message",
+    "sending": "Sending...",
+    "successTitle": "Thank you — message sent.",
+    "successBody": "We'll get back to you shortly with pricing and availability.",
+    "error": "Something went wrong sending your message — please try again, or call us directly.",
+    "disabledNote": "Submission activates once a Web3Forms access key is configured — see .env.example (Phase 6)."
+  },
+  "notFound": {
+    "eyebrow": "404",
+    "title": "Page not found",
+    "body": "That page doesn't exist — it may have moved when we rebuilt the site. Every product and service is reachable from the links below.",
+    "home": "Go home",
+    "services": "Our services",
+    "rates": "Market rates",
+    "contact": "Contact",
+    "skipToContent": "Skip to content"
+  },
+  "metadata": {
+    "description": "Trusted partner for bulk agro commodities — trading, pulses processing, oil extraction, cold storage and logistics across Maharashtra and Karnataka."
+  }
+}

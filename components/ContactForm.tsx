@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { CircleCheck, TriangleAlert } from "lucide-react";
+import { CircleCheck, TriangleAlert, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -17,8 +18,13 @@ type Status = "idle" | "submitting" | "success" | "error";
  *
  * Spam protection: honeypot field (`botcheck`) — bots fill everything,
  * humans never see it; Web3Forms drops submissions where it's filled.
+ *
+ * All labels, placeholders and status messages are translated (the form is
+ * the highest-intent conversion surface, so it renders in the visitor's
+ * chosen language end to end).
  */
 export default function ContactForm() {
+  const t = useTranslations("contactForm");
   const [status, setStatus] = useState<Status>("idle");
   const enabled = Boolean(process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY);
 
@@ -65,11 +71,9 @@ export default function ContactForm() {
       >
         <p className="flex items-center gap-2 font-display text-lg">
           <CircleCheck size={20} className="text-pine" aria-hidden="true" />
-          Thank you — message sent.
+          {t("successTitle")}
         </p>
-        <p className="mt-2 text-sm text-ink/70">
-          We&apos;ll get back to you shortly with pricing and availability.
-        </p>
+        <p className="mt-2 text-sm text-ink/70">{t("successBody")}</p>
       </div>
     );
   }
@@ -87,22 +91,27 @@ export default function ContactForm() {
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Name" name="name" required disabled={!enabled} />
-        <Field label="Company" name="company" disabled={!enabled} />
+        <Field label={t("name")} name="name" required disabled={!enabled} />
+        <Field label={t("company")} name="company" disabled={!enabled} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <Field
-          label="Email"
+          label={t("email")}
           name="email"
           type="email"
           required
           disabled={!enabled}
         />
-        <Field label="Phone" name="phone" type="tel" disabled={!enabled} />
+        <Field
+          label={t("phone")}
+          name="phone"
+          type="tel"
+          disabled={!enabled}
+        />
       </div>
       <div>
         <label className="text-sm font-medium text-ink/80" htmlFor="message">
-          Requirement
+          {t("requirement")}
         </label>
         <textarea
           id="message"
@@ -110,32 +119,36 @@ export default function ContactForm() {
           required
           rows={5}
           disabled={!enabled}
-          placeholder="Product, quantity, destination…"
-          className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine"
+          placeholder={t("requirementPlaceholder")}
+          className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:border-pine focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)]"
         />
       </div>
 
       {status === "error" && (
         <p role="alert" className="flex items-center gap-2 text-sm text-red-700">
           <TriangleAlert size={16} aria-hidden="true" />
-          Something went wrong sending your message — please try again, or
-          call us directly.
+          {t("error")}
         </p>
       )}
 
       <button
         type="submit"
         disabled={!enabled || status === "submitting"}
-        className="rounded-sm bg-pine px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-pine-deep disabled:cursor-not-allowed disabled:opacity-60"
+        className="group inline-flex items-center gap-2 rounded-sm bg-pine px-6 py-3 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-pine-deep hover:shadow-lg disabled:pointer-events-none disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none"
       >
-        {status === "submitting" ? "Sending..." : "Send message"}
+        {status === "submitting" ? t("sending") : t("submit")}
+        {status !== "submitting" && (
+          <ArrowRight
+            size={14}
+            strokeWidth={2}
+            aria-hidden="true"
+            className="transition-transform group-hover:translate-x-0.5"
+          />
+        )}
       </button>
 
       {!enabled && (
-        <p className="text-xs text-ink/40">
-          Submission activates once a Web3Forms access key is configured —
-          see .env.example (Phase 6).
-        </p>
+        <p className="text-xs text-ink/40">{t("disabledNote")}</p>
       )}
     </form>
   );
@@ -176,7 +189,7 @@ function Field({
                   ? "organization"
                   : undefined
         }
-        className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none focus:border-pine"
+        className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:border-pine focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)]"
       />
     </div>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pause, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getTickerRates } from "@/data/rates";
 
 /**
@@ -18,11 +19,12 @@ import { getTickerRates } from "@/data/rates";
  *    so there's an explicit pause button that works by tap or click.
  *
  * Also: data-driven from the same rates.ts as the Rates page — the two can
- * never disagree — respects prefers-reduced-motion (the global CSS rule
- * stops the animation, and the items remain readable as a static row), and
- * duplicates the sequence so the loop has no visible seam.
+ * never disagree — respects prefers-reduced-motion, and duplicates the
+ * sequence so the loop has no visible seam. Product names stay Latin in
+ * every locale (trade terms); the "Today" badge and pause labels translate.
  */
 export default function RatesTicker() {
+  const t = useTranslations("home.ratesStrip");
   const rates = getTickerRates();
   const [paused, setPaused] = useState(false);
 
@@ -47,12 +49,12 @@ export default function RatesTicker() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-wheat-bright opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-wheat-bright" />
           </span>
-          Today
+          {t("today")}
         </span>
 
         <div
           className="group relative flex-1 overflow-hidden"
-          aria-label="Today's indicative rates"
+          aria-label={t("live")}
         >
           <div
             className={`flex w-max items-center gap-8 whitespace-nowrap py-3 ${
@@ -83,7 +85,7 @@ export default function RatesTicker() {
           type="button"
           onClick={() => setPaused((p) => !p)}
           aria-pressed={paused}
-          aria-label={paused ? "Resume rate ticker" : "Pause rate ticker"}
+          aria-label={paused ? t("tickerResume") : t("tickerPause")}
           className="shrink-0 rounded-sm border border-white/20 p-2 text-white/70 transition-colors hover:border-wheat-bright hover:text-wheat-bright"
         >
           {paused ? (

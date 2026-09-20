@@ -1,21 +1,20 @@
-import Link from "next/link";
 import BrandPhoto from "@/components/BrandPhoto";
 import Reveal from "@/components/Reveal";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { company } from "@/data/company";
 
 /**
  * "Why Sachin Gold" — the homepage's one genuinely dark section, and the
- * condensed version of the old site's "Why Choose Us" narrative (which
- * lived on the homepage there, not gated behind About). The old site's
- * own layout for this block used a team photograph beside the copy —
- * team_img_1.png, their choice — reused here with the brand photo
- * treatment. Every figure is the client's own published claim, already
- * on the Phase 9 confirm list.
- *
- * Also the page's one true-black moment: every other section is white,
- * linen or pine-deep — this goes near-black so the page has rhythm.
+ * condensed version of the old site's "Why Choose Us" narrative. The old
+ * site's own layout for this block used a team photograph beside the copy
+ * — team_img_1.png, their choice — reused here with the brand photo
+ * treatment. Every figure is the client's own published claim, already on
+ * the Phase 9 confirm list.
  */
-export default function WhySachinGold() {
+export default async function WhySachinGold() {
+  const t = await getTranslations("home.why");
+
   return (
     <section className="relative overflow-hidden bg-[#06130c]">
       {/* Aerial plant backdrop, barely-there — texture, not a picture */}
@@ -28,36 +27,27 @@ export default function WhySachinGold() {
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-14">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-wheat-bright">
-              Why Choose Us
+              {t("eyebrow")}
             </p>
             <h2 className="mt-3 font-display text-3xl leading-tight text-white sm:text-4xl">
-              {company.yearsOfExperience}+ years of getting bulk agriculture
-              right
+              {t("title", { years: company.yearsOfExperience })}
             </h2>
-            <p className="mt-5 leading-relaxed text-white/70">
-              What began in {company.foundedYear} under the{" "}
-              {company.groupName} is today an end-to-end operation: our own
-              sourcing relationships, our own processing lines, our own
-              storage and our own fleet. Fewer handoffs means fewer
-              surprises — the grain we source is the grain we process, store
-              and deliver ourselves.
-            </p>
+            <p className="mt-5 leading-relaxed text-white/70">{t("body")}</p>
 
-            {/* The proof, as figures — same numbers the whole site uses,
-                all from the client's own published copy. */}
+            {/* The proof, as figures — same numbers the whole site uses. */}
             <dl className="mt-9 grid grid-cols-3 gap-6 border-t border-white/15 pt-8">
               {[
                 {
                   value: String(company.processingCapacityTonsPerDay),
-                  label: "tonnes processed daily",
+                  label: t("figTons"),
                 },
                 {
                   value: `${company.locations.length}`,
-                  label: "locations across two states",
+                  label: t("figLocations"),
                 },
                 {
                   value: "1,000+",
-                  label: "retail stores served",
+                  label: t("figStores"),
                 },
               ].map((stat) => (
                 <div key={stat.label}>
@@ -75,14 +65,13 @@ export default function WhySachinGold() {
               href="/about"
               className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-wheat-bright transition-colors hover:text-white"
             >
-              Read the full story
+              {t("readMore")}
               <span aria-hidden="true">→</span>
             </Link>
           </Reveal>
 
           {/* The team-with-our-own-packaging photograph — the client's own
-              choice for this exact narrative on the old site. Human
-              presence plus real branded bags is trust you cannot fake. */}
+              choice for this exact narrative on the old site. */}
           <Reveal>
             <div className="relative aspect-[4/3] overflow-hidden border border-white/10 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.8)]">
               <BrandPhoto
@@ -92,7 +81,7 @@ export default function WhySachinGold() {
               />
             </div>
             <p className="mt-3 text-center text-xs text-white/40">
-              The team behind every consignment — and our own packaging.
+              {t("caption")}
             </p>
           </Reveal>
         </div>

@@ -68,6 +68,15 @@
     body {
       background: white !important;
     }
+
+    /* Reveal-on-scroll (below) must never hide content in print — a
+       section that hasn't yet crossed the viewport when Cmd+P fires
+       would otherwise print blank. */
+    .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
   }
 
   /* Entrance for hero/section content — subtle rise, runs once. */

@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
@@ -13,22 +14,28 @@ interface CTAProps {
  * The repeated "get in touch" band. Dark pine background so it reads as
  * a clear stopping point at the end of a page, with the same one-CTA
  * restraint as the Hero — WhatsApp and phone as lighter-weight second
- * paths, not competing buttons.
+ * paths, not competing buttons. All copy translated; callers can override
+ * title/description per page (translated by the caller).
  */
-export default function CTA({
-  title = "Looking to source in bulk?",
-  description = "Tell us your requirement and we'll get back with pricing and availability.",
-  ctaLabel = "Get in touch",
+export default async function CTA({
+  title,
+  description,
+  ctaLabel,
   ctaHref = "/contact",
 }: CTAProps) {
+  const t = await getTranslations("home.cta");
+  const resolvedTitle = title ?? t("title");
+  const resolvedDescription = description ?? t("description");
+  const resolvedCtaLabel = ctaLabel ?? t("button");
+
   return (
     <section className="bg-pine-deep">
       <div className="section-airy mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 sm:flex-row sm:items-center">
         <div>
           <h2 className="font-display text-2xl text-white sm:text-3xl">
-            {title}
+            {resolvedTitle}
           </h2>
-          <p className="mt-2 max-w-md text-white/70">{description}</p>
+          <p className="mt-2 max-w-md text-white/70">{resolvedDescription}</p>
         </div>
 
         <div className="flex flex-shrink-0 flex-wrap items-center gap-6">
@@ -41,7 +48,7 @@ export default function CTA({
             rel="noopener noreferrer"
             className="text-sm text-white/80 hover:text-white"
           >
-            WhatsApp us
+            {t("whatsapp")}
           </a>
           <a
             href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
@@ -53,7 +60,7 @@ export default function CTA({
             href={ctaHref}
             className="rounded-sm bg-wheat px-6 py-3 text-sm font-medium text-ink transition-colors hover:bg-wheat/90"
           >
-            {ctaLabel}
+            {resolvedCtaLabel}
           </Link>
         </div>
       </div>

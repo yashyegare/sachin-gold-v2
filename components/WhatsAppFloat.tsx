@@ -1,22 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
 /**
  * Persistent floating WhatsApp action — the always-visible chat button
- * that has become the expected pattern on Indian B2B sites (the old site
- * had one; our inline WhatsApp links don't replace it). Pine-green circle,
- * bottom-right, on every page.
+ * that has become the expected pattern on Indian B2B sites. Pine-green
+ * circle, bottom-right, on every page.
  *
  * One courtesy: while the home hero owns the bottom-right corner (its
  * pause control sits there), the float slides away and returns once the
  * hero scrolls past — two controls in one corner is how buttons get
  * mis-clicked. Detected by data-attribute, no home-page coupling.
- * Decorative mark is aria-hidden; the accessible name is the label.
+ * Decorative mark is aria-hidden; the accessible name is the translated
+ * label. The prefilled WhatsApp message is translated too — the enquiry
+ * lands in the company's inbox in the visitor's language.
  */
 export default function WhatsAppFloat() {
+  const t = useTranslations("home.float");
   const [heroControlsVisible, setHeroControlsVisible] = useState(false);
 
   useEffect(() => {
@@ -32,13 +35,10 @@ export default function WhatsAppFloat() {
 
   return (
     <a
-      href={whatsappLink(
-        company.whatsapp,
-        "Hi Sachin Gold, I'd like to enquire about bulk rates.",
-      )}
+      href={whatsappLink(company.whatsapp, t("message"))}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Chat with ${company.name} on WhatsApp`}
+      aria-label={t("label", { name: company.name })}
       className={`fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_10px_30px_-10px_rgba(37,211,102,0.7)] transition-all duration-300 hover:scale-105 hover:bg-[#20bd5a] ${
         heroControlsVisible
           ? "pointer-events-none translate-y-24 opacity-0"

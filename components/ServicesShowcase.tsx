@@ -1,15 +1,8 @@
-import Link from "next/link";
-import {
-  ArrowRight,
-  Factory,
-  Droplets,
-  Warehouse,
-  Truck,
-  Wheat,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight, Factory, Droplets, Warehouse, Truck, Wheat, type LucideIcon } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import BrandPhoto from "@/components/BrandPhoto";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { services } from "@/data/services";
 
 /**
@@ -34,24 +27,34 @@ const stageIcons: Record<string, LucideIcon> = {
   logistics: Truck,
 };
 
-export default function ServicesShowcase() {
+const slideImages: Record<string, string> = {
+  "commodity-trading": "/images/hero/trading.webp",
+  "pulses-processing": "/images/services/pulses-processing.webp",
+  "oil-extraction": "/images/hero/extraction.webp",
+  "cold-storage": "/images/hero/warehousing.webp",
+  logistics: "/images/hero/logistics.webp",
+};
+
+export default async function ServicesShowcase() {
+  const t = await getTranslations("home.showcase");
+  const tServices = await getTranslations("services");
+
   return (
-    <section className="mx-auto max-w-6xl px-6 py-24 md:py-28" aria-labelledby="what-we-do">
+    <section
+      className="mx-auto max-w-6xl px-6 py-24 md:py-28"
+      aria-labelledby="what-we-do"
+    >
       <Reveal>
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-wheat-dark">
-          What We Do
+          {t("eyebrow")}
         </p>
         <h2
           id="what-we-do"
           className="mt-3 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl"
         >
-          Bulk agro commodities, handled end to end
+          {t("title")}
         </h2>
-        <p className="mt-4 max-w-xl text-ink/60">
-          One integrated chain — sourced at the farm gate, processed in our
-          plants, stored in our warehouses, and delivered on our fleet. Five
-          stages, one accountable partner.
-        </p>
+        <p className="mt-4 max-w-xl text-ink/60">{t("subtitle")}</p>
       </Reveal>
 
       <div className="relative mt-14">
@@ -73,7 +76,7 @@ export default function ServicesShowcase() {
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-wheat-dark md:mt-3 md:text-center">
-                      Stage {i + 1}
+                      {t("stage", { n: i + 1 })}
                     </p>
                   </div>
 
@@ -95,15 +98,17 @@ export default function ServicesShowcase() {
                     </div>
                     <div className="p-4">
                       <h3 className="font-display text-base leading-snug text-ink transition-colors group-hover:text-pine">
-                        {service.title}
+                        {tServices(`items.${service.slug}.title`)}
                       </h3>
-                      {/* Fact-led stage note (real figures, from the data
-                          layer); falls back to the short description. */}
+                      {/* Fact-led stage note (translated, real figures);
+                          falls back to the short description. */}
                       <p className="mt-2 text-[0.7rem] leading-relaxed text-ink/70">
-                        {service.stageNote ?? service.shortDescription}
+                        {tServices.has(`items.${service.slug}.stageNote`)
+                          ? tServices(`items.${service.slug}.stageNote`)
+                          : service.shortDescription}
                       </p>
                       <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-wheat-dark transition-all group-hover:gap-2 group-hover:text-pine">
-                        Explore
+                        {t("explore")}
                         <ArrowRight size={11} aria-hidden="true" />
                       </span>
                     </div>
@@ -120,7 +125,7 @@ export default function ServicesShowcase() {
           href="/services"
           className="group inline-flex items-center gap-2 rounded-sm border border-pine px-7 py-3 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-white"
         >
-          Dive into each stage
+          {t("cta")}
           <ArrowRight
             size={14}
             aria-hidden="true"
