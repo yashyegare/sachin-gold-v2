@@ -46,13 +46,13 @@ export default async function CTA({
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-white/80 hover:text-white"
+            className="inline-flex min-h-[44px] items-center text-sm text-white/80 hover:text-white"
           >
             {t("whatsapp")}
           </a>
           <a
             href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
-            className="text-sm text-white/80 hover:text-white"
+            className="inline-flex min-h-[44px] items-center text-sm text-white/80 hover:text-white"
           >
             {company.phone}
           </a>

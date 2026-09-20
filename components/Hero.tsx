@@ -62,6 +62,20 @@ export default function Hero() {
     [],
   );
 
+  // Manual jump: show the chosen frame and restart the clock, so a
+  // visitor who clicks a dot doesn't get switched away from it a second
+  // later by the old interval mid-tick.
+  const goTo = useCallback(
+    (i: number) => {
+      setIndex(i);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(next, SLIDE_MS);
+      }
+    },
+    [next],
+  );
+
   // Autoplay interval — 1s tick drives the progress-bar fill via CSS;
   // slide switch on interval completion. Disabled when paused.
   useEffect(() => {
@@ -188,7 +202,7 @@ export default function Hero() {
                       total: slideKeys.length,
                       name: t(`slides.${key}.eyebrow`),
                     })}
-                    onClick={() => setIndex(i)}
+                    onClick={() => goTo(i)}
                     className="group relative h-6 w-10 cursor-pointer"
                   >
                     <span className="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 overflow-hidden rounded-full bg-white/25">

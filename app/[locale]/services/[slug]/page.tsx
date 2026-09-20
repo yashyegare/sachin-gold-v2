@@ -6,7 +6,7 @@ import BrandPhoto from "@/components/BrandPhoto";
 import PageIntro from "@/components/PageIntro";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
-import ProductCard from "@/components/ProductCard";
+import ProductEnquiryCard from "@/components/ProductEnquiryCard";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { Link } from "@/i18n/navigation";
@@ -144,7 +144,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               (
                 stat: { v: string; l: string },
               ) => (
-                <div
+                <Reveal
                   key={stat.l}
                   className="px-4 py-10 text-center first:pl-0 last:pr-0 sm:py-12"
                 >
@@ -154,7 +154,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   <p className="mt-2 text-sm uppercase tracking-wide text-ink/60">
                     {stat.l}
                   </p>
-                </div>
+                </Reveal>
               ),
             )}
           </div>
@@ -163,10 +163,12 @@ export default async function ServiceDetailPage({ params }: Props) {
 
       {/* ————— Overview — real photo one side, full description and
           advantages the other. Advantages render as a numbered flow (the
-          homepage's stage device) instead of a plain bullet checklist. */}
+          homepage's stage device) instead of a plain bullet checklist.
+          Photo reveals separately so the copy (the LCP-adjacent content)
+          isn't held behind one observer. */}
       <section className="section-standard mx-auto max-w-6xl px-6">
-        <Reveal>
-          <div className="grid items-start gap-10 md:grid-cols-2 md:gap-16">
+        <div className="grid items-start gap-10 md:grid-cols-2 md:gap-16">
+          <Reveal>
             <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-[0_18px_44px_-24px_rgba(10,54,32,0.35)]">
               <BrandPhoto
                 src={service.image}
@@ -174,7 +176,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 sizes="(min-width: 768px) 50vw, 100vw"
               />
             </div>
+          </Reveal>
 
+          <Reveal>
             <div>
               <p className="text-sm font-medium uppercase tracking-wide text-pine">
                 {t("detail.overview")}
@@ -202,8 +206,8 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
               </ol>
             </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        </div>
       </section>
 
       {/* ————— Products — same cards as elsewhere, proper section
@@ -220,7 +224,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
                 <Reveal key={product.slug}>
-                  <ProductCard product={product} />
+                  <ProductEnquiryCard product={product} />
                 </Reveal>
               ))}
             </div>
@@ -288,6 +292,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           service: t(`items.${service.slug}.title`).toLowerCase(),
         })}
         description={t("detail.ctaDescription")}
+        ctaLabel={t("detail.contact")}
       />
     </>
   );

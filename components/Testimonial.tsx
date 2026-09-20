@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import Reveal from "@/components/Reveal";
 import type { Testimonial as TestimonialType } from "@/lib/types";
 
 /**
@@ -14,7 +16,10 @@ export default function Testimonial({
 }: {
   testimonial: TestimonialType;
 }) {
+  const t = useTranslations("about");
+
   return (
+    <Reveal>
     <figure className="border-l-4 border-wheat bg-linen p-6 sm:p-10">
       <p className="font-display text-4xl leading-none text-pine" aria-hidden="true">
         &ldquo;
@@ -45,7 +50,7 @@ export default function Testimonial({
       {testimonial.video && (
         <details className="mt-6">
           <summary className="cursor-pointer text-sm font-semibold text-pine transition-colors hover:text-pine-deep">
-            ▶ Watch the customer&apos;s video feedback
+            {t("testimonialWatch")}
           </summary>
           <video
             controls
@@ -53,10 +58,11 @@ export default function Testimonial({
             src={testimonial.video}
             className="mt-4 aspect-video w-full rounded-sm"
           >
-            Your browser does not support the video tag.
+            {t("testimonialFallback")}
           </video>
         </details>
       )}
     </figure>
+    </Reveal>
   );
 }

@@ -16,34 +16,52 @@ export default async function Footer() {
         </div>
 
         <nav aria-label="Footer">
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-1 text-sm">
             <li>
-              <Link href="/" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {tNav("home")}
               </Link>
             </li>
             <li>
-              <Link href="/about" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/about"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {tNav("about")}
               </Link>
             </li>
             <li>
-              <Link href="/services" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/services"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {tNav("services")}
               </Link>
             </li>
             <li>
-              <Link href="/rates" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/rates"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {tNav("rates")}
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/contact"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {tNav("contact")}
               </Link>
             </li>
             <li>
-              <Link href="/privacy" className="text-ink/70 hover:text-pine">
+              <Link
+                href="/privacy"
+                className="inline-flex min-h-[44px] items-center text-ink/70 hover:text-pine"
+              >
                 {t("privacy")}
               </Link>
             </li>
@@ -62,7 +80,7 @@ export default async function Footer() {
           <p>
             <a
               href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
-              className="inline-flex items-center gap-2 hover:text-pine"
+              className="inline-flex min-h-[44px] items-center gap-2 hover:text-pine"
             >
               <Phone
                 size={14}
@@ -75,7 +93,7 @@ export default async function Footer() {
           <p>
             <a
               href={`mailto:${company.email}`}
-              className="inline-flex items-center gap-2 hover:text-pine"
+              className="inline-flex min-h-[44px] items-center gap-2 hover:text-pine"
             >
               <Mail
                 size={14}

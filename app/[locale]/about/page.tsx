@@ -63,7 +63,8 @@ export default async function AboutPage({ params }: Props) {
       {/* State-of-the-art processing */}
       <section className="section-standard mx-auto max-w-6xl px-6">
         <div className="grid gap-10 md:grid-cols-2 md:items-center">
-          <div>
+          <Reveal>
+            <div>
             <SectionHeading
               eyebrow={t("facEyebrow")}
               title={t("facTitle")}
@@ -76,14 +77,16 @@ export default async function AboutPage({ params }: Props) {
             </ul>
             <Link
               href="/contact"
-              className="mt-8 inline-block rounded-sm bg-pine px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-pine-deep"
+              className="mt-8 inline-flex items-center gap-2 rounded-sm bg-pine px-6 py-3 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:bg-pine-deep hover:shadow-lg"
             >
               {t("facCta")}
             </Link>
-          </div>
+            </div>
+          </Reveal>
 
           {/* Real processing-interior photo behind the facility-tour link —
               the tile previews the real thing it opens (the YouTube tour). */}
+          <Reveal>
           <a
             href="https://youtu.be/v8zIFCYXlDs"
             target="_blank"
@@ -116,6 +119,7 @@ export default async function AboutPage({ params }: Props) {
             </span>
             <span className="sr-only">{t("videoSr")}</span>
           </a>
+          </Reveal>
         </div>
       </section>
 
