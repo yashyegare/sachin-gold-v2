@@ -50,7 +50,7 @@ export default async function ServicesShowcase() {
         </p>
         <h2
           id="what-we-do"
-          className="mt-3 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl"
+          className="mt-3 max-w-2xl font-display text-display-lg text-ink"
         >
           {t("title")}
         </h2>
@@ -72,7 +72,7 @@ export default async function ServicesShowcase() {
                 <Reveal>
                   {/* Stage marker on the chain */}
                   <div className="relative z-10 flex items-center gap-4 md:block">
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-pine/25 bg-white font-display text-lg text-pine shadow-[0_6px_16px_-8px_rgba(10,54,32,0.35)]">
+                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-pine/25 bg-white font-display text-lg text-pine shadow-elevated-sm">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-wheat-dark md:mt-3 md:text-center">
@@ -83,7 +83,7 @@ export default async function ServicesShowcase() {
                   {/* Card */}
                   <Link
                     href={service.href}
-                    className="group mt-4 block border border-ink/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-pine/40 hover:shadow-[0_18px_40px_-18px_rgba(22,35,28,0.35)] md:mt-5"
+                    className="group mt-4 block border border-ink/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-pine/40 hover:shadow-elevated-lg md:mt-5"
                   >
                     <div className="relative aspect-[16/10] overflow-hidden">
                       <BrandPhoto

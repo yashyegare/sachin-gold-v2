@@ -75,6 +75,33 @@ export default async function HomePage({ params }: Props) {
       {/* What We Do — the five services as one visual value chain. */}
       <ServicesShowcase />
 
+      {/* The pacing break — one full-width, photo-free statement between
+          the value chain and the dark Why band. The company's own
+          subheadline (translated in all six locales), re-set large and
+          given room. There is no other section like it on the site. */}
+      <section className="bg-linen">
+        <div className="section-airy mx-auto max-w-4xl px-6 text-center">
+          <Reveal>
+            <p
+              aria-hidden="true"
+              className="font-display text-4xl leading-none text-wheat"
+            >
+              &ldquo;
+            </p>
+            <blockquote className="mt-2 font-display text-display-lg leading-snug text-ink">
+              {t("statement.quote")}
+            </blockquote>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.2em] text-wheat-dark">
+              Sachin Gold, since 1969
+            </p>
+          </Reveal>
+          <div
+            aria-hidden="true"
+            className="mx-auto mt-10 h-px w-16 bg-wheat"
+          />
+        </div>
+      </section>
+
       {/* The one genuinely dark section — the condensed "Why Choose Us"
           narrative with the real team photograph and the real figures. */}
       <WhySachinGold />
@@ -89,7 +116,7 @@ export default async function HomePage({ params }: Props) {
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pine">
               {t("products.eyebrow")}
             </p>
-            <h2 className="mt-3 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl">
+            <h2 className="mt-3 max-w-2xl font-display text-display-lg text-ink">
               {t("products.title")}
             </h2>
             <p className="mt-4 max-w-xl text-ink/60">

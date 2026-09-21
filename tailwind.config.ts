@@ -57,6 +57,64 @@ const config: Config = {
           "sans-serif",
         ],
       },
+      transitionTimingFunction: {
+        // One easing curve, used everywhere: overriding Tailwind's DEFAULT
+        // means every existing transition-*/transition utility site-wide
+        // (colors, transform, shadow, all of it) picks this up automatically
+        // — zero markup changes required. A fast-start, settled-finish
+        // curve reads as more "considered" than the stock Tailwind ease on
+        // every hover, reveal and carousel move at once.
+        DEFAULT: "cubic-bezier(0.22, 1, 0.36, 1)",
+        brand: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+      boxShadow: {
+        // Two-layer "contact + ambient" system: a tight, dark shadow close
+        // to the element (as if it's actually resting on the surface)
+        // layered under a soft, diffuse shadow further out (ambient light
+        // falloff). Real shadows are neutral-dark regardless of the
+        // casting object's own color, so these three sizes cover every
+        // light-surface card/dropdown/button hover site-wide — replacing
+        // what were previously one-off arbitrary shadow values per
+        // component. Pick by size, not by which component it's for.
+        "elevated-sm":
+          "0 2px 4px -2px rgba(22,35,28,0.14), 0 10px 24px -10px rgba(22,35,28,0.16)",
+        elevated:
+          "0 3px 6px -2px rgba(22,35,28,0.16), 0 16px 32px -12px rgba(22,35,28,0.22)",
+        "elevated-lg":
+          "0 4px 10px -4px rgba(22,35,28,0.18), 0 26px 50px -16px rgba(22,35,28,0.28)",
+        // Dark-surface variant — black-tinted, not ink-green — for photos
+        // sitting on a bg-ink section (WhySachinGold), where the standard
+        // family above would barely read against the already-dark backdrop.
+        "elevated-deep":
+          "0 6px 14px -6px rgba(0,0,0,0.5), 0 32px 60px -20px rgba(0,0,0,0.55)",
+        // Soft gold glow — no offset, just spread — for later use behind
+        // stat numbers and the primary CTA's hover state (Phase 3/5).
+        // Defined now so later phases reference a token, not a new
+        // arbitrary value invented on the spot.
+        "glow-gold": "0 0 0 1px rgba(217,169,60,0.15), 0 0 32px rgba(217,169,60,0.35)",
+      },
+      fontSize: {
+        // Fluid display scale — clamp() instead of a fixed breakpoint
+        // jump. Min/max match what the site already used (text-2xl→3xl,
+        // 3xl→4xl, 4xl→5xl, 5xl→6xl); the change is that type now grows
+        // smoothly with the viewport instead of snapping at exactly 640px.
+        "display-md": [
+          "clamp(1.5rem, 1.35rem + 1vw, 1.875rem)",
+          { lineHeight: "1.25" },
+        ],
+        "display-lg": [
+          "clamp(1.875rem, 1.65rem + 1.2vw, 2.25rem)",
+          { lineHeight: "1.2" },
+        ],
+        "display-xl": [
+          "clamp(2.25rem, 1.8rem + 2.4vw, 3rem)",
+          { lineHeight: "1.15" },
+        ],
+        "display-2xl": [
+          "clamp(3rem, 2.4rem + 3vw, 3.75rem)",
+          { lineHeight: "1.1" },
+        ],
+      },
       maxWidth: {
         prose: "68ch",
       },

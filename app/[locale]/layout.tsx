@@ -12,6 +12,8 @@ import {
   Noto_Serif_Tamil,
 } from "next/font/google";
 import { notFound } from "next/navigation";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
 import {
   getMessages,
@@ -21,6 +23,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
+import LanguageGate from "@/components/LanguageGate";
 import { company, siteUrl } from "@/data/company";
 import { routing, type Locale } from "@/i18n/routing";
 import { buildAlternates } from "@/i18n/seo";
@@ -238,7 +241,17 @@ export default async function LocaleLayout({
               chat affordance on Indian B2B sites. Slides away while the home
               hero controls own that corner (see the component). */}
           <WhatsAppFloat />
+          {/* First-visit language gate — one calm modal, once per browser.
+              Self-silencing (localStorage); a no-op for returning visitors. */}
+          <LanguageGate />
         </NextIntlClientProvider>
+        {/* Vercel Analytics + Speed Insights — cookieless, no consent banner
+            needed. Both render nothing outside Vercel deployments, so local
+            dev is unaffected. This is the site's only measurement; without
+            it every launch decision (rates page usage, WhatsApp clicks,
+            Indic-language traffic) is a guess. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

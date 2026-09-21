@@ -10,6 +10,8 @@
     "images": "node scripts/process-images.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "lucide-react": "^1.47.0",
     "next": "^14.2.0",
     "next-intl": "^4.14.5",

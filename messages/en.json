@@ -120,6 +120,9 @@
     "float": {
       "label": "Chat with Sachin Gold on WhatsApp",
       "message": "Hi Sachin Gold, I'd like to enquire about bulk rates."
+    },
+    "statement": {
+      "quote": "An unwavering commitment to quality, innovation and customer satisfaction."
     }
   },
   "services": {
@@ -387,7 +390,8 @@
     "storyEyebrow": "Partner Success Story",
     "storyTitle": "Hear from a partner who trusts us",
     "testimonialWatch": "▶ Watch the customer's video feedback",
-    "testimonialFallback": "Your browser does not support the video tag."
+    "testimonialFallback": "Your browser does not support the video tag.",
+    "tagline": "Bulk Agro Commodity Trading & Processing"
   },
   "privacy": {
     "title": "Privacy Policy",
@@ -416,9 +420,20 @@
     "services": "Our services",
     "rates": "Market rates",
     "contact": "Contact",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "errorTitle": "Something went wrong",
+    "errorBody": "An unexpected error interrupted this page. It has been logged — please try again, or head back to the homepage.",
+    "errorRetry": "Try again"
   },
   "metadata": {
     "description": "Trusted partner for bulk agro commodities — trading, pulses processing, oil extraction, cold storage and logistics across Maharashtra and Karnataka."
+  },
+  "langGate": {
+    "eyebrow": "Welcome",
+    "title": "Choose your language",
+    "subtitle": "Continue in the language you are most comfortable with. You can change this anytime from the menu.",
+    "defaultTag": "Default",
+    "dismissAria": "Continue in English",
+    "changeLater": "You can change the language anytime from the globe menu above."
   }
 }

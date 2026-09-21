@@ -90,7 +90,7 @@ export default async function ServicesPage({ params }: Props) {
               },
             ].map((stat) => (
               <div key={stat.label}>
-                <dd className="font-display text-2xl tabular-nums text-wheat-bright sm:text-3xl">
+                <dd className="font-display text-display-md tabular-nums text-wheat-bright">
                   {stat.value}
                 </dd>
                 <dt className="mt-1.5 text-xs uppercase tracking-wide text-white/60">
@@ -115,7 +115,7 @@ export default async function ServicesPage({ params }: Props) {
               <article className="group grid items-center gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
                 {/* Photo — one side or the other, alternating down the page */}
                 <div className={flipped ? "md:order-2" : ""}>
-                  <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-[0_18px_44px_-24px_rgba(10,54,32,0.35)]">
+                  <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-elevated-lg">
                     <BrandPhoto
                       src={service.image}
                       alt=""
@@ -130,12 +130,12 @@ export default async function ServicesPage({ params }: Props) {
                   <div className="flex items-center gap-4 sm:gap-5">
                     <span
                       aria-hidden="true"
-                      className="font-display text-5xl leading-none text-wheat-dark sm:text-6xl"
+                      className="font-display text-display-2xl leading-none text-wheat-dark"
                     >
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <span aria-hidden="true" className="h-10 w-px bg-pine/20" />
-                    <h2 className="font-display text-2xl leading-tight text-ink sm:text-3xl">
+                    <h2 className="font-display text-display-md leading-tight text-ink">
                       {t(`items.${service.slug}.title`)}
                     </h2>
                   </div>

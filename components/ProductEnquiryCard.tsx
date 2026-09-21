@@ -17,7 +17,7 @@ export default function ProductEnquiryCard({ product }: { product: Product }) {
   const hasImage = product.image.length > 0;
 
   return (
-    <div className="group flex flex-col border border-ink/10 bg-white transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-[0_10px_28px_-14px_rgba(22,35,28,0.25)]">
+    <div className="group flex flex-col border border-ink/10 bg-white transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated">
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-linen">
         {hasImage ? (
           <BrandPhoto

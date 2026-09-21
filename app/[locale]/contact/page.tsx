@@ -114,7 +114,7 @@ export default async function ContactPage({ params }: Props) {
       <section className="section-standard mx-auto max-w-6xl px-6">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           <div>
-            <h2 className="font-display text-2xl text-ink">
+            <h2 className="font-display text-display-md text-ink">
               {t("facilitiesTitle")}
             </h2>
             <p className="mt-2 text-sm text-ink/60">
@@ -125,7 +125,7 @@ export default async function ContactPage({ params }: Props) {
               {company.facilities.map((facility) => (
                 <Reveal
                   key={facility.name}
-                  className="group border border-ink/10 p-5 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-[0_10px_28px_-14px_rgba(22,35,28,0.25)]"
+                  className="group border border-ink/10 p-5 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
                 >
                   <p className="font-display text-base text-ink">
                     {facility.name}
@@ -198,7 +198,7 @@ export default async function ContactPage({ params }: Props) {
           </div>
 
           <div>
-            <h2 className="font-display text-2xl text-ink">
+            <h2 className="font-display text-display-md text-ink">
               {t("formTitle")}
             </h2>
             <p className="mt-2 text-sm text-ink/60">{t("formSubtitle")}</p>
@@ -226,13 +226,13 @@ export default async function ContactPage({ params }: Props) {
           until scrolled near. */}
       <section className="section-standard border-y border-ink/10 bg-linen px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="font-display text-2xl text-ink">
+          <h2 className="font-display text-display-md text-ink">
             {t("findUsTitle")}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-ink/60">
             {t("findUsSubtitle")}
           </p>
-          <div className="mt-6 overflow-hidden border border-ink/10 bg-white shadow-[0_10px_36px_-18px_rgba(22,35,28,0.3)]">
+          <div className="mt-6 overflow-hidden border border-ink/10 bg-white shadow-elevated">
             <Reveal>
               <iframe
                 src={mapEmbedSrc}
@@ -251,7 +251,7 @@ export default async function ContactPage({ params }: Props) {
           English source stays data/faq.ts. Native details/summary keeps
           it keyboard-accessible with zero JS. */}
       <section className="section-standard mx-auto max-w-3xl px-6">
-        <h2 className="font-display text-2xl text-ink sm:text-3xl">
+        <h2 className="font-display text-display-md text-ink">
           {t("faqTitle")}
         </h2>
         <div className="mt-8 divide-y divide-ink/10">

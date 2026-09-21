@@ -1,4 +1,5 @@
 import { Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { company } from "@/data/company";
@@ -11,7 +12,18 @@ export default async function Footer() {
     <footer className="border-t border-ink/10 bg-linen">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 md:grid-cols-3">
         <div>
-          <p className="font-display text-lg text-ink">{company.name}</p>
+          <p className="flex items-center gap-2.5">
+            <Image
+              src="/sg-mark.svg"
+              alt=""
+              width={30}
+              height={30}
+              className="rounded-[6px]"
+            />
+            <span className="font-display text-lg text-ink">
+              Sachin <span className="text-wheat-dark">Gold</span>
+            </span>
+          </p>
           <p className="mt-2 max-w-xs text-sm text-ink/60">{t("tagline")}</p>
         </div>
 

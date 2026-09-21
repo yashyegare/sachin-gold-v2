@@ -99,7 +99,7 @@ export default function Hero() {
     <section
       aria-roledescription="carousel"
       aria-label={t("ariaLabel")}
-      className="relative isolate overflow-hidden bg-pine-deep"
+      className="relative isolate overflow-hidden bg-pine-deep grain-dark"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -114,7 +114,7 @@ export default function Hero() {
             <div
               key={key}
               aria-hidden={i !== index}
-              className={`absolute inset-0 transition-opacity duration-300 ease-out ${
+              className={`absolute inset-0 transition-opacity duration-300 ${
                 i === index ? "opacity-100" : "opacity-0"
               }`}
             >
@@ -145,7 +145,7 @@ export default function Hero() {
               {t(`slides.${slideKeys[index]}.eyebrow`)}
             </p>
             <h1
-              className="animate-fade-up mt-4 font-display text-4xl leading-tight text-white sm:text-5xl"
+              className="animate-fade-up mt-4 font-display text-display-xl text-white"
               style={{ animationDelay: "80ms" }}
             >
               {t(`slides.${slideKeys[index]}.headline`)}

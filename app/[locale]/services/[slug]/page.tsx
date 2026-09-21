@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { Check, MapPin } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import BrandPhoto from "@/components/BrandPhoto";
 import PageIntro from "@/components/PageIntro";
@@ -85,11 +85,37 @@ export default async function ServiceDetailPage({ params }: Props) {
     })),
   };
 
+  // BreadcrumbList — mirrors the visible breadcrumb below (Google
+  // requires markup to match rendered content), so the service pages are
+  // eligible for breadcrumb rich results in search.
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Our Services",
+        item: `${siteUrl}/services`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: service.title,
+        item: `${siteUrl}${service.href}`,
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       {/* ————— Hero — the shared dark band + real photo treatment, with
@@ -100,27 +126,42 @@ export default async function ServiceDetailPage({ params }: Props) {
         description={t(`items.${service.slug}.description`)}
         image={service.image}
       >
-        <Link
-          href="/services"
-          className="inline-flex items-center gap-1 text-sm text-white/60 transition-colors hover:text-wheat-bright"
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 6H2M6 2L2 6l4 4"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          {t("backToOverview")}
-        </Link>
+        {/* Visible breadcrumb — mirrors the BreadcrumbList JSON-LD above
+            (markup must match rendered content). Replaces the plain
+            back-link: same destination, but now a real path. */}
+        <nav aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-2 text-sm">
+            <li>
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-1.5 text-white/60 transition-colors hover:text-wheat-bright"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M10 6H2M6 2L2 6l4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {t("intro.eyebrow")}
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-white/30">
+              /
+            </li>
+            <li aria-current="page" className="text-white/85">
+              {t(`items.${service.slug}.title`)}
+            </li>
+          </ol>
+        </nav>
       </PageIntro>
 
       {/* ————— Stat strip — only when this service has real, traceable
@@ -148,7 +189,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   key={stat.l}
                   className="px-4 py-10 text-center first:pl-0 last:pr-0 sm:py-12"
                 >
-                  <p className="font-display text-3xl tabular-nums text-wheat-dark sm:text-4xl">
+                  <p className="font-display text-display-lg tabular-nums text-wheat-dark">
                     {stat.v}
                   </p>
                   <p className="mt-2 text-sm uppercase tracking-wide text-ink/60">
@@ -169,7 +210,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       <section className="section-standard mx-auto max-w-6xl px-6">
         <div className="grid items-start gap-10 md:grid-cols-2 md:gap-16">
           <Reveal>
-            <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-[0_18px_44px_-24px_rgba(10,54,32,0.35)]">
+            <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-elevated-lg">
               <BrandPhoto
                 src={service.image}
                 alt=""
@@ -187,24 +228,31 @@ export default async function ServiceDetailPage({ params }: Props) {
                 {t(`items.${service.slug}.description`)}
               </p>
 
-              <ol className="mt-8 space-y-5">
+              {/* Advantages are independent selling points, not ordered
+                  steps — checkmarks, not the numbered stage badges (those
+                  stay reserved for real sequences like the homepage's
+                  01→05 value chain). Same treatment as the services
+                  overview page. */}
+              <ul className="mt-8 space-y-4">
                 {t.raw(`items.${service.slug}.advantages`).map(
                   (
                     advantage: string,
-                    i: number,
                   ) => (
-                    <li key={advantage} className="flex gap-4">
-                      <span
+                    <li
+                      key={advantage}
+                      className="flex items-start gap-3 text-ink/75"
+                    >
+                      <Check
+                        size={17}
+                        strokeWidth={2}
                         aria-hidden="true"
-                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-pine/25 bg-linen font-display text-sm text-pine"
-                      >
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span className="pt-1 text-ink/75">{advantage}</span>
+                        className="mt-1 shrink-0 text-pine"
+                      />
+                      <span>{advantage}</span>
                     </li>
                   ),
                 )}
-              </ol>
+              </ul>
             </div>
           </Reveal>
         </div>

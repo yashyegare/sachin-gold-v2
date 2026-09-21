@@ -10,6 +10,29 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   reactStrictMode: true,
+  // Standard security headers. Deliberately conservative: no CSP yet —
+  // a real content-security-policy has to account for the Google Maps
+  // iframe, Web3Forms and next/image, and must be tested on the live
+  // deploy before it's allowed to break any of them. XFO/nosniff carry
+  // the clickjacking/MIME basics with zero breakage risk. (Vercel adds
+  // HSTS at the edge automatically.)
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value:
+              "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+          },
+        ],
+      },
+    ];
+  },
   // Phase 7/10 of the plan: preserve the old site's search equity. Every
   // legacy .html URL must 301 to its new route before cutover to
   // sachingold.com. Entries marked unconfirmed were not verifiable from the

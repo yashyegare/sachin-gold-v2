@@ -1,4 +1,5 @@
 import type { Testimonial as TestimonialType } from "@/lib/types";
+import CurtainReveal from "@/components/CurtainReveal";
 
 /**
  * Renders exactly one real testimonial. This is intentionally singular,
@@ -52,16 +53,23 @@ export default function Testimonial({
       </figure>
 
       {testimonial.video && (
-        <div className="relative aspect-video overflow-hidden border border-t-0 border-ink/10 shadow-[0_18px_44px_-24px_rgba(10,54,32,0.35)] md:aspect-auto md:border-l-0 md:border-t">
-          <video
-            controls
-            preload="metadata"
-            poster={testimonial.videoPoster}
-            src={testimonial.video}
-            className="h-full w-full bg-ink object-cover"
-          >
-            Your browser does not support the video tag.
-          </video>
+        <div className="relative aspect-video overflow-hidden border border-t-0 border-ink/10 shadow-elevated-lg md:aspect-auto md:aspect-video md:border-l-0 md:border-t">
+          {/* The poster gets one of the site's two curtain reveals — the
+              below-fold, non-LCP moment that suits an observer-gated
+              clip-path entrance. The curtain is fail-open: a delayed CSS
+              animation force-reveals it even if the observer never
+              fires, so the video can never be stuck invisible. */}
+          <CurtainReveal>
+            <video
+              controls
+              preload="metadata"
+              poster={testimonial.videoPoster}
+              src={testimonial.video}
+              className="aspect-video h-auto w-full bg-ink object-cover"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </CurtainReveal>
         </div>
       )}
     </div>

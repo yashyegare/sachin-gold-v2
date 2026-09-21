@@ -17,6 +17,11 @@ import { whatsappLink } from "@/lib/whatsapp";
  * Decorative mark is aria-hidden; the accessible name is the translated
  * label. The prefilled WhatsApp message is translated too — the enquiry
  * lands in the company's inbox in the visitor's language.
+ *
+ * Shadow stays bespoke, NOT the neutral shadow-elevated family: a
+ * branded floating bubble legitimately casts a green-tinted shadow —
+ * the two-layer shape (contact + ambient) is preserved, just tinted.
+ * Deliberate exception, not an inconsistency.
  */
 export default function WhatsAppFloat() {
   const t = useTranslations("home.float");
@@ -39,7 +44,7 @@ export default function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={t("label", { name: company.name })}
-      className={`fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_10px_30px_-10px_rgba(37,211,102,0.7)] transition-all duration-300 hover:scale-105 hover:bg-[#20bd5a] ${
+      className={`fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_4px_10px_-4px_rgba(19,110,66,0.55),0_16px_32px_-10px_rgba(37,211,102,0.55)] transition-all duration-300 hover:scale-105 hover:bg-[#20bd5a] ${
         heroControlsVisible
           ? "pointer-events-none translate-y-24 opacity-0"
           : "translate-y-0 opacity-100"

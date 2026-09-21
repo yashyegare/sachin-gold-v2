@@ -114,7 +114,7 @@ export default async function RatesPage({ params }: Props) {
         description={t("description")}
       >
         <div className="flex flex-wrap items-end justify-between gap-8">
-          <p className="font-display text-2xl font-bold tracking-tight text-wheat sm:text-3xl">
+          <p className="font-display text-display-md font-bold tracking-tight text-wheat">
             {company.name}
           </p>
 
@@ -198,7 +198,7 @@ export default async function RatesPage({ params }: Props) {
                       aria-hidden="true"
                       className="text-pine"
                     />
-                    <h2 className="font-display text-2xl text-ink">
+                    <h2 className="font-display text-display-md text-ink">
                       {t(`groups.${gi === 0 ? "soya" : "dals"}`)}
                     </h2>
                   </div>

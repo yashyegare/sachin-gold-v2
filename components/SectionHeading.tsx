@@ -32,7 +32,7 @@ export default function SectionHeading({
           {eyebrow}
         </p>
       )}
-      <Heading className="mt-2 font-display text-3xl text-ink sm:text-4xl">
+      <Heading className="mt-2 font-display text-display-lg text-ink">
         {title}
       </Heading>
       {description && <p className="mt-4 text-ink/70">{description}</p>}

@@ -47,7 +47,7 @@ export default async function StatsBand() {
             className="px-4 py-10 text-center first:pl-0 last:pr-0"
           >
             <div style={{ transitionDelay: `${i * 70}ms` }}>
-              <p className="font-display text-3xl tabular-nums text-wheat-dark sm:text-4xl">
+              <p className="font-display text-display-lg tabular-nums text-wheat-dark">
                 {stat.value}
               </p>
               <p className="mt-2 text-sm uppercase tracking-wide text-ink/60">

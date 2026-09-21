@@ -32,7 +32,7 @@ export default function PageIntro({
   children,
 }: PageIntroProps) {
   return (
-    <section className="section-airy relative overflow-hidden bg-pine-deep px-6">
+    <section className="section-airy relative overflow-hidden bg-pine-deep px-6 grain-dark">
       {image && (
         <div className="absolute inset-0" aria-hidden="true">
           <BrandPhoto src={image} alt="" sizes="100vw" />
@@ -64,7 +64,7 @@ export default function PageIntro({
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wheat-bright">
             {eyebrow}
           </p>
-          <h1 className="mt-3 font-display text-3xl leading-tight text-white sm:text-4xl">
+          <h1 className="mt-3 font-display text-display-lg text-white">
             {title}
           </h1>
           {description && (

@@ -17,7 +17,7 @@ export default async function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href={service.href}
-      className="group block border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-[0_10px_28px_-14px_rgba(22,35,28,0.25)]"
+      className="group block border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-linen">
         {hasImage ? (

@@ -3,6 +3,7 @@
 import { usePathname as useNextPathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Globe } from "lucide-react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname as useI18nPathname } from "@/i18n/navigation";
 import { localeNames, routing, type Locale } from "@/i18n/routing";
@@ -77,7 +78,7 @@ function LanguageSwitcher() {
       </button>
 
       {open && (
-        <ul className="animate-fade-in absolute right-0 top-full w-44 rounded-sm border border-ink/10 bg-white p-1.5 shadow-[0_12px_32px_-12px_rgba(22,35,28,0.18)]">
+        <ul className="animate-fade-in absolute right-0 top-full w-44 rounded-sm border border-ink/10 bg-white p-1.5 shadow-elevated-sm">
           {routing.locales.map((code) => (
             <li key={code}>
               <Link
@@ -186,14 +187,24 @@ export default function Navbar() {
         aria-hidden="true"
       />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6">
-        {/* Wordmark in brand gold — the real logo file returns once a
-            redesigned mark is provided. */}
+        {/* The mark + wordmark — the simplified grain-sheaf badge (flat
+            pine/gold, public/sg-mark.svg), replacing the ornate gold-foil
+            logo that fought the site's restrained system. */}
         <Link
           href="/"
-          className="shrink-0 font-display text-2xl font-bold tracking-tight text-wheat transition-opacity hover:opacity-80"
+          className="group flex shrink-0 items-center gap-2.5"
           aria-label="Sachin Gold — home"
         >
-          Sachin Gold
+          <Image
+            src="/sg-mark.svg"
+            alt=""
+            width={34}
+            height={34}
+            className="rounded-[7px] transition-transform duration-300 group-hover:scale-105"
+          />
+          <span className="font-display text-xl font-bold tracking-tight text-pine transition-colors group-hover:text-pine-deep">
+            Sachin <span className="text-wheat">Gold</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}
@@ -270,7 +281,7 @@ export default function Navbar() {
                   id="services-dropdown"
                   className="animate-fade-in absolute left-1/2 top-full w-[30rem] -translate-x-1/2 pt-3"
                 >
-                  <div className="rounded-sm border border-ink/10 bg-white p-2 shadow-[0_12px_32px_-12px_rgba(22,35,28,0.18)]">
+                  <div className="rounded-sm border border-ink/10 bg-white p-2 shadow-elevated-sm">
                     <ul className="grid grid-cols-1 gap-0.5">
                       <li>
                         <Link
@@ -365,7 +376,7 @@ export default function Navbar() {
           </a>
           <Link
             href="/contact"
-            className={`whitespace-nowrap rounded-sm px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_16px_-8px_rgba(10,54,32,0.5)] transition-all hover:-translate-y-px hover:shadow-[0_8px_20px_-8px_rgba(10,54,32,0.55)] ${
+            className={`whitespace-nowrap rounded-sm px-5 py-2.5 text-sm font-semibold text-white shadow-elevated-sm transition-all hover:-translate-y-px hover:shadow-elevated ${
               isActive("/contact") ? "bg-pine-deep" : "bg-pine"
             }`}
           >

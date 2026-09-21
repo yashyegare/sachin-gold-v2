@@ -29,10 +29,10 @@ export default async function CTA({
   const resolvedCtaLabel = ctaLabel ?? t("button");
 
   return (
-    <section className="bg-pine-deep">
+    <section className="bg-pine-deep grain-dark">
       <div className="section-airy mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 sm:flex-row sm:items-center">
         <div>
-          <h2 className="font-display text-2xl text-white sm:text-3xl">
+          <h2 className="font-display text-display-md text-white">
             {resolvedTitle}
           </h2>
           <p className="mt-2 max-w-md text-white/70">{resolvedDescription}</p>

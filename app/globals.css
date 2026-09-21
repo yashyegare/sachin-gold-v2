@@ -5,21 +5,142 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+
+    /* The one motion curve, as a custom property for the keyframe
+       animations below (Tailwind's transitionTimingFunction.DEFAULT
+       covers transitions; these var() references keep every ANIMATION
+       on the same curve too — one hand, everywhere). */
+    --ease-brand: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   body {
     @apply bg-white text-ink antialiased;
+
+    /* Slim, pine-colored scrollbar (Firefox) instead of the browser
+       default — small detail, but a default gray scrollbar next to this
+       color system reads as unfinished. WebKit browsers use the
+       ::-webkit-scrollbar-* rules below instead. */
+    scrollbar-width: thin;
+    scrollbar-color: #0f4c2e #f6f4ee;
   }
 
-  /* Brand-tinted text selection instead of the browser default blue. */
+  /* Brand-tinted text selection — gold, not the pine an earlier pass
+     left here despite the comment, and not the browser default blue.
+     Dark ink text stays legible against the lighter gold highlight. */
   ::selection {
-    @apply bg-pine text-linen;
+    @apply bg-wheat-bright text-ink;
+  }
+
+  /* Slim, pine-colored scrollbar (WebKit path — Chrome/Edge/Safari). */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-linen;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-pine;
+    border-radius: 9999px;
+    border: 2px solid #f6f4ee;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-pine-deep;
   }
 
   /* Visible keyboard focus everywhere — don't rely on the browser default,
      but don't remove it either. */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-pine;
+  }
+
+  /* Drop cap — the "Our Story" opening paragraph only (About page), as a
+     deliberate one-off editorial flourish. Not a reusable "prose"
+     default; applying this sitewide would read as a template, not a
+     choice. */
+  .drop-cap::first-letter {
+    @apply font-display text-wheat-dark;
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.82;
+    padding-right: 0.09em;
+    padding-top: 0.06em;
+  }
+
+  /* Curtain reveal — the ONE clip-path entrance, spent on exactly two
+     moments. About's hero photo uses .animate-curtain (a pure-CSS load
+     animation — the LCP image must never wait on JS hydration); the
+     testimonial video poster uses .reveal-curtain (observer-gated, it's
+     below the fold). Same visual: an inset wipe with a 0.5% overshoot
+     so the open state never sits on a hairline clipped edge. Under
+     prefers-reduced-motion the global rule collapses both to instant;
+     the print reset guarantees the photos are simply THERE on paper. */
+  .animate-curtain {
+    animation: curtain-in 1.1s var(--ease-brand) both;
+  }
+
+  @keyframes curtain-in {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0.5% 0 0);
+    }
+  }
+
+  .reveal-curtain {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 1.1s var(--ease-brand);
+    /* Fail-open guarantee: if the observer never fires (no-JS edge,
+       extension interference, any unknown), a delayed CSS animation
+       forces the open state anyway. Content may reveal without its
+       entrance; it must never stay hidden. */
+    animation: curtain-fail-open 0s 2.5s both;
+  }
+
+  @keyframes curtain-fail-open {
+    to {
+      clip-path: inset(0 0.5% 0 0);
+    }
+  }
+
+  .reveal-curtain.is-revealed {
+    clip-path: inset(0 0.5% 0 0);
+  }
+
+  @media print {
+    .reveal-curtain,
+    .animate-curtain {
+      clip-path: none !important;
+    }
+  }
+
+  /* Grain texture — every dark (pine-deep / near-black) section: Hero,
+      CTA, WhySachinGold, PageIntro. Pure CSS/SVG fractal noise, not an
+      image asset, so it stays crisp at any size and costs no extra
+      request. Rendered as ::after (paints last, on top of any photo/
+      gradient layers the section already has) at low opacity with
+      overlay blending — the standard, near-imperceptible film-grain
+      technique, not a visible pattern. One class, reused everywhere it's
+      dark rather than redefined per component. */
+  .grain-dark {
+    position: relative;
+  }
+
+  .grain-dark::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-repeat: repeat;
+    background-size: 160px 160px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -81,7 +202,7 @@
 
   /* Entrance for hero/section content — subtle rise, runs once. */
   .animate-fade-up {
-    animation: fade-up 0.6s ease-out both;
+    animation: fade-up 0.6s var(--ease-brand) both;
   }
 
   @keyframes fade-up {
@@ -97,7 +218,7 @@
 
   /* Micro-entrance for dropdowns, mobile panel and FAQ answers. */
   .animate-fade-in {
-    animation: fade-in 0.15s ease-out both;
+    animation: fade-in 0.15s var(--ease-brand) both;
   }
 
   @keyframes fade-in {
@@ -157,8 +278,8 @@
     opacity: 0;
     transform: translateY(16px);
     transition:
-      opacity 0.6s ease-out,
-      transform 0.6s ease-out;
+      opacity 0.6s var(--ease-brand),
+      transform 0.6s var(--ease-brand);
   }
 
   .reveal.is-revealed {
@@ -200,7 +321,7 @@
      indicator's progress fill. Both collapse under the global
      reduced-motion rule; the carousel also disables autoplay entirely. */
   .animate-kenburns {
-    animation: kenburns 14s ease-out both;
+    animation: kenburns 14s var(--ease-brand) both;
   }
 
   @keyframes kenburns {

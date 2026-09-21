@@ -6,7 +6,6 @@ import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
-import PageIntro from "@/components/PageIntro";
 import BrandPhoto from "@/components/BrandPhoto";
 import StatsBand from "@/components/StatsBand";
 import { Link } from "@/i18n/navigation";
@@ -54,39 +53,66 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero — punchy: eyebrow, title, the company's own real tagline.
-          The founding story (p1) now gets its own well-lit section below
-          instead of being buried as dense white-on-dark hero copy. */}
-      <PageIntro
-        eyebrow={t("eyebrow")}
-        title={t("title")}
-        description={company.tagline}
-        image="/images/home/aerial-plant.webp"
-      />
+      {/* Hero — the one full-bleed photographic opener on the site,
+          deliberately breaking the PageIntro pattern: About is the
+          narrative page, and an edge-to-edge real photo with the
+          headline overlaid reads as an event, not another band. The
+          processing interior is About's alone — Home never shows it —
+          so no photo repeats across Home → About at the same weight. */}
+      <section className="relative flex min-h-[62vh] items-end overflow-hidden bg-pine-deep">
+        <div
+          className="animate-curtain absolute inset-0"
+          aria-hidden="true"
+        >
+          <BrandPhoto
+            src="/images/home/processing-interior.webp"
+            alt=""
+            sizes="100vw"
+            priority
+          />
+          {/* Scrim from the bottom-left so the overlaid copy keeps AA
+              contrast over whatever the sky is doing */}
+          <div className="absolute inset-0 bg-gradient-to-t from-pine-deep via-pine-deep/55 to-pine-deep/10" />
+        </div>
+        <div className="relative mx-auto w-full max-w-6xl px-6 pb-14 pt-32">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-wheat-bright">
+            {t("eyebrow")}
+          </p>
+          <h1 className="mt-3 max-w-3xl font-display text-display-xl text-white">
+            {t("title")}
+          </h1>
+          <p className="mt-4 max-w-2xl leading-relaxed text-white/80">
+            {t("tagline")}
+          </p>
+        </div>
+      </section>
 
       {/* The numbers the story below is about to explain — same figures,
           same component, as Home. */}
       <StatsBand />
 
       {/* Our Story — p1, verbatim, with a real photo instead of sitting
-          alone on a dark band. */}
+          alone on a dark band. Asymmetric 60/40, not the even 50/50
+          every other page uses — the copy is the subject here. */}
       <section className="section-standard mx-auto max-w-6xl px-6">
         <Reveal>
-          <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+          <div className="grid items-start gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:gap-16">
             <div>
               <p className="text-sm font-medium uppercase tracking-wide text-pine">
                 {t("ourStoryEyebrow")}
               </p>
-              <h2 className="mt-2 font-display text-3xl text-ink sm:text-4xl">
+              <h2 className="mt-2 font-display text-display-lg text-ink">
                 {t("ourStoryTitle")}
               </h2>
-              <p className="mt-5 leading-relaxed text-ink/70">{t("p1")}</p>
+              <p className="mt-5 max-w-prose leading-relaxed text-ink/70 drop-cap">
+                {t("p1")}
+              </p>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden border border-ink/10 shadow-[0_18px_44px_-24px_rgba(10,54,32,0.35)]">
+            <div className="relative aspect-[3/2] overflow-hidden border border-ink/10 shadow-elevated-lg">
               <BrandPhoto
                 src="/images/home/team-packaging.webp"
                 alt=""
-                sizes="(min-width: 768px) 50vw, 100vw"
+                sizes="(min-width: 768px) 40vw, 100vw"
               />
             </div>
           </div>
@@ -125,18 +151,25 @@ export default async function AboutPage({ params }: Props) {
 
       {/* Community — p3 (the ITC e-Choupal link + farmers figure),
           paired with that exact figure as a callout rather than leaving
-          it buried mid-sentence. */}
-      <section className="section-standard mx-auto max-w-6xl px-6">
+          it buried mid-sentence.
+
+          THE one off-grid moment on the site (deliberately singular —
+          the effect depends on rarity): the stat card overhangs the
+          section's bottom boundary, straddling the border into the next
+          section. Desktop only — on mobile it stacks back inside the
+          flow, where an overhang would just read as a layout bug. The
+          next section gives the overhang headroom via md:pt-24. */}
+      <section className="section-standard mx-auto max-w-6xl px-6 md:pb-0">
         <Reveal>
           <div className="grid items-center gap-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-16">
             <div>
               <p className="text-sm font-medium uppercase tracking-wide text-pine">
                 {t("communityEyebrow")}
               </p>
-              <h2 className="mt-2 font-display text-3xl text-ink sm:text-4xl">
+              <h2 className="mt-2 font-display text-display-lg text-ink">
                 {t("communityTitle")}
               </h2>
-              <p className="mt-5 leading-relaxed text-ink/70">
+              <p className="mt-5 max-w-prose leading-relaxed text-ink/70">
                 {t("p3Pre")}{" "}
                 <a
                   href="https://itcportal.com/itc-businesses/agri-business/itc-e-choupal.html"
@@ -149,7 +182,7 @@ export default async function AboutPage({ params }: Props) {
                 {t("p3Post")}
               </p>
             </div>
-            <div className="flex items-center justify-center border border-ink/10 bg-linen p-10 text-center">
+            <div className="flex items-center justify-center border border-ink/10 bg-linen p-10 text-center md:translate-y-16 md:shadow-elevated">
               <div>
                 <Sprout
                   size={28}
@@ -157,7 +190,7 @@ export default async function AboutPage({ params }: Props) {
                   aria-hidden="true"
                   className="mx-auto text-pine"
                 />
-                <p className="mt-4 font-display text-4xl tabular-nums text-wheat-dark sm:text-5xl">
+                <p className="mt-4 font-display text-display-xl tabular-nums text-wheat-dark">
                   {company.farmersConnected
                     ? `${company.farmersConnected / 100000}L+`
                     : "—"}
@@ -173,8 +206,9 @@ export default async function AboutPage({ params }: Props) {
 
       {/* State-of-the-art processing — real photo behind the facility
           tour link, unchanged from before, now with Reveal like every
-          other section on the page. */}
-      <section className="section-standard border-t border-ink/10 bg-linen/40">
+          other section on the page. Extra top padding on md+ gives the
+          Community callout's overhang its headroom. */}
+      <section className="section-standard border-t border-ink/10 bg-linen/40 md:pt-24">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
@@ -197,17 +231,17 @@ export default async function AboutPage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* Real processing-interior photo behind the facility-tour
-                  link — the tile previews the real thing it opens (the
-                  YouTube tour). */}
+              {/* Aerial plant photo behind the facility-tour link — Home
+                  only ever shows this shot as a 25%-opacity texture, so
+                  this is its first appearance as a photograph. */}
               <a
                 href="https://youtu.be/v8zIFCYXlDs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex aspect-video items-center justify-center overflow-hidden border border-ink/10 shadow-[0_14px_36px_-16px_rgba(10,54,32,0.5)] transition-shadow hover:shadow-[0_20px_48px_-16px_rgba(10,54,32,0.6)]"
+                className="group relative flex aspect-video items-center justify-center overflow-hidden border border-ink/10 shadow-elevated-lg transition-shadow hover:shadow-elevated-deep"
               >
                 <BrandPhoto
-                  src="/images/home/processing-interior.webp"
+                  src="/images/home/aerial-plant.webp"
                   alt=""
                   sizes="(min-width: 768px) 50vw, 100vw"
                   imageClassName="transition-transform duration-700 group-hover:scale-[1.03]"
