@@ -71,9 +71,13 @@ export interface Testimonial {
   name: string;
   role: string;
   /** Path under /public for the customer's real video, if one exists.
-   *  Rendered click-to-play (preload="none") so it never costs bandwidth
-   *  until the visitor asks for it. */
+   *  Rendered inline (preload="metadata") with a real extracted poster
+   *  frame — visible immediately, one click (native play) to watch. */
   video?: string;
+  /** Poster frame for `video`, extracted from the actual clip (not a
+   *  stock/placeholder image) so the visitor sees the real customer
+   *  before pressing play. */
+  videoPoster?: string;
 }
 
 export interface Customer {

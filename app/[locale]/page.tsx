@@ -85,15 +85,17 @@ export default async function HomePage({ params }: Props) {
 
       <section className="bg-linen">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pine">
-            {t("products.eyebrow")}
-          </p>
-          <h2 className="mt-3 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl">
-            {t("products.title")}
-          </h2>
-          <p className="mt-4 max-w-xl text-ink/60">
-            {t("products.subtitle")}
-          </p>
+          <Reveal>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pine">
+              {t("products.eyebrow")}
+            </p>
+            <h2 className="mt-3 max-w-2xl font-display text-3xl leading-tight text-ink sm:text-4xl">
+              {t("products.title")}
+            </h2>
+            <p className="mt-4 max-w-xl text-ink/60">
+              {t("products.subtitle")}
+            </p>
+          </Reveal>
           {/* Teaser, not the full catalogue: six items spanning all three
               categories; the complete list lives on each service's page. */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
