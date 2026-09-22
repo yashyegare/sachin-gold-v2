@@ -22,7 +22,7 @@ import {
 } from "next-intl/server";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WhatsAppFloat from "@/components/WhatsAppFloat";
+import StickyContactButtons from "@/components/StickyContactButtons";
 import LanguageGate from "@/components/LanguageGate";
 import { company, siteUrl } from "@/data/company";
 import { routing, type Locale } from "@/i18n/routing";
@@ -237,10 +237,12 @@ export default async function LocaleLayout({
             {children}
           </main>
           <Footer />
-          {/* Persistent floating WhatsApp action — the expected always-visible
-              chat affordance on Indian B2B sites. Slides away while the home
-              hero controls own that corner (see the component). */}
-          <WhatsAppFloat />
+          {/* Persistent floating actions — Enquiry + WhatsApp, the
+              expected always-visible chat affordance on Indian B2B
+              sites, now paired with a form option too. Both slide away
+              together while the home hero controls own that corner
+              (see the component). */}
+          <StickyContactButtons />
           {/* First-visit language gate — one calm modal, once per browser.
               Self-silencing (localStorage); a no-op for returning visitors. */}
           <LanguageGate />

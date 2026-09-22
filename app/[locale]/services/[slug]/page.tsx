@@ -6,7 +6,7 @@ import BrandPhoto from "@/components/BrandPhoto";
 import PageIntro from "@/components/PageIntro";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
-import ProductEnquiryCard from "@/components/ProductEnquiryCard";
+import ProductCarousel from "@/components/ProductCarousel";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { Link } from "@/i18n/navigation";
@@ -269,13 +269,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 title={t("detail.productsTitle")}
               />
             </Reveal>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
-                <Reveal key={product.slug}>
-                  <ProductEnquiryCard product={product} />
-                </Reveal>
-              ))}
-            </div>
+            <Reveal className="mt-10">
+              <ProductCarousel products={products} />
+            </Reveal>
           </div>
         </section>
       )}

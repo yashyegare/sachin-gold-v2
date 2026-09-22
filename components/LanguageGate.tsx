@@ -32,6 +32,11 @@ const STORAGE_KEY = "sg-lang-choice";
  *    check; a short delay lets the page land first.
  *  - Positioned above the WhatsApp float (bottom-24) so the two never
  *    collide; z-50 keeps it under nothing it needs to be under.
+ *  - Dispatches a "sg-lang-gate-closed" window event the moment it
+ *    closes (any path — X, Escape, or a language pick). StickyContactButtons
+ *    listens for this on a first visit so the buttons appear right after,
+ *    instead of competing with the gate for attention in the same
+ *    couple of seconds.
  */
 export default function LanguageGate() {
   const t = useTranslations("langGate");
@@ -82,6 +87,11 @@ export default function LanguageGate() {
     // later visit to bare / lands in the chosen language, not English.
     document.cookie = `NEXT_LOCALE=${target}; path=/; max-age=31536000; samesite=lax`;
     setOpen(false);
+    // Let the sticky contact buttons know it's clear to appear — see
+    // that component for why they wait: two floating widgets asking for
+    // attention in the first couple seconds is worse than one, in
+    // sequence.
+    window.dispatchEvent(new Event("sg-lang-gate-closed"));
     if (target !== locale) {
       router.replace(pathname, { locale: target });
     }

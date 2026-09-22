@@ -109,7 +109,9 @@
       }
     },
     "logos": {
-      "tagline": "Trusted by leading brands across the industry"
+      "tagline": "Trusted by leading brands across the industry",
+      "eyebrow": "Our Customers",
+      "description": "Grain, pulses and oil-seed products from Sachin Gold reach some of India's largest food and agribusiness companies."
     },
     "cta": {
       "title": "Looking to source in bulk?",
@@ -119,7 +121,9 @@
     },
     "float": {
       "label": "Chat with Sachin Gold on WhatsApp",
-      "message": "Hi Sachin Gold, I'd like to enquire about bulk rates."
+      "message": "Hi Sachin Gold, I'd like to enquire about bulk rates.",
+      "enquireText": "Enquire",
+      "enquireLabel": "Send an enquiry to {name}"
     },
     "statement": {
       "quote": "An unwavering commitment to quality, innovation and customer satisfaction."
@@ -410,7 +414,9 @@
     "successTitle": "Thank you — message sent.",
     "successBody": "We'll get back to you shortly with pricing and availability.",
     "error": "Something went wrong sending your message — please try again, or call us directly.",
-    "disabledNote": "Submission activates once a Web3Forms access key is configured — see .env.example (Phase 6)."
+    "disabledNote": "Submission activates once a Web3Forms access key is configured — see .env.example (Phase 6).",
+    "requiredError": "This field is required.",
+    "emailError": "Enter a valid email address."
   },
   "notFound": {
     "eyebrow": "404",

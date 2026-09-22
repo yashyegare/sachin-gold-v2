@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type FocusEvent } from "react";
 import { CircleCheck, TriangleAlert, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 type Status = "idle" | "submitting" | "success" | "error";
+type FieldErrors = Record<string, string>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Submits directly to Web3Forms (https://web3forms.com) — no backend route
@@ -19,17 +22,69 @@ type Status = "idle" | "submitting" | "success" | "error";
  * Spam protection: honeypot field (`botcheck`) — bots fill everything,
  * humans never see it; Web3Forms drops submissions where it's filled.
  *
+ * Validation: custom, not the browser's native `required`/`type=email`
+ * popovers — those are inconsistent across browsers and don't match the
+ * site's design language. `noValidate` turns native validation off;
+ * validateField() replaces it, checked on blur (not on every keystroke —
+ * nobody wants to be told a field is wrong before they've finished
+ * typing it) and again on submit, which also focuses the first invalid
+ * field so a keyboard/screen-reader user isn't left guessing what failed.
+ *
  * All labels, placeholders and status messages are translated (the form is
  * the highest-intent conversion surface, so it renders in the visitor's
- * chosen language end to end).
+ * chosen language end to end) — including the two validation messages.
  */
 export default function ContactForm() {
   const t = useTranslations("contactForm");
   const [status, setStatus] = useState<Status>("idle");
+  const [errors, setErrors] = useState<FieldErrors>({});
   const enabled = Boolean(process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY);
+
+  function validateField(name: string, value: string): string | null {
+    if (name === "name" && !value.trim()) return t("requiredError");
+    if (name === "email") {
+      if (!value.trim()) return t("requiredError");
+      if (!EMAIL_RE.test(value.trim())) return t("emailError");
+    }
+    if (name === "message" && !value.trim()) return t("requiredError");
+    return null;
+  }
+
+  function handleBlur(event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    const { name, value } = event.currentTarget;
+    const message = validateField(name, value);
+    setErrors((prev) => {
+      if (!message) {
+        if (!(name in prev)) return prev;
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      }
+      return { ...prev, [name]: message };
+    });
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const nextErrors: FieldErrors = {};
+    for (const name of ["name", "email", "message"]) {
+      const message = validateField(name, String(formData.get(name) ?? ""));
+      if (message) nextErrors[name] = message;
+    }
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      // Focus the first invalid field — the same recovery path a native
+      // required-field popover would give, just styled to match the site.
+      const firstInvalid = form.querySelector<HTMLElement>(
+        `[name="${Object.keys(nextErrors)[0]}"]`,
+      );
+      firstInvalid?.focus();
+      return;
+    }
+
     setStatus("submitting");
 
     const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
@@ -42,7 +97,6 @@ export default function ContactForm() {
       return;
     }
 
-    const formData = new FormData(event.currentTarget);
     formData.append("access_key", accessKey);
     formData.append("subject", "New enquiry from sachingold.com");
 
@@ -54,7 +108,8 @@ export default function ContactForm() {
       const result = await response.json();
       if (result.success) {
         setStatus("success");
-        event.currentTarget.reset();
+        form.reset();
+        setErrors({});
       } else {
         setStatus("error");
       }
@@ -79,7 +134,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
       {/* Honeypot: visually hidden, tabbable-off, ignored by screen readers */}
       <input
         type="checkbox"
@@ -91,7 +146,14 @@ export default function ContactForm() {
       />
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={t("name")} name="name" required disabled={!enabled} />
+        <Field
+          label={t("name")}
+          name="name"
+          required
+          disabled={!enabled}
+          error={errors.name}
+          onBlur={handleBlur}
+        />
         <Field label={t("company")} name="company" disabled={!enabled} />
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
@@ -101,6 +163,8 @@ export default function ContactForm() {
           type="email"
           required
           disabled={!enabled}
+          error={errors.email}
+          onBlur={handleBlur}
         />
         <Field
           label={t("phone")}
@@ -119,9 +183,21 @@ export default function ContactForm() {
           required
           rows={5}
           disabled={!enabled}
+          onBlur={handleBlur}
+          aria-invalid={Boolean(errors.message)}
+          aria-describedby={errors.message ? "message-error" : undefined}
           placeholder={t("requirementPlaceholder")}
-          className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:border-pine focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)]"
+          className={`mt-1.5 w-full border bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)] ${
+            errors.message
+              ? "border-red-400 focus:border-red-500"
+              : "border-ink/20 focus:border-pine"
+          }`}
         />
+        {errors.message && (
+          <p id="message-error" role="alert" className="mt-1.5 text-xs text-red-700">
+            {errors.message}
+          </p>
+        )}
       </div>
 
       {status === "error" && (
@@ -160,13 +236,18 @@ function Field({
   type = "text",
   required = false,
   disabled = false,
+  error,
+  onBlur,
 }: {
   label: string;
   name: string;
   type?: string;
   required?: boolean;
   disabled?: boolean;
+  error?: string;
+  onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
 }) {
+  const errorId = `${name}-error`;
   return (
     <div>
       <label className="text-sm font-medium text-ink/80" htmlFor={name}>
@@ -178,6 +259,9 @@ function Field({
         type={type}
         required={required}
         disabled={disabled}
+        onBlur={onBlur}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? errorId : undefined}
         autoComplete={
           name === "name"
             ? "name"
@@ -189,8 +273,15 @@ function Field({
                   ? "organization"
                   : undefined
         }
-        className="mt-1.5 w-full border border-ink/20 bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:border-pine focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)]"
+        className={`mt-1.5 w-full border bg-white px-3 py-2 text-sm text-ink outline-none transition-shadow focus:shadow-[0_0_0_3px_rgba(15,76,46,0.08)] ${
+          error ? "border-red-400 focus:border-red-500" : "border-ink/20 focus:border-pine"
+        }`}
       />
+      {error && (
+        <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-700">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

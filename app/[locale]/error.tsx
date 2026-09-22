@@ -47,7 +47,7 @@ export default function ErrorPage({
       </svg>
 
       <div className="relative mx-auto max-w-3xl px-6 py-28 text-center">
-        <p className="font-display text-6xl leading-none text-wheat-bright sm:text-7xl">
+        <p className="font-display text-display-3xl leading-none text-wheat-bright">
           500
         </p>
         <h1 className="mt-4 font-display text-display-lg text-white">

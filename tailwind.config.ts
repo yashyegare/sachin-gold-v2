@@ -114,6 +114,10 @@ const config: Config = {
           "clamp(3rem, 2.4rem + 3vw, 3.75rem)",
           { lineHeight: "1.1" },
         ],
+        "display-3xl": [
+          "clamp(3.75rem, 3rem + 3.75vw, 4.5rem)",
+          { lineHeight: "1.05" },
+        ],
       },
       maxWidth: {
         prose: "68ch",

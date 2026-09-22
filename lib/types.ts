@@ -83,6 +83,14 @@ export interface Testimonial {
 export interface Customer {
   name: string;
   logo: string; // path under /public
+  /** Real logo file dimensions in px, used to render each mark at a
+   *  balanced visual weight instead of one uniform height — a near-
+   *  square mark (ITC) and a wide wordmark (Sresta) look mismatched in
+   *  scale if forced to the same height. Not the source file's native
+   *  size, a deliberately chosen display size at the source's aspect
+   *  ratio. */
+  width: number;
+  height: number;
 }
 
 export interface Facility {

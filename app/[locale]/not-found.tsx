@@ -46,7 +46,7 @@ export default async function NotFound() {
       </div>
 
       <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
-        <p className="font-display text-6xl leading-none text-wheat-bright sm:text-7xl">
+        <p className="font-display text-display-3xl leading-none text-wheat-bright">
           404
         </p>
         <h1 className="mt-4 font-display text-display-lg text-white">
