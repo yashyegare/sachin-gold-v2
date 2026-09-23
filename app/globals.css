@@ -126,10 +126,12 @@
       overlay blending — the standard, near-imperceptible film-grain
       technique, not a visible pattern. One class, reused everywhere it's
       dark rather than redefined per component. */
-  .grain-dark {
-    position: relative;
-  }
-
+  /* Note: this class does NOT set `position` itself — it requires the
+     element already be positioned (relative/absolute/fixed) via its own
+     classes. An earlier version set `position: relative` here, but that
+     silently fights any element that legitimately needs `fixed` (as
+     IntroReveal does) — two classes both writing the same CSS property
+     is exactly the kind of bug that looks fine until it doesn't. */
   .grain-dark::after {
     content: "";
     position: absolute;

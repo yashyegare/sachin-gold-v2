@@ -24,6 +24,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StickyContactButtons from "@/components/StickyContactButtons";
 import LanguageGate from "@/components/LanguageGate";
+import LcpProbe from "@/components/LcpProbe";
 import { company, siteUrl } from "@/data/company";
 import { routing, type Locale } from "@/i18n/routing";
 import { buildAlternates } from "@/i18n/seo";
@@ -246,6 +247,9 @@ export default async function LocaleLayout({
           {/* First-visit language gate — one calm modal, once per browser.
               Self-silencing (localStorage); a no-op for returning visitors. */}
           <LanguageGate />
+          {/* Dev-only: logs the real LCP element/value to the console so
+              the IntroReveal / hero tradeoff is measured, not argued. */}
+          <LcpProbe />
         </NextIntlClientProvider>
         {/* Vercel Analytics + Speed Insights — cookieless, no consent banner
             needed. Both render nothing outside Vercel deployments, so local
