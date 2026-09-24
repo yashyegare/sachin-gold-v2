@@ -3,43 +3,46 @@
 import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "sg-intro-seen";
-const ENTER_MS = 500; // ms — mark fades/scales in
-const HOLD_MS = 700;
-const EXIT_MS = 650;
+const ENTER_MS = 550;
+const HOLD_MS = 1300; // the gold-sweep plays once during this window
+const EXIT_MS = 700;
 
 type Phase = "idle" | "entering" | "holding" | "exiting" | "done";
 
 /**
  * The one-time, first-visit brand moment on the home page — the old
- * site's "icon pop-up" (a full-screen white overlay, the gold crest
- * logo zooming in over 2s, held, then fading out — ~3s total, with no
- * way to skip it and no reduced-motion check at all). Rebuilt from
- * scratch rather than restored, fixing every real cost that came with
- * it the first time:
+ * site's "icon pop-up," redesigned around the ACTUAL old crest logo
+ * (public/images/brand/sg-crest.png) rather than the minimal wordmark
+ * this had before. That first attempt was too quiet for what was
+ * being asked for; this one is a real choreographed reveal:
  *
- *  - ~3s, unskippable, solid white block that hid the whole page →
- *    ~1.85s total, and instantly skippable on ANY interaction (click,
- *    key, touch, scroll) at any point during it.
- *  - Solid white (jars against the rest of the brand) → pine-deep with
- *    the same grain texture used by every other dark section, so this
- *    reads as "this site," not a loading blocker.
- *  - The old gold-foil clip-art crest → the real mark (sg-mark.svg).
- *  - Zero reduced-motion handling → checked properly; under
- *    prefers-reduced-motion this component renders nothing at all.
- *  - A flat opacity fade → a curtain-wipe exit (clip-path), the same
- *    technique CurtainReveal already established elsewhere on the site
- *    (About's hero photo, the testimonial poster) rather than a new
- *    one-off animation invented just for this.
+ *   glow fades in → crest scales/rotates into place → a gold light-sweep
+ *   plays once across the badge (masked to its own scalloped silhouette,
+ *   not a rectangle) → a brief hold → curtain-wipe exit.
  *
- * Session-scoped (sessionStorage) deliberately, not localStorage like
- * LanguageGate: a language choice is a durable preference; "have you
- * already seen the brand moment" is intentionally allowed to happen
- * again on a fresh browser session later — matching the old site's own
- * sessionStorage choice.
+ * On the source asset: sachin_gold_logo2.jpg is a JPEG with a *mixed*
+ * black/white background AND white lettering + dark outline strokes
+ * within the badge itself — there's no clean color to key out without
+ * also eating holes in "SACHIN" and "Gold." So instead of a hard cutout,
+ * the shipped PNG uses a soft geometric vignette (radial fade to
+ * transparent) around the badge — it reads as the medallion glowing out
+ * of the dark background rather than a rectangle pasted on top. See the
+ * crest generation notes for exactly how that was built.
  *
- * Home page only, mounted from app/[locale]/page.tsx — a visitor
- * landing straight on /rates or /contact from a search result shouldn't
- * get a homepage-flavored intro before they see the page they asked for.
+ * Everything that made the previous version (and the old site's
+ * original) a real cost is still fixed here:
+ *  - Skippable instantly on any interaction (click, key, touch, scroll),
+ *    from any point in the sequence.
+ *  - Checked prefers-reduced-motion — renders nothing under it.
+ *  - Session-scoped (sessionStorage), home page only.
+ *  - Curtain-wipe exit reuses the site's existing CurtainReveal
+ *    technique rather than a new one-off.
+ *
+ * The one honest tradeoff, unchanged from before: ~2.5s of a first-time
+ * visitor not seeing real content by default if they don't interact —
+ * longer than the previous minimal version, because a real choreographed
+ * moment needs the extra beats to not feel rushed. Still under the old
+ * site's ~3s, and instantly skippable the whole way through.
  */
 export default function IntroReveal() {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -50,7 +53,7 @@ export default function IntroReveal() {
     try {
       seen = Boolean(window.sessionStorage.getItem(STORAGE_KEY));
     } catch {
-      seen = true; // storage unavailable — fail open, never gate on an edge case
+      seen = true;
     }
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -80,9 +83,6 @@ export default function IntroReveal() {
     };
   }, []);
 
-  // Any interaction skips straight to the exit wipe, from whatever point
-  // the intro is at — a visitor who came here to check a rate shouldn't
-  // be made to sit through a brand moment they didn't ask to watch twice.
   useEffect(() => {
     if (phase !== "entering" && phase !== "holding") return;
     function skip() {
@@ -106,6 +106,18 @@ export default function IntroReveal() {
   if (phase === "idle" || phase === "done") return null;
 
   const covering = phase !== "exiting";
+  const settled = phase === "holding" || phase === "exiting";
+
+  const maskStyle = {
+    WebkitMaskImage: "url(/images/brand/sg-crest.png)",
+    maskImage: "url(/images/brand/sg-crest.png)",
+    WebkitMaskSize: "contain",
+    maskSize: "contain",
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskPosition: "center",
+    maskPosition: "center",
+  } as const;
 
   return (
     <div
@@ -120,27 +132,51 @@ export default function IntroReveal() {
         transitionTimingFunction: "var(--ease-brand)",
       }}
     >
-      <div className="flex flex-col items-center">
-        <img
-          src="/sg-mark.svg"
-          alt=""
-          width={72}
-          height={72}
-          className={`rounded-2xl transition-all duration-500 ${
-            phase === "entering" ? "scale-90 opacity-0" : "scale-100 opacity-100"
+      <div className="relative flex h-64 w-64 items-center justify-center sm:h-72 sm:w-72 md:h-80 md:w-80">
+        {/* Soft breathing gold glow behind the crest */}
+        <div
+          className={`animate-glow-pulse absolute inset-0 rounded-full blur-3xl transition-opacity duration-700 ${
+            settled ? "opacity-100" : "opacity-0"
           }`}
-          style={{ transitionTimingFunction: "var(--ease-brand)" }}
+          style={{
+            background:
+              "radial-gradient(circle, rgba(217,169,60,0.45) 0%, rgba(217,169,60,0) 70%)",
+          }}
         />
-        <p
-          className={`mt-4 font-display text-lg tracking-wide text-white transition-all delay-150 duration-500 ${
+
+        {/* The crest itself — scale + gentle rotation settle */}
+        <div
+          className={`relative h-full w-full transition-all duration-[550ms] ${
             phase === "entering"
-              ? "translate-y-1 opacity-0"
-              : "translate-y-0 opacity-90"
+              ? "scale-75 rotate-[-6deg] opacity-0"
+              : "scale-100 rotate-0 opacity-100"
           }`}
           style={{ transitionTimingFunction: "var(--ease-brand)" }}
         >
-          Sachin <span className="text-wheat-bright">Gold</span>
-        </p>
+          <img
+            src="/images/brand/sg-crest.png"
+            srcSet="/images/brand/sg-crest.png 1x, /images/brand/sg-crest@2x.png 2x"
+            alt=""
+            className="h-full w-full object-contain drop-shadow-[0_18px_40px_rgba(0,0,0,0.55)]"
+          />
+
+          {/* Gold light-sweep, masked to the crest's own silhouette —
+              only plays once settled, so it never races the entrance. */}
+          {settled && (
+            <div
+              className="animate-gold-sweep pointer-events-none absolute inset-0"
+              style={maskStyle}
+            >
+              <div
+                className="h-full w-full mix-blend-overlay"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, transparent 38%, rgba(255,255,255,0.85) 50%, transparent 62%, transparent 100%)",
+                }}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
