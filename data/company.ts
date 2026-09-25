@@ -4,6 +4,43 @@ import type { CompanyInfo } from "@/lib/types";
 // (not previously reflected anywhere else on the site). Worth a quick
 // client confirmation that these are still current (Phase 9), but these
 // are real, not guesses.
+// Per-location capabilities, aggregated from the role notes on each
+// service's own locations list in data/services.ts (e.g. commodity-trading:
+// "Udgir — Headquarters, Sourcing, Trading, Processing & Storage").
+// Single source for the About "Our Reach" cards — every role here is
+// attested by at least one service page; nothing invented.
+export const locationRoles: {
+  name: string;
+  state: string;
+  roles: string[];
+}[] = [
+  {
+    name: "Udgir",
+    state: "Maharashtra",
+    roles: ["Headquarters", "Sourcing", "Trading", "Processing", "Storage"],
+  },
+  {
+    name: "Latur",
+    state: "Maharashtra",
+    roles: ["Sourcing", "Trading", "Processing", "Storage"],
+  },
+  {
+    name: "Solapur",
+    state: "Maharashtra",
+    roles: ["Sourcing", "Trading", "Processing", "Storage"],
+  },
+  {
+    name: "Bhalki",
+    state: "Karnataka",
+    roles: ["Sourcing", "Trading"],
+  },
+  {
+    name: "Bidar",
+    state: "Karnataka",
+    roles: ["Sourcing", "Trading"],
+  },
+];
+
 export const company: CompanyInfo = {
   name: "Sachin Gold",
   tagline: "Bulk Agro Commodity Trading & Processing",

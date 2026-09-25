@@ -24,7 +24,7 @@ import StatsBand from "@/components/StatsBand";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/i18n/seo";
-import { company } from "@/data/company";
+import { company, locationRoles } from "@/data/company";
 import { team } from "@/data/team";
 import { testimonial } from "@/data/testimonial";
 
@@ -133,8 +133,12 @@ export default async function AboutPage({ params }: Props) {
         </Reveal>
       </section>
 
-      {/* Our Reach — p2, paired with the same location names as chips
-          instead of leaving them buried mid-paragraph. */}
+      {/* Our Reach — p2, now as fact cards in the How It Works family:
+          white bordered cards on the linen band, icon chip + state tag
+          header, town name, and the location's real capabilities as
+          pills. The roles aggregate each town's attested capabilities
+          from the service pages (data/company.ts locationRoles) — the
+          old flat chip row buried all of that. */}
       <section className="section-standard border-t border-ink/10 bg-linen/40">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
@@ -143,19 +147,44 @@ export default async function AboutPage({ params }: Props) {
               title={t("reachTitle")}
               description={t("p2")}
             />
-            <ul className="mt-8 flex flex-wrap gap-3">
-              {company.locations.map((location) => (
+            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              {locationRoles.map((location, i) => (
                 <li
-                  key={location}
-                  className="flex items-center gap-2 rounded-full border border-ink/10 bg-white px-4 py-2 text-sm text-ink/75"
+                  key={location.name}
+                  className="group flex h-full flex-col border border-ink/10 bg-white p-5 shadow-elevated-sm transition-all duration-300 [transition-timing-function:var(--ease-brand)] hover:-translate-y-1 hover:border-pine/30 hover:shadow-elevated lg:p-6"
                 >
-                  <MapPin
-                    size={14}
-                    strokeWidth={1.75}
-                    aria-hidden="true"
-                    className="flex-shrink-0 text-pine"
-                  />
-                  <span>{location}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-pine/25 bg-linen"
+                    >
+                      <MapPin
+                        size={18}
+                        strokeWidth={1.5}
+                        className="text-pine"
+                      />
+                    </span>
+                    <span className="text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-wheat-dark">
+                      {t(`reach${i + 1}State` as Parameters<typeof t>[0])}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 font-display text-lg text-ink">
+                    {location.name}
+                  </h3>
+                  {/* Capability pills — the old section's chip language,
+                      shrunk into the card. */}
+                  <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                    {(t(`reach${i + 1}Roles` as Parameters<typeof t>[0]) as string)
+                      .split("·")
+                      .map((role) => (
+                        <li
+                          key={role}
+                          className="rounded-full border border-ink/10 bg-linen/60 px-2.5 py-1 text-[0.65rem] font-medium text-ink/70"
+                        >
+                          {role}
+                        </li>
+                      ))}
+                  </ul>
                 </li>
               ))}
             </ul>
@@ -196,14 +225,21 @@ export default async function AboutPage({ params }: Props) {
                 {t("p3Post")}
               </p>
             </div>
-            <div className="flex items-center justify-center border border-ink/10 bg-linen p-10 text-center md:translate-y-16 md:shadow-elevated">
+            {/* Same card family as How It Works / Our Reach — white,
+                hairline border, icon chip — carrying the overhang moment
+                (kept deliberately singular). */}
+            <div className="flex items-center justify-center border border-ink/10 bg-white p-10 text-center shadow-elevated-sm md:translate-y-16 md:shadow-elevated">
               <div>
-                <Sprout
-                  size={28}
-                  strokeWidth={1.5}
+                <span
                   aria-hidden="true"
-                  className="mx-auto text-pine"
-                />
+                  className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-pine/25 bg-linen"
+                >
+                  <Sprout
+                    size={24}
+                    strokeWidth={1.5}
+                    className="text-pine"
+                  />
+                </span>
                 <p className="mt-4 font-display text-display-xl tabular-nums text-wheat-dark">
                   {company.farmersConnected
                     ? `${company.farmersConnected / 100000}L+`
