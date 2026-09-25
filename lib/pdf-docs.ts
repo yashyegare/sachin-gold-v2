@@ -3,7 +3,7 @@ import { company, siteUrl } from "@/data/company";
 import { services, getServiceBySlug } from "@/data/services";
 import { getProductsByService } from "@/data/products";
 import { customers } from "@/data/customers";
-import { rateGroups } from "@/data/rates";
+import { getLiveRateGroups } from "@/lib/rates-source";
 import { routing } from "@/i18n/routing";
 import {
   createPdfKit,
@@ -192,6 +192,9 @@ export async function renderProfilePdf(locale: string): Promise<Uint8Array> {
 
 export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
   const msgs = (await import(`@/messages/${locale}.json`)).default;
+  // Same live source as the Rates page: the downloadable rate card can
+  // never disagree with the site (sheet down → static "On request" rows).
+  const { groups: rateGroups } = await getLiveRateGroups();
   const pdfLabels: Record<string, string> = msgs.rates.pdfLabels ?? {};
   const L = (key: string, en: string) => pdfLabels[key] || en;
 
@@ -218,6 +221,12 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
   const flagship = (msgs.rates.flagship as string) || "";
   const productHeader = msgs.rates.productHeader || "Product";
   const rateHeader = msgs.rates.rateHeader || "Indicative rate";
+
+  // Live prices arrive formatted with "₹" (en-IN). The English document
+  // uses Helvetica/WinAnsi, which cannot encode "₹" (0x20b9) — pdf-lib
+  // throws at draw time. Render "Rs 50,000" instead; Indic-locale PDFs
+  // embed real Noto fonts and keep the true "₹".
+  const rupee = (s: string) => s.replace(/₹\s*/, "Rs ");
 
   for (const group of rateGroups) {
     kit.sectionTitle(msgs.rates.groups?.[group.title] || group.title);
@@ -253,8 +262,9 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
         size: 9.5,
         font: kit.bold,
       });
-      // Price at a fixed right column.
-      const price = item.price;
+      // Price at a fixed right column ("Rs"-prefixed in Latin locales —
+      // WinAnsi can't encode ₹; see the rupee() note above).
+      const price = rupee(item.price);
       const priceW = kit.helv.widthOfTextAtSize(price, 9);
       kit.text(price, {
         size: 9,

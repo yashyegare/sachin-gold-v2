@@ -15,7 +15,12 @@ import CTA from "@/components/CTA";
 import PageIntro from "@/components/PageIntro";
 import Reveal from "@/components/Reveal";
 import { buildAlternates } from "@/i18n/seo";
-import { rateGroups, ratesLastUpdated, hasRealRates } from "@/data/rates";
+import { ratesLastUpdated } from "@/data/rates";
+import { getLiveRateGroups } from "@/lib/rates-source";
+
+// Published pages refresh in the background when the sheet changes —
+// the safety net under the instant /api/revalidate-rates webhook.
+export const revalidate = 300;
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
@@ -58,16 +63,17 @@ export async function generateMetadata({
 }
 
 // Offer/PriceSpecification structured data — activates automatically the
-// moment priceValue fields are filled in data/rates.ts. Deliberately emits
-// nothing while every price is "On request": Google must never see
-// placeholder pricing. English-only for now (same policy as the FAQ
-// schema): the numbers are locale-neutral once real rates land.
-function ratesJsonLd() {
-  if (!hasRealRates()) return null;
+// moment any item has a numeric priceValue (live from the Google Sheet).
+// Deliberately emits nothing while prices are "On request": Google must
+// never see placeholder pricing. English-only for now (same policy as
+// the FAQ schema): the numbers are locale-neutral once real rates land.
+function ratesJsonLd(groups: Awaited<ReturnType<typeof getLiveRateGroups>>["groups"]) {
+  if (!groups.some((g) => g.items.some((i) => i.priceValue !== undefined)))
+    return null;
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    itemListElement: rateGroups.flatMap((group, gi) =>
+    itemListElement: groups.flatMap((group, gi) =>
       group.items
         .filter((item) => item.priceValue !== undefined)
         .map((item, ii) => ({
@@ -96,7 +102,12 @@ export default async function RatesPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("rates");
-  const jsonLd = ratesJsonLd();
+  // Live prices from the owner's Google Sheet (see lib/rates-source.ts),
+  // overlaid on the static fallback — a broken feed degrades to "On
+  // request" rows, never to a broken page. Cached 5 min; the
+  // /api/revalidate-rates webhook refreshes instantly on sheet edits.
+  const { groups: rateGroups } = await getLiveRateGroups();
+  const jsonLd = ratesJsonLd(rateGroups);
   const leadGroup = rateGroups[0];
 
   return (

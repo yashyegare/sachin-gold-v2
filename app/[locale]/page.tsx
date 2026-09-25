@@ -12,7 +12,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/i18n/seo";
 import { getFeaturedProducts } from "@/data/products";
-import { hasRealRates } from "@/data/rates";
+import { hasLiveRealRates, getLiveTickerRates } from "@/lib/rates-source";
 
 interface Props {
   params: { locale: string };
@@ -33,6 +33,10 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("home");
+  // Live gate for the ticker vs. static-strip decision — same contract as
+  // the old hasRealRates(), but from the Google Sheet, cached 5 min.
+  const hasRealRates = await hasLiveRealRates();
+  const tickerRates = hasRealRates ? await getLiveTickerRates() : [];
 
   return (
     <>
@@ -43,8 +47,8 @@ export default async function HomePage({ params }: Props) {
           - No real prices yet → the static link strip below. The old site
             shipped a ticker showing "₹ --" to production; this site never
             will. */}
-      {hasRealRates() ? (
-        <RatesTicker />
+      {hasRealRates ? (
+        <RatesTicker rates={tickerRates} />
       ) : (
         <Link
           href="/rates"

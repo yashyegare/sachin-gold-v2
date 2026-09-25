@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getTickerRates } from "@/data/rates";
+import { getLiveTickerRates } from "@/lib/rates-source";
+
+/**
+ * Data flow: prices come from the owner's Google Sheet via
+ * lib/rates-source.ts (cached, sheet-down → static fallback). The item
+ * list is passed in from the server so this client component never
+ * fetches anything itself.
+ */
 
 /**
  * Home rates ticker — the old site's scrolling strip, rebuilt with its two
@@ -23,9 +30,12 @@ import { getTickerRates } from "@/data/rates";
  * sequence so the loop has no visible seam. Product names stay Latin in
  * every locale (trade terms); the "Today" badge and pause labels translate.
  */
-export default function RatesTicker() {
+export default function RatesTicker({
+  rates,
+}: {
+  rates: { product: string; price: string }[];
+}) {
   const t = useTranslations("home.ratesStrip");
-  const rates = getTickerRates();
   const [paused, setPaused] = useState(false);
 
   // Pause via keyboard when focus lands on a ticker link — Space/Enter
