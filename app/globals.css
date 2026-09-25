@@ -383,14 +383,18 @@
     z-index: 2;
     scale: 1;
   }
-  /* The stage index ("01 · Stage N") swaps with its photo by the same
-     rules — but the five indices share one bottom row of layout space,
-     so they toggle with visibility (cheap, keeps slot positions) rather
-     than opacity. */
+  /* The stage index ("01") follows the photo's stage. All five numbers
+     stack at one bottom-left anchor with exactly one visible:
+     - default (nothing hovered/focused) → 01 shows;
+     - hovering/focusing any stage → 01 hides (the :not(:has()) guard —
+       without it 01 stayed painted under the hovered number, which
+       read as "the number never changes") and that stage's shows.
+     Visibility (not opacity) keeps the shared anchor cheap to paint. */
   .sg-index {
     visibility: hidden;
   }
-  .sg-index-1 {
+  .sg-board:not(:has(.sg-stage:hover), :has(.sg-stage:focus-visible))
+    .sg-index-1 {
     visibility: visible;
   }
   .sg-board:is(:has(.sg-stage-1:hover), :has(.sg-stage-1:focus-visible)) .sg-index-1,

@@ -92,7 +92,10 @@ export default async function ServicesShowcase() {
             to the right of the rail; below md it doesn't render at all —
             the rail alone carries the five stages (photos of every stage
             already exist on the service pages one tap away). */}
-        <div className="sg-board mt-14 grid items-center gap-12 md:mt-16 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-14">
+        {/* Column split: the window takes a 35% share (7/20) — the second
+            size-down after the aspect change; the rail absorbs the freed
+            width, which also gives the one-line stage titles more room. */}
+        <div className="sg-board mt-14 grid items-center gap-12 md:mt-16 md:grid-cols-[minmax(0,13fr)_minmax(0,7fr)] md:gap-14">
           <div className="relative">
             {/* The flow line — vertical spine on mobile, horizontal on md+,
                 drawn beneath the connector dots. Gold at the sourcing end,
@@ -185,7 +188,7 @@ export default async function ServicesShowcase() {
                   key={service.slug}
                   src={service.image}
                   alt=""
-                  sizes="(min-width: 1024px) 40vw, 45vw"
+                  sizes="(min-width: 1024px) 30vw, 45vw"
                   imageClassName={`sg-photo sg-photo-${i + 1}`}
                 />
               ))}
