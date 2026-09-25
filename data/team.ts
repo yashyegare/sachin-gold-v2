@@ -20,16 +20,21 @@ export const team: TeamMember[] = [
   {
     name: "Mr. Sachin Shivajirao Hude",
     role: "Director",
-    // Migrated from the old repo: assets/img/team/mr_sachin_img.png
+    // Migrated from the old repo: assets/img/team/mr_sachin_img.png —
+    // re-encoded from source with unsharp-mask sharpening (the old
+    // webp encode was soft; see the 2026-09 About clarity fix).
     image: "/images/team/sachin-hude.webp",
+    imageShape: "landscape",
     facebook:
       "https://www.facebook.com/people/Sachin-Shivajirao-Hude/61583847605206/",
   },
   {
     name: "Mr. Sandeep Shivajirao Hude",
     role: "Director",
-    // Migrated from the old repo: assets/img/team/mr_sandeep.jpg
+    // Migrated from the old repo: assets/img/team/mr_sandeep.jpg —
+    // re-encoded with sharpening from source.
     image: "/images/team/sandeep-hude.webp",
+    imageShape: "landscape",
     facebook: "https://www.facebook.com/sandeep.hude.14/",
   },
 ];

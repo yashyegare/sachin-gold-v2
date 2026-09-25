@@ -275,22 +275,26 @@ export default async function AboutPage({ params }: Props) {
               the same real data the site shows into a print-ready PDF
               generated from the data layer at /profile.pdf. Placed here,
               right after the process story it excerpts, as a quiet
-              action rather than a shouty banner. */}
-          <Reveal>
-            <PdfDownloadButton
-              href="/profile.pdf"
-              label={t("downloadProfile")}
-              hint="PDF"
-              variant="quiet"
-            />
+              action rather than a shouty banner — aligned to the grid's
+              left edge so it reads as part of the section, not a stray
+              floating element. */}
+          <Reveal className="mt-12">
+            <div className="max-w-xl">
+              <PdfDownloadButton
+                href="/profile.pdf"
+                label={t("downloadProfile")}
+                hint="PDF"
+                variant="quiet"
+              />
+            </div>
           </Reveal>
         </div>
       </section>
 
       {/* State-of-the-art processing — real photo behind the facility
-          tour link, unchanged from before, now with Reveal like every
-          other section on the page. Extra top padding on md+ gives the
-          Community callout's overhang its headroom. */}
+          tour link, now with the video's own thumbnail frame. Extra top
+          padding on md+ gives the Community callout's overhang its
+          headroom. */}
       <section className="section-standard border-t border-ink/10 bg-linen/40 md:pt-24">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
@@ -314,26 +318,31 @@ export default async function AboutPage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* Aerial plant photo behind the facility-tour link — Home
-                  only ever shows this shot as a 25%-opacity texture, so
-                  this is its first appearance as a photograph. */}
+              {/* The facility-tour video's actual YouTube thumbnail frame
+                  (pulled from the video itself into
+                  /images/facility/facility-tour-poster.webp) — a preview
+                  should show the video, not a stand-in photo. The heavy
+                  pine gradient of the old treatment is gone: over a real
+                  frame, the play chip, hairline border and hover lift
+                  carry the affordance, with only a whisper of scrim for
+                  play-button contrast. */}
               <a
                 href="https://youtu.be/v8zIFCYXlDs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex aspect-video items-center justify-center overflow-hidden border border-ink/10 shadow-elevated-lg transition-shadow hover:shadow-elevated-deep"
+                className="group relative flex aspect-video items-center justify-center overflow-hidden border border-ink/10 shadow-elevated-lg transition-all duration-300 [transition-timing-function:var(--ease-brand)] hover:-translate-y-1 hover:shadow-elevated-deep"
               >
                 <BrandPhoto
-                  src="/images/home/aerial-plant.webp"
+                  src="/images/facility/facility-tour-poster.webp"
                   alt=""
                   sizes="(min-width: 768px) 50vw, 100vw"
                   imageClassName="transition-transform duration-700 group-hover:scale-[1.03]"
                 />
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-br from-pine-deep/70 via-pine-deep/45 to-pine-deep/25"
+                  className="absolute inset-0 bg-pine-deep/20 transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:bg-pine-deep/5"
                 />
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-wheat transition-transform group-hover:scale-105">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-wheat shadow-elevated ring-4 ring-white/25 transition-transform duration-300 [transition-timing-function:var(--ease-brand)] group-hover:scale-105">
                   <svg
                     width="20"
                     height="20"
@@ -344,7 +353,7 @@ export default async function AboutPage({ params }: Props) {
                     <path d="M5 3l12 7-12 7V3z" />
                   </svg>
                 </span>
-                <span className="absolute bottom-4 left-0 right-0 text-center text-xs font-medium uppercase tracking-widest text-white/0 transition-colors duration-200 group-hover:text-white/70">
+                <span className="absolute bottom-4 left-0 right-0 text-center text-xs font-medium uppercase tracking-widest text-white/0 transition-colors duration-200 group-hover:text-white/80">
                   {t("videoCaption")}
                 </span>
                 <span className="sr-only">{t("videoSr")}</span>
@@ -362,7 +371,14 @@ export default async function AboutPage({ params }: Props) {
             title={t("teamTitle")}
             align="center"
           />
-          <div className="mx-auto mt-12 grid max-w-3xl gap-10 sm:grid-cols-3">
+          {/* Portrait-ratio photos (Founder placeholder — none exists
+              yet) render as the round headshot; the directors' real
+              photos are landscape studio shots, so they render at their
+              full ratio in a bordered card — same presentation the old
+              site used, where they looked clear and correct. A photo
+              squeezed into a small square crop is exactly what made the
+              directors look blurry. */}
+          <div className="mx-auto mt-12 grid max-w-4xl gap-10 sm:grid-cols-3">
             {team.map((member) => (
               <div key={member.name} className="group space-y-2">
                 <div className="transition-transform duration-300 group-hover:-translate-y-1">

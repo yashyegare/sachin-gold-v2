@@ -77,7 +77,7 @@ export default function PdfDownloadButton({
   return (
     <a
       href={href}
-      className={`group flex w-full items-center gap-4 px-5 py-4 transition-all duration-200 [transition-timing-function:var(--ease-brand)] sm:w-auto sm:min-w-[340px] sm:max-w-md ${bar} ${className}`}
+      className={`group flex w-full items-center gap-4 rounded-sm px-5 py-4 transition-all duration-200 [transition-timing-function:var(--ease-brand)] sm:w-[360px] ${bar} ${className}`}
     >
       <span
         aria-hidden="true"
@@ -86,11 +86,11 @@ export default function PdfDownloadButton({
         <FileText size={18} strokeWidth={1.75} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-medium leading-snug [text-wrap:balance]">
+        <span className="block text-sm font-medium leading-snug transition-colors duration-200 [transition-timing-function:var(--ease-brand)] [text-wrap:balance] group-hover:text-pine">
           {label}
         </span>
         {hint ? (
-          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider opacity-50">
+          <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wider opacity-60">
             {hint}
           </span>
         ) : null}

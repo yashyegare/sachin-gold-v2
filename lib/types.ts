@@ -63,6 +63,13 @@ export interface TeamMember {
   name: string;
   role: string;
   image: string; // "" until the real photo is migrated — see data/team.ts
+  /** Photo aspect: "landscape" renders the full-ratio bordered card (the
+   *  directors' 16:9 studio shots, matching the old site's presentation);
+   *  undefined renders the round headshot (circle reserved for circular
+   *  identity elements — portraits/placeholders only). Explicit data, not
+   *  sniffed from the URL: whether a photo is a landscape studio shot is
+   *  an editorial fact about the image, not something a path can tell you. */
+  imageShape?: "landscape";
   facebook?: string;
 }
 

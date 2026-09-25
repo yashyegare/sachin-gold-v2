@@ -7,17 +7,33 @@ import { services } from "@/data/services";
 
 /**
  * "What We Do" — the five services presented as one continuous value
- * chain: sourcing → processing → extraction → storage → delivery. The
- * chain metaphor is the business explained in one glance, which a grid
- * of five equal cards could never do.
+ * chain: sourcing → processing → extraction → storage → delivery.
  *
- * Desktop: horizontal chain — numbered stage markers joined by a flow
- * line, photo cards beneath; the hovered card lifts and brightens its
- * image (pure CSS, no JS).
- * Mobile: the same cards stack vertically with the chain line running
- * down the left edge.
- * Reduced motion: the reveal simply lands instantly (global rule), and
- * hover lifts are cosmetic-only.
+ * One deep-pine band, five stages readable left-to-right in a single
+ * glance: a numbered stage rail (connector dots joined by a flow line
+ * that starts gold at sourcing and fades toward delivery) above a slim
+ * name row, each entry a full-card link. The photography lives in a
+ * shared reveal window on the band's right edge — sweep the row and the
+ * photo of the stage under the cursor cross-fades in, with a big stage
+ * index matching it. The window is pre-seeded with stage 1 so it never
+ * sits blank.
+ *
+ * Why dark: the page rhythm around this section is white (StatsBand)
+ * above and linen (statement) below — a light card grid there would be
+ * a third pale band in a row. The dark band also earns the hover reveal:
+ * photos surfacing out of deep green reads as premium, and it sets the
+ * section apart from the (also card-based) products grid further down.
+ *
+ * The rail→photo pairing is pure CSS (no JS, no state): rows carry
+ * `.sg-stage-N`, photos `.sg-photo-N`, index blocks `.sg-index-N`, all
+ * under a `.sg-board` wrapper — the `:has()` rules live in globals.css.
+ * Touch/keyboard get the same behaviour via :focus-visible; on touch the first tap focuses the row
+ * (lifting its photo) and following the link needs a second tap — the
+ * standard hover-preview trade-off, and the service pages remain one
+ * tap away regardless.
+ *
+ * Reduced motion: the reveal lands instantly (global rule) and the
+ * photo cross-fade degrades to a simple swap.
  */
 const stageIcons: Record<string, LucideIcon> = {
   "commodity-trading": Wheat,
@@ -27,112 +43,195 @@ const stageIcons: Record<string, LucideIcon> = {
   logistics: Truck,
 };
 
-const slideImages: Record<string, string> = {
-  "commodity-trading": "/images/hero/trading.webp",
-  "pulses-processing": "/images/services/pulses-processing.webp",
-  "oil-extraction": "/images/hero/extraction.webp",
-  "cold-storage": "/images/hero/warehousing.webp",
-  logistics: "/images/hero/logistics.webp",
-};
-
 export default async function ServicesShowcase() {
   const t = await getTranslations("home.showcase");
   const tServices = await getTranslations("services");
 
   return (
     <section
-      className="mx-auto max-w-6xl px-6 py-24 md:py-28"
+      className="relative overflow-hidden bg-pine-deep"
       aria-labelledby="what-we-do"
     >
-      <Reveal>
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-wheat-dark">
-          {t("eyebrow")}
-        </p>
-        <h2
-          id="what-we-do"
-          className="mt-3 max-w-2xl font-display text-display-lg text-ink"
-        >
-          {t("title")}
-        </h2>
-        <p className="mt-4 max-w-xl text-ink/60">{t("subtitle")}</p>
-      </Reveal>
-
-      <div className="relative mt-14">
-        {/* The chain line — horizontal on desktop, vertical spine on mobile. */}
-        <span
-          aria-hidden="true"
-          className="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-pine/40 via-pine/25 to-pine/10 md:left-0 md:right-0 md:top-[27px] md:h-px md:w-auto md:bg-gradient-to-r"
+      {/* Aerial-plant texture at a whisper — the same backdrop WhySachinGold
+          uses, so the two dark bands read as one family, not two decisions.
+          Never a photograph here at full strength: the hover-reveal window
+          below is the section's one moment of photography. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.12] [filter:saturate(0.8)]"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/home/aerial-plant.webp"
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
         />
-
-        <ol className="grid gap-10 md:grid-cols-5 md:gap-4">
-          {services.map((service, i) => {
-            const Icon = stageIcons[service.slug] ?? Wheat;
-            return (
-              <li key={service.slug} className="relative">
-                <Reveal>
-                  {/* Stage marker on the chain */}
-                  <div className="relative z-10 flex items-center gap-4 md:block">
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-pine/25 bg-white font-display text-lg text-pine shadow-elevated-sm">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-wheat-dark md:mt-3 md:text-center">
-                      {t("stage", { n: i + 1 })}
-                    </p>
-                  </div>
-
-                  {/* Card */}
-                  <Link
-                    href={service.href}
-                    className="group mt-4 block border border-ink/10 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-pine/40 hover:shadow-elevated-lg md:mt-5"
-                  >
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <BrandPhoto
-                        src={service.image}
-                        alt=""
-                        sizes="(min-width: 768px) 20vw, 100vw"
-                        imageClassName="opacity-90 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
-                      />
-                      <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-pine-deep/80 text-linen backdrop-blur-sm">
-                        <Icon size={15} aria-hidden="true" />
-                      </span>
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-display text-base leading-snug text-ink transition-colors group-hover:text-pine">
-                        {tServices(`items.${service.slug}.title`)}
-                      </h3>
-                      {/* Fact-led stage note (translated, real figures);
-                          falls back to the short description. */}
-                      <p className="mt-2 text-[0.7rem] leading-relaxed text-ink/70">
-                        {tServices.has(`items.${service.slug}.stageNote`)
-                          ? tServices(`items.${service.slug}.stageNote`)
-                          : service.shortDescription}
-                      </p>
-                      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-wheat-dark transition-all group-hover:gap-2 group-hover:text-pine">
-                        {t("explore")}
-                        <ArrowRight size={11} aria-hidden="true" />
-                      </span>
-                    </div>
-                  </Link>
-                </Reveal>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="absolute inset-0 bg-gradient-to-b from-pine-deep/60 via-pine-deep/85 to-pine-deep" />
       </div>
 
-      <Reveal className="mt-12 text-center">
-        <Link
-          href="/services"
-          className="group inline-flex items-center gap-2 rounded-sm border border-pine px-7 py-3 text-sm font-semibold text-pine transition-colors hover:bg-pine hover:text-white"
-        >
-          {t("cta")}
-          <ArrowRight
-            size={14}
-            aria-hidden="true"
-            className="transition-transform group-hover:translate-x-0.5"
-          />
-        </Link>
-      </Reveal>
+      <div className="relative mx-auto max-w-6xl px-6 py-24 md:py-32">
+        {/* Heading is uncapped so the title holds one line on desktop
+            (the old max-w-2xl cap forced "…end to end" to wrap); the
+            subtitle keeps its own readable measure. display-md below md
+            keeps even the long translated titles to one line on tablets. */}
+        <Reveal>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-wheat-bright">
+            {t("eyebrow")}
+          </p>
+          <h2
+            id="what-we-do"
+            className="mt-3 font-display text-display-md text-white md:text-display-lg"
+          >
+            {t("title")}
+          </h2>
+          <p className="mt-4 max-w-xl text-white/65">{t("subtitle")}</p>
+        </Reveal>
+
+        {/* The stage rail + shared photo window. On md+ the window rides
+            to the right of the rail; below md it doesn't render at all —
+            the rail alone carries the five stages (photos of every stage
+            already exist on the service pages one tap away). */}
+        <div className="sg-board mt-14 grid items-center gap-12 md:mt-16 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] md:gap-14">
+          <div className="relative">
+            {/* The flow line — vertical spine on mobile, horizontal on md+,
+                drawn beneath the connector dots. Gold at the sourcing end,
+                fading toward delivery: the chain has a direction. */}
+            <span
+              aria-hidden="true"
+              className="absolute left-[11px] top-6 bottom-6 w-px bg-white/15 md:left-[11px] md:right-2 md:top-[11px] md:bottom-auto md:h-px md:w-auto"
+            />
+
+            <ol className="grid gap-2 sm:gap-3 md:grid-cols-5 md:gap-3">
+              {services.map((service, i) => {
+                const Icon = stageIcons[service.slug] ?? Wheat;
+                return (
+                  <li
+                    key={service.slug}
+                    className={`sg-stage sg-stage-${i + 1} relative`}
+                  >
+                    <Reveal
+                      style={{ transitionDelay: `${i * 90}ms` }}
+                      className="h-full"
+                    >
+                      {/* Full-card link: connector dot, stage number, name,
+                          one-line note — all one tap target. */}
+                      <Link
+                        href={service.href}
+                        className="group block rounded-sm pb-3 pt-4 outline-none transition-transform duration-300 [transition-timing-function:var(--ease-brand)] hover:-translate-y-1 focus-visible:-translate-y-1 md:pb-0 md:pt-0 md:pr-3"
+                      >
+                        {/* Stage marker on the rail. The dot fills gold on
+                            hover — the flow line lights up stage by stage
+                            as you sweep across the chain. */}
+                        <span className="relative z-10 flex h-[22px] w-[22px] items-center justify-center md:h-6 md:w-6">
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-0 rounded-full border border-white/25 bg-pine-deep transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:border-wheat group-focus-visible:border-wheat"
+                          />
+                          <span className="relative font-display text-[11px] leading-none text-white/70 transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:text-wheat-bright group-focus-visible:text-wheat-bright">
+                            {i + 1}
+                          </span>
+                        </span>
+
+                        <span className="mt-3 flex items-center gap-2 md:mt-4">
+                          <Icon
+                            size={15}
+                            strokeWidth={1.75}
+                            aria-hidden="true"
+                            className="shrink-0 text-wheat-bright/75 transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:text-wheat-bright"
+                          />
+                          <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/45">
+                            {t("stage", { n: i + 1 })}
+                          </span>
+                        </span>
+
+                        <h3 className="mt-1.5 font-display text-base leading-snug text-white transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:text-wheat-bright md:text-[1.05rem]">
+                          {tServices(`items.${service.slug}.title`)}
+                        </h3>
+
+                        {/* Fact-led stage note (translated, real figures);
+                            falls back to the short description. Hidden on
+                            the smallest screens to keep one-glance density. */}
+                        <p className="mt-1.5 hidden text-xs leading-relaxed text-white/50 sm:block">
+                          {tServices.has(`items.${service.slug}.stageNote`)
+                            ? tServices(`items.${service.slug}.stageNote`)
+                            : service.shortDescription}
+                        </p>
+
+                        <span className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-white/55 transition-all duration-300 [transition-timing-function:var(--ease-brand)] group-hover:gap-2.5 group-hover:text-wheat-bright group-focus-visible:text-wheat-bright">
+                          {t("explore")}
+                          <ArrowRight size={12} aria-hidden="true" />
+                        </span>
+                      </Link>
+                    </Reveal>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          {/* Shared reveal window. Five photos and five index blocks sit
+              stacked in one frame; each row's hover/focus lifts its own
+              pair via the globals.css :has() rules. opacity + z-index
+              (not visibility) so the cross-fade is a true fade. The 4/3
+              landscape frame matches the photos' own orientation — a
+              portrait window here stretched the band and dwarfed the
+              rail. Centered against the rail's height, it reads as a
+              framed panel, not a second column. */}
+          <Reveal className="hidden md:block">
+            <div className="showcase-window relative aspect-[4/3] overflow-hidden border border-white/10 shadow-elevated-deep">
+              {services.map((service, i) => (
+                <BrandPhoto
+                  key={service.slug}
+                  src={service.image}
+                  alt=""
+                  sizes="(min-width: 1024px) 40vw, 45vw"
+                  imageClassName={`sg-photo sg-photo-${i + 1}`}
+                />
+              ))}
+              {/* Static veil — keeps any photo legible against the dark
+                  band without dimming the hovered one into mud. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-[3] bg-gradient-to-t from-pine-deep/45 via-transparent to-pine-deep/10"
+              />
+              {/* Stage number anchor — one number, always at the bottom
+                  left of whichever stage photo is showing. All five
+                  blocks stack at the same anchor (the old flex row gave
+                  each stage its own slot across the bottom, so the
+                  number jumped around); the globals.css rules make
+                  exactly one visible at a time. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute bottom-5 left-5 z-[3]"
+              >
+                {services.map((service, i) => (
+                  <p
+                    key={service.slug}
+                    className={`sg-index sg-index-${i + 1} absolute bottom-0 left-0 font-display text-display-lg leading-none text-white [text-shadow:0_2px_18px_rgba(6,19,12,0.6)]`}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        <Reveal className="mt-14">
+          <Link
+            href="/services"
+            className="group inline-flex items-center gap-2.5 rounded-sm border border-white/25 px-7 py-3 text-sm font-semibold text-white transition-all duration-300 [transition-timing-function:var(--ease-brand)] hover:border-wheat hover:bg-wheat hover:text-pine-deep"
+          >
+            {t("cta")}
+            <ArrowRight
+              size={14}
+              aria-hidden="true"
+              className="transition-transform duration-300 [transition-timing-function:var(--ease-brand)] group-hover:translate-x-0.5"
+            />
+          </Link>
+        </Reveal>
+      </div>
     </section>
   );
 }

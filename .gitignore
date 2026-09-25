@@ -6,3 +6,7 @@ out
 .env*.local
 tsconfig.tsbuildinfo
 .freebuff/
+
+# local preview server logs
+server.log
+server.err

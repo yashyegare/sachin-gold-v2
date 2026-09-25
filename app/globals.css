@@ -346,3 +346,57 @@
     }
   }
 }
+
+  /* ————— ServicesShowcase: rail → photo pairing —————
+
+     The five stage rows each pair with one photo in the shared reveal
+     window (hidden below md). Rows carry `.sg-stage-N`, their photo
+     `.sg-photo-N`, their index overlay `.sg-index-N`; hovering or
+     keyboard-focusing a row lifts its pair. The pairing is pure CSS via
+     :has() on the shared `.sg-board` container (no JS, no state, works
+     with the server component; reduced-motion falls out of the global
+     rule). Browsers without :has() simply keep the window on stage 1 —
+     a progressive enhancement, never a broken state. */
+  .sg-photo {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    z-index: 0;
+    scale: 1.05;
+    transition:
+      opacity 0.55s var(--ease-brand),
+      scale 0.55s var(--ease-brand);
+  }
+  /* Default = stage 1. z-index (not visibility) keeps the cross-fade a
+     true fade; the z lift also lets the settled photo's zoom relax back
+     to 1 while the next one rises — opposite moves read as depth. */
+  .sg-photo-1 {
+    opacity: 1;
+    z-index: 1;
+  }
+  .sg-board:is(:has(.sg-stage-1:hover), :has(.sg-stage-1:focus-visible)) .sg-photo-1,
+  .sg-board:is(:has(.sg-stage-2:hover), :has(.sg-stage-2:focus-visible)) .sg-photo-2,
+  .sg-board:is(:has(.sg-stage-3:hover), :has(.sg-stage-3:focus-visible)) .sg-photo-3,
+  .sg-board:is(:has(.sg-stage-4:hover), :has(.sg-stage-4:focus-visible)) .sg-photo-4,
+  .sg-board:is(:has(.sg-stage-5:hover), :has(.sg-stage-5:focus-visible)) .sg-photo-5 {
+    opacity: 1;
+    z-index: 2;
+    scale: 1;
+  }
+  /* The stage index ("01 · Stage N") swaps with its photo by the same
+     rules — but the five indices share one bottom row of layout space,
+     so they toggle with visibility (cheap, keeps slot positions) rather
+     than opacity. */
+  .sg-index {
+    visibility: hidden;
+  }
+  .sg-index-1 {
+    visibility: visible;
+  }
+  .sg-board:is(:has(.sg-stage-1:hover), :has(.sg-stage-1:focus-visible)) .sg-index-1,
+  .sg-board:is(:has(.sg-stage-2:hover), :has(.sg-stage-2:focus-visible)) .sg-index-2,
+  .sg-board:is(:has(.sg-stage-3:hover), :has(.sg-stage-3:focus-visible)) .sg-index-3,
+  .sg-board:is(:has(.sg-stage-4:hover), :has(.sg-stage-4:focus-visible)) .sg-index-4,
+  .sg-board:is(:has(.sg-stage-5:hover), :has(.sg-stage-5:focus-visible)) .sg-index-5 {
+    visibility: visible;
+  }
