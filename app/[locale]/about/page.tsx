@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { MapPin, Sprout, Wheat, Factory, Warehouse, Truck } from "lucide-react";
+import {
+  MapPin,
+  Sprout,
+  Wheat,
+  Factory,
+  Warehouse,
+  Truck,
+  Droplets,
+  Gauge,
+  Store,
+  FlaskConical,
+  ThermometerSnowflake,
+  type LucideIcon,
+} from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
@@ -218,34 +231,105 @@ export default async function AboutPage({ params }: Props) {
           Numbered stages are the right device here (unlike the service
           page's "advantages" list) because sourcing → processing →
           storage → logistics is a genuine, ordered sequence. */}
+      {/* How It Works — new section, built from real facts that already
+          existed scattered across the 5 service pages (sourcing details
+          from commodity-trading, the 550t/day Buhler line from pulses,
+          solvent extraction from oil-extraction, dry+cold from
+          cold-storage, the owned fleet from logistics) but never told as
+          one continuous story anywhere on the site.
+
+          Composition: the bare two-column numbers-and-prose grid read as
+          filler — the four stages now sit in equal fact cards (numbered
+          chip + stage icon, narrative, and a real figure pinned to the
+          card foot, so the eye gets a scannable take-away per stage).
+          Card hover mirrors the site-wide lift language; stats all trace
+          to data/company.ts or the service pages (Phase 9 confirm list).
+
+          Each whole tile links to its service page (largest tap target,
+          same full-card pattern as the home rail — friendlier than a
+          small text link). Mapping follows each card's lead story and
+          mirrors the real five-stage chain: Sourcing → commodity
+          trading, Processing → pulses unit, Extraction → oil seed
+          extraction, Storage → cold storage, Logistics → logistics. */}
       <section className="section-standard border-t border-ink/10">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <SectionHeading
               eyebrow={t("processEyebrow")}
               title={t("processTitle")}
+              description={t("processDesc")}
             />
           </Reveal>
-          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Five cards on one desktop row — the full chain at a glance,
+              matching the home rail's five-across rhythm. Slightly lower
+              padding than the 4-up version so the narrower columns keep
+              comfortable gutters. */}
+          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {(
               [
-                { icon: Wheat, title: "process1Title", desc: "process1Desc" },
+                {
+                  icon: Wheat,
+                  statIcon: MapPin,
+                  title: "process1Title",
+                  desc: "process1Desc",
+                  stat: "process1Stat",
+                  href: "/services/commodity-trading",
+                },
                 {
                   icon: Factory,
+                  statIcon: Gauge,
                   title: "process2Title",
                   desc: "process2Desc",
+                  stat: "process2Stat",
+                  href: "/services/pulses-processing",
+                },
+                {
+                  icon: Droplets,
+                  statIcon: FlaskConical,
+                  title: "process3Title",
+                  desc: "process3Desc",
+                  stat: "process3Stat",
+                  href: "/services/oil-extraction",
                 },
                 {
                   icon: Warehouse,
-                  title: "process3Title",
-                  desc: "process3Desc",
+                  statIcon: ThermometerSnowflake,
+                  title: "process4Title",
+                  desc: "process4Desc",
+                  stat: "process4Stat",
+                  href: "/services/cold-storage",
                 },
-                { icon: Truck, title: "process4Title", desc: "process4Desc" },
-              ] as const
+                {
+                  icon: Truck,
+                  statIcon: Store,
+                  title: "process5Title",
+                  desc: "process5Desc",
+                  stat: "process5Stat",
+                  href: "/services/logistics",
+                },
+              ] as const satisfies ReadonlyArray<{
+                icon: LucideIcon;
+                statIcon: LucideIcon;
+                title: string;
+                desc: string;
+                stat: string;
+                href: string;
+              }>
             ).map((stage, i) => (
-              <Reveal key={stage.title}>
-                <div style={{ transitionDelay: `${i * 80}ms` }}>
-                  <div className="flex items-center gap-3">
+              <Reveal
+                key={stage.title}
+                className="h-full"
+                style={{ transitionDelay: `${i * 80}ms` }}
+              >
+                {/* Whole tile as the link — the sitewide :focus-visible
+                    ring lands on the <a> wrapper, the group-hover lift
+                    stays on the card. */}
+                <Link
+                  href={stage.href}
+                  className="group block h-full rounded-sm"
+                >
+                  <article className="flex h-full flex-col border border-ink/10 bg-white p-5 shadow-elevated-sm transition-all duration-300 [transition-timing-function:var(--ease-brand)] group-hover:-translate-y-1 group-hover:border-pine/30 group-hover:shadow-elevated lg:p-6">
+                  <div className="flex items-center justify-between">
                     <span
                       aria-hidden="true"
                       className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-pine/25 bg-linen font-display text-sm text-pine"
@@ -256,7 +340,7 @@ export default async function AboutPage({ params }: Props) {
                       size={20}
                       strokeWidth={1.5}
                       aria-hidden="true"
-                      className="text-wheat-dark"
+                      className="text-wheat-dark transition-transform duration-300 [transition-timing-function:var(--ease-brand)] group-hover:scale-110"
                     />
                   </div>
                   <h3 className="mt-4 font-display text-lg text-ink">
@@ -265,7 +349,27 @@ export default async function AboutPage({ params }: Props) {
                   <p className="mt-2 text-sm leading-relaxed text-ink/65">
                     {t(stage.desc)}
                   </p>
-                </div>
+                  {/* The stage's one real figure, pinned to the card foot
+                      so all four stats align across the row regardless of
+                      how long each narrative runs in any locale. */}
+                  {/* The stage's one real figure, pinned to the card foot.
+                      The foot reserves two text lines (min-h) so the
+                      hairline divider sits at the same height on all five
+                      cards even when a locale's stat wraps — at five-across
+                      widths, several do. */}
+                  <div className="mt-auto min-h-[3.5rem] border-t border-ink/[0.08] pt-3">
+                    <p className="flex items-start gap-1.5 text-xs font-semibold leading-relaxed text-wheat-dark">
+                      <stage.statIcon
+                        size={12}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                        className="mt-0.5 flex-shrink-0"
+                      />
+                      {t(stage.stat)}
+                    </p>
+                  </div>
+                  </article>
+                </Link>
               </Reveal>
             ))}
           </div>
