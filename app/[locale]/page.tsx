@@ -8,7 +8,6 @@ import ProductCard from "@/components/ProductCard";
 import CustomerLogos from "@/components/CustomerLogos";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
-import IntroReveal from "@/components/IntroReveal";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/i18n/seo";
@@ -37,8 +36,6 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      <IntroReveal />
-
       {/* Rates strip FIRST, at the very top — the old site's ticker position.
           One strip, two states driven by one data file:
           - Real prices exist (priceValue set in data/rates.ts) → the

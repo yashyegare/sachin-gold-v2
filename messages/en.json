@@ -26,7 +26,8 @@
     "privacy": "Privacy Policy",
     "rights": "All rights reserved.",
     "legalLine": "Sachin International Proteins Private Limited",
-    "tagline": "Bulk Agro Commodity Trading & Processing"
+    "tagline": "Bulk Agro Commodity Trading & Processing",
+    "profile": "Company profile (PDF)"
   },
   "home": {
     "ratesStrip": {
@@ -154,7 +155,8 @@
       "networkEyebrow": "Our Network",
       "networkTitle": "Where we operate",
       "othersEyebrow": "Explore More",
-      "othersTitle": "Other services"
+      "othersTitle": "Other services",
+      "specSheet": "Download spec sheet (PDF)"
     },
     "items": {
       "commodity-trading": {
@@ -284,7 +286,15 @@
         }
       ]
     },
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "pdfLabels": {
+      "specTitle": "Spec Sheet",
+      "overview": "Overview",
+      "advantages": "Key advantages",
+      "productsInLine": "Products in this line",
+      "where": "Where we operate",
+      "requestQuote": "Request a quote"
+    }
   },
   "rates": {
     "eyebrow": "Market Rates",
@@ -317,7 +327,14 @@
     "productHeader": "Product",
     "rateHeader": "Rate",
     "ctaTitle": "Confirm today's rate before you order.",
-    "ctaDescription": "Call or WhatsApp with your requirement and quantity, and we'll confirm the prevailing rate — in writing."
+    "ctaDescription": "Call or WhatsApp with your requirement and quantity, and we'll confirm the prevailing rate — in writing.",
+    "pdfLabels": {
+      "docTitle": "Indicative Market Rates",
+      "tagline": "Bulk commodity rates — final pricing on request, by volume",
+      "updated": "Updated",
+      "disclaimer": "Rates are indicative and subject to market movement. Final pricing depends on volume, grade and delivery terms — call or message us for a firm quote."
+    },
+    "pdfCta": "Download rate card (PDF)"
   },
   "contact": {
     "eyebrow": "Contact",
@@ -395,7 +412,23 @@
     "storyTitle": "Hear from a partner who trusts us",
     "testimonialWatch": "▶ Watch the customer's video feedback",
     "testimonialFallback": "Your browser does not support the video tag.",
-    "tagline": "Bulk Agro Commodity Trading & Processing"
+    "tagline": "Bulk Agro Commodity Trading & Processing",
+    "processEyebrow": "How It Works",
+    "processTitle": "From Farm Gate to Delivery",
+    "process1Title": "Sourcing",
+    "process1Desc": "We buy directly at the farm gate across Maharashtra and Karnataka, working through long-standing relationships with local farming communities rather than through layers of middlemen.",
+    "process2Title": "Processing",
+    "process2Desc": "Pulses are cleaned and milled on Buhler machinery at 550 tonnes a day, kept unpolished and additive-free. Soya is processed separately through solvent extraction and refining into oil, de-oiled cake and related products.",
+    "process3Title": "Storage",
+    "process3Desc": "Dry warehousing and cold storage run side by side, with pest management and humidity control in place to protect quality between processing and dispatch.",
+    "process4Title": "Logistics",
+    "process4Desc": "A company-owned fleet carries finished goods out to over 1,000 retail stores and enterprise clients across the region.",
+    "downloadProfile": "Download company profile (PDF)",
+    "pdfLabels": {
+      "whatWeDo": "What we do",
+      "facilities": "Our facilities",
+      "talkToUs": "Talk to us"
+    }
   },
   "privacy": {
     "title": "Privacy Policy",

@@ -248,7 +248,7 @@ export default async function LocaleLayout({
               Self-silencing (localStorage); a no-op for returning visitors. */}
           <LanguageGate />
           {/* Dev-only: logs the real LCP element/value to the console so
-              the IntroReveal / hero tradeoff is measured, not argued. */}
+              the hero carousel / font-swap cost is measured, not argued. */}
           <LcpProbe />
         </NextIntlClientProvider>
         {/* Vercel Analytics + Speed Insights — cookieless, no consent banner

@@ -129,9 +129,9 @@
   /* Note: this class does NOT set `position` itself — it requires the
      element already be positioned (relative/absolute/fixed) via its own
      classes. An earlier version set `position: relative` here, but that
-     silently fights any element that legitimately needs `fixed` (as
-     IntroReveal does) — two classes both writing the same CSS property
-     is exactly the kind of bug that looks fine until it doesn't. */
+     silently fights any element that legitimately needs `fixed` — two
+     classes both writing the same CSS property is exactly the kind of
+     bug that looks fine until it doesn't. */
   .grain-dark::after {
     content: "";
     position: absolute;
@@ -344,43 +344,5 @@
     to {
       width: 100%;
     }
-  }
-
-  /* Gold light-sweep — IntroReveal's crest only. A diagonal highlight
-     band, masked to the crest PNG's own alpha shape (so it conforms to
-     the scalloped badge silhouette instead of sweeping across a plain
-     rectangle), translating once across the badge like light catching
-     foil. One deliberate flourish for the one moment on the site that's
-     meant to feel like an event — not reused anywhere else. */
-  @keyframes gold-sweep {
-    from {
-      transform: translateX(-140%) skewX(-12deg);
-    }
-    to {
-      transform: translateX(140%) skewX(-12deg);
-    }
-  }
-
-  .animate-gold-sweep {
-    animation: gold-sweep 0.9s var(--ease-brand) both;
-  }
-
-  /* Soft breathing glow behind the crest — same idea as the glow-gold
-     shadow token from Phase 1 (defined then, unused until now), just
-     needs to actually pulse here rather than sit static. */
-  @keyframes glow-pulse {
-    0%,
-    100% {
-      opacity: 0.5;
-      transform: scale(0.94);
-    }
-    50% {
-      opacity: 0.85;
-      transform: scale(1.04);
-    }
-  }
-
-  .animate-glow-pulse {
-    animation: glow-pulse 2.4s ease-in-out infinite;
   }
 }

@@ -18,6 +18,7 @@ import { buildAlternates } from "@/i18n/seo";
 import { rateGroups, ratesLastUpdated, hasRealRates } from "@/data/rates";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
+import PdfDownloadButton from "@/components/PdfDownloadButton";
 
 interface Props {
   params: { locale: string };
@@ -142,6 +143,15 @@ export default async function RatesPage({ params }: Props) {
               <PhoneCall size={15} aria-hidden="true" />
               {t("callCta", { phone: company.phone })}
             </a>
+            {/* The printable rate card — same data as this page, as a
+                forwardable PDF (counter printout / WhatsApp forward). */}
+            <PdfDownloadButton
+              href="/rates.pdf"
+              label={t("pdfCta")}
+              hint="PDF"
+              variant="solid"
+              className="justify-center border-white/25 bg-white/5 text-white shadow-none hover:border-white/40 hover:bg-white/10 hover:shadow-none"
+            />
           </div>
         </div>
       </PageIntro>

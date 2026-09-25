@@ -4,8 +4,8 @@ import { useEffect } from "react";
 
 /**
  * Dev-only LCP guard — logs the Largest Contentful Paint entry (value,
- * element, attribution) so the real cost of IntroReveal / hero carousel /
- * font swaps is measured, not guessed. Nothing renders; the listener is
+ * element, attribution) so the real cost of the hero carousel / font
+ * swaps is measured, not guessed. Nothing renders; the listener is
  * registered only when process.env.NODE_ENV === "development", so
  * production bundles carry none of this.
  *

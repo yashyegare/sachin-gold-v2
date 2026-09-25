@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { company } from "@/data/company";
+import PdfDownloadButton from "@/components/PdfDownloadButton";
 
 export default async function Footer() {
   const t = await getTranslations("footer");
@@ -76,6 +77,16 @@ export default async function Footer() {
               >
                 {t("privacy")}
               </Link>
+            </li>
+            <li>
+              {/* The forwardable profile — the shared PdfDownloadButton
+                  in its compact footer variant, matching the nav-row
+                  rhythm while keeping the download affordance distinct. */}
+              <PdfDownloadButton
+                href="/profile.pdf"
+                label={t("profile")}
+                variant="footer"
+              />
             </li>
           </ul>
         </nav>

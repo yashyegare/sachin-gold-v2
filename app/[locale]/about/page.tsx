@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { MapPin, Sprout } from "lucide-react";
+import { MapPin, Sprout, Wheat, Factory, Warehouse, Truck } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
@@ -8,6 +8,7 @@ import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import BrandPhoto from "@/components/BrandPhoto";
 import StatsBand from "@/components/StatsBand";
+import PdfDownloadButton from "@/components/PdfDownloadButton";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/i18n/seo";
 import { company } from "@/data/company";
@@ -202,6 +203,88 @@ export default async function AboutPage({ params }: Props) {
             </div>
           </div>
         </Reveal>
+      </section>
+
+      {/* How It Works — new section, built from real facts that already
+          existed scattered across the 5 service pages (sourcing details
+          from commodity-trading, the 550t/day Buhler line from pulses,
+          solvent extraction from oil-extraction, dry+cold from
+          cold-storage, the owned fleet from logistics) but never told as
+          one continuous story anywhere on the site. Home's
+          ServicesShowcase already visualizes the 5 services as a chain;
+          this isn't a duplicate of that — it's the narrative version,
+          consolidating processing's two separate lines (pulses, oil)
+          into one stage, told in real prose rather than a card grid.
+          Numbered stages are the right device here (unlike the service
+          page's "advantages" list) because sourcing → processing →
+          storage → logistics is a genuine, ordered sequence. */}
+      <section className="section-standard border-t border-ink/10">
+        <div className="mx-auto max-w-6xl px-6">
+          <Reveal>
+            <SectionHeading
+              eyebrow={t("processEyebrow")}
+              title={t("processTitle")}
+            />
+          </Reveal>
+          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {(
+              [
+                { icon: Wheat, title: "process1Title", desc: "process1Desc" },
+                {
+                  icon: Factory,
+                  title: "process2Title",
+                  desc: "process2Desc",
+                },
+                {
+                  icon: Warehouse,
+                  title: "process3Title",
+                  desc: "process3Desc",
+                },
+                { icon: Truck, title: "process4Title", desc: "process4Desc" },
+              ] as const
+            ).map((stage, i) => (
+              <Reveal key={stage.title}>
+                <div style={{ transitionDelay: `${i * 80}ms` }}>
+                  <div className="flex items-center gap-3">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-pine/25 bg-linen font-display text-sm text-pine"
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <stage.icon
+                      size={20}
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                      className="text-wheat-dark"
+                    />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg text-ink">
+                    {t(stage.title)}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ink/65">
+                    {t(stage.desc)}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Forwardable profile — a bulk buyer often needs something to
+              hand to someone else in their organization; this compiles
+              the same real data the site shows into a print-ready PDF
+              generated from the data layer at /profile.pdf. Placed here,
+              right after the process story it excerpts, as a quiet
+              action rather than a shouty banner. */}
+          <Reveal>
+            <PdfDownloadButton
+              href="/profile.pdf"
+              label={t("downloadProfile")}
+              hint="PDF"
+              variant="quiet"
+            />
+          </Reveal>
+        </div>
       </section>
 
       {/* State-of-the-art processing — real photo behind the facility
