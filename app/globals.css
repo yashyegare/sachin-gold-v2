@@ -369,7 +369,9 @@
   }
   /* Default = stage 1. z-index (not visibility) keeps the cross-fade a
      true fade; the z lift also lets the settled photo's zoom relax back
-     to 1 while the next one rises — opposite moves read as depth. */
+     to 1 while the next one rises — opposite moves read as depth. The
+     idle window stays at the calm 1.05 base crop; the slow drift only
+     runs while a stage is front (rule below). */
   .sg-photo-1 {
     opacity: 1;
     z-index: 1;
@@ -382,6 +384,18 @@
     opacity: 1;
     z-index: 2;
     scale: 1;
+    /* Ken Burns while a stage is front — the same slow hero drift,
+       so the window feels alive on hover, not like a static slide. */
+    animation: sg-kenburns 9s var(--ease-brand) both;
+  }
+
+  @keyframes sg-kenburns {
+    from {
+      scale: 1.05;
+    }
+    to {
+      scale: 1.14;
+    }
   }
   /* The stage index ("01") follows the photo's stage. All five numbers
      stack at one bottom-left anchor with exactly one visible:
