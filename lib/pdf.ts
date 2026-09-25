@@ -371,24 +371,56 @@ export async function createPdfKit(opts: {
     },
 
     contactBand(heading = "Talk to us") {
-      kit.y += 10;
+      // Anchored to the PHYSICAL bottom of the current page. The old
+      // cursor-drawn band floated mid-page on short documents (rates.pdf,
+      // profile.pdf): band ended where content ended, then dead white
+      // space, then the footer's gold rule alone near the true bottom.
+      // Bottom-anchoring makes every document close the same way. Self-
+      // guards: if band + footer zone don't fit under the cursor, roll a
+      // new page first. Text is placed absolutely — the cursor (which may
+      // sit far above) no longer participates in the band's layout.
       const BAND_H = 86;
-      const bandY = kit.y;
+      const FOOTER_ZONE = 56; // footer text + rule + breathing room
+      if (kit.y + BAND_H + FOOTER_ZONE > PAGE_H) kit.newPage();
+      const bandTop = PAGE_H - FOOTER_ZONE - BAND_H; // from page top
       page.drawRectangle({
         x: 0,
-        y: Y(bandY + BAND_H),
+        y: Y(bandTop),
         width: PAGE_W,
         height: BAND_H,
         color: PINE_DEEP,
       });
-      kit.text(heading, { size: 13, font: bold, color: WHEAT_BRIGHT, dy: 13 });
-      kit.text(company.phone, { size: 9.5, font: helv, color: WHITE, dy: 33 });
-      kit.text(company.email, { size: 9.5, font: helv, color: WHITE, dy: 48 });
-      kit.text(
-        `${siteUrl.replace("https://", "")}  ·  ${company.legalName}`,
-        { size: 8, font: helv, color: WHITE, opacity: 0.75, dy: 63 },
-      );
-      kit.y = bandY + BAND_H;
+      const bx = MARGIN;
+      page.drawText(heading, {
+        x: bx,
+        y: Y(bandTop + 26),
+        size: 13,
+        font: bold,
+        color: WHEAT_BRIGHT,
+      });
+      page.drawText(company.phone, {
+        x: bx,
+        y: Y(bandTop + 42),
+        size: 9.5,
+        font: helv,
+        color: WHITE,
+      });
+      page.drawText(company.email, {
+        x: bx,
+        y: Y(bandTop + 57),
+        size: 9.5,
+        font: helv,
+        color: WHITE,
+      });
+      page.drawText(`${siteUrl.replace("https://", "")}  ·  ${company.legalName}`, {
+        x: bx,
+        y: Y(bandTop + 72),
+        size: 8,
+        font: helv,
+        color: WHITE,
+        opacity: 0.75,
+      });
+      kit.y = bandTop;
     },
 
     async finish() {
@@ -474,14 +506,16 @@ export function drawStatsBand(kit: PdfKit, stats: [string, string][]) {
       font: kit.bold,
       color: PINE,
     });
-    // Collect wrapped lines first, then stack them bottom-up so a
-    // 2-line label never paints over itself (each line 8.5pt apart).
+    // Collect wrapped lines first, then stack them in reading order —
+    // first line highest. (The original reversed the stack, which
+    // printed a wrapping label's lines in the wrong order: "Karnataka"
+    // above "Locations across Maharashtra &".)
     const lines: string[] = [];
     kit.wrapText(label, 7, kit.helv, colW - 24, (line) => lines.push(line));
     lines.forEach((line, li) => {
       kit.page.drawText(line, {
         x: cx,
-        y: Y(MAST_H + 33 + (lines.length - 1 - li) * 8.5),
+        y: Y(MAST_H + 33 + li * 8.5),
         size: 7,
         font: kit.helv,
         color: INK,

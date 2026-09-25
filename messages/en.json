@@ -298,6 +298,9 @@
   },
   "rates": {
     "eyebrow": "Market Rates",
+    "bannerToday": "Today's Rates",
+    "bannerUpdated": "Updated {time}",
+    "bannerCta": "View full rate card",
     "title": "Current Market Rates",
     "description": "Indicative rates for our full trading, processing and extraction lines — reconfirmed at booking, quoted in writing when you enquire.",
     "waCta": "Get today's rate on WhatsApp",

@@ -8,6 +8,7 @@ import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
 import ProductCarousel from "@/components/ProductCarousel";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
+import RatesBanner from "@/components/RatesBanner";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { getServiceBySlug, services } from "@/data/services";
 import { getProductsByService } from "@/data/products";
 import { siteUrl } from "@/data/company";
+import { getLiveRateGroups } from "@/lib/rates-source";
 
 interface Props {
   params: { locale: string; slug: string };
@@ -70,6 +72,57 @@ export default async function ServiceDetailPage({ params }: Props) {
   const t = await getTranslations("services");
   const products = getProductsByService(service.slug);
   const otherServices = services.filter((s) => s.slug !== service.slug);
+
+  // Live-rate spotlight for the two services whose products the owner's
+  // Google Sheet prices (Soya DOC, oils, Toor/Chana/Besan). One shared
+  // fetch, cached 5 min — the same snapshot the home ticker and rates
+  // page use, so the numbers can never disagree between pages. Shows
+  // only the items that belong to this page AND have a real number;
+  // the banner renders nothing when the sheet is down.
+  const spotlightSlugs: Record<string, string[]> = {
+    "oil-extraction": [
+      "soya-doc",
+      "soya-doc-high-pro",
+      "soya-crude-oil",
+      "soya-refined-oil",
+      "soya-acid-oil",
+      "soya-fatty-oil",
+      "soya-lecithin",
+    ],
+    "pulses-processing": ["toor-dal", "chana-dal", "besan-gram-flour"],
+  };
+  let bannerItems: { product: string; price: string }[] = [];
+  let bannerUpdatedOn: string | null = null;
+  const spotlight = spotlightSlugs[service.slug];
+  if (spotlight) {
+    const { groups } = await getLiveRateGroups();
+    const wanted = new Map(
+      groups.flatMap((g) => g.items).map((i) => [i.product, i]),
+    );
+    const bySlug: Record<string, string> = {
+      "soya-doc": "Soya DOC (Normal)",
+      "soya-doc-high-pro": "Soya DOC (High Pro)",
+      "soya-crude-oil": "Soya Crude Oil",
+      "soya-refined-oil": "Soya Refined Oil",
+      "soya-acid-oil": "Soya Acid Oil",
+      "soya-fatty-oil": "Soya Fatty Oil",
+      "soya-lecithin": "Soya Lecithin",
+      "toor-dal": "Toor Dal",
+      "chana-dal": "Chana Dal",
+      "besan-gram-flour": "Besan Flour",
+    };
+    for (const slugKey of spotlight) {
+      const productName = bySlug[slugKey];
+      if (!productName) continue;
+      const item = wanted.get(productName);
+      if (item?.priceValue !== undefined) {
+        bannerItems.push({ product: item.product, price: item.price });
+        bannerUpdatedOn ??= groups.find((g) =>
+          g.items.some((i) => i.product === item.product),
+        )?.updatedOn ?? null;
+      }
+    }
+  }
 
   // Phase 7, item 4 — Service JSON-LD. English source-of-truth (data
   // layer) for now; per-locale schema once translations are reviewed.
@@ -164,6 +217,10 @@ export default async function ServiceDetailPage({ params }: Props) {
           </ol>
         </nav>
       </PageIntro>
+
+      {/* ————— Live-rate spotlight — only on the services whose products
+          the sheet prices; invisible when the sheet is down. */}
+      <RatesBanner items={bannerItems} updatedOn={bannerUpdatedOn} />
 
       {/* ————— Stat strip — only when this service has real, traceable
           figures (values locale-neutral, labels translated). Same
