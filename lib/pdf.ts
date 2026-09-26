@@ -156,7 +156,7 @@ export interface PdfKit {
   sectionTitle: (title: string) => void;
   /** A bulleted line ("– " in wheat) with hanging indent. */
   bullet: (text: string, opts?: { size?: number; gap?: number }) => void;
-  drawFooter: (p: PDFPage) => void;
+  drawFooter: (p: PDFPage, opts?: { ruleY?: number }) => void;
   /** Pine-deep contact band; call ensureSpace(110) first. */
   contactBand: (heading?: string) => void;
   finish: () => Promise<Uint8Array>;
@@ -277,6 +277,9 @@ export async function createPdfKit(opts: {
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
   const pages: PDFPage[] = [page];
+  // Set by contactBand once it draws that page's footer directly under
+  // itself — finish() skips fixed-position footer duty for this page.
+  let bandFooterPage: PDFPage | null = null;
 
   const kit: PdfKit = {
     doc,
@@ -386,7 +389,7 @@ export async function createPdfKit(opts: {
       kit.y += gap;
     },
 
-    drawFooter(p) {
+    drawFooter(p, opts) {
       const line = `${company.name} · ${siteUrl.replace("https://", "")} · ${company.phone}`;
       // PDF user space measures from the BOTTOM. The old code wrapped
       // from-top values in Y() — a double negative that landed in the
@@ -395,9 +398,18 @@ export async function createPdfKit(opts: {
       // stranding the footer against the page edge with a stray line
       // between it and the content above. Correct strip, bottom-up:
       // rule 36 → baseline 44 → 36pt clean page margin.
+      //
+      // opts.ruleY overrides the fixed bottom position — used for the
+      // band's own page (see contactBand) so this page's footer sits
+      // right under the band instead of always at the physical bottom.
+      // Without this override, a sparse continuation page (the band
+      // hugging content near the top) would leave a large dead gap
+      // between the band and a footer still pinned to the true bottom.
+      const ruleY = opts?.ruleY ?? 36;
+      const textY = ruleY + 8;
       p.drawText(line, {
         x: MARGIN,
-        y: 44,
+        y: textY,
         size: 7.5,
         font: helv,
         color: PINE,
@@ -405,7 +417,7 @@ export async function createPdfKit(opts: {
       });
       p.drawRectangle({
         x: MARGIN,
-        y: 36,
+        y: ruleY,
         width: CONTENT_W,
         height: 0.6,
         color: WHEAT_DARK,
@@ -512,10 +524,24 @@ export async function createPdfKit(opts: {
         opacity: 0.75,
       });
       kit.y = bandTop;
+
+      // This page's footer belongs directly under the band, not at the
+      // generic fixed bottom — see drawFooter's ruleY comment. Whether
+      // the band above was bottom-anchored or hugging sparse content,
+      // 24pt below its bottom edge is always correct: on a well-filled,
+      // bottom-anchored page this lands within a couple points of the
+      // old fixed position anyway (BOTTOM_ANCHOR was derived from the
+      // same FOOTER_ZONE), so there's no visible seam between the two
+      // cases — one code path handles both.
+      const bandBottomAbs = Y(bandTop + BAND_H);
+      kit.drawFooter(kit.page, { ruleY: bandBottomAbs - 24 });
+      bandFooterPage = kit.page;
     },
 
     async finish() {
-      for (const p of pages) kit.drawFooter(p);
+      for (const p of pages) {
+        if (p !== bandFooterPage) kit.drawFooter(p);
+      }
       return doc.save();
     },
   };
