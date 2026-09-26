@@ -1,5 +1,7 @@
 import {
   PDFDocument,
+  PDFName,
+  PDFString,
   StandardFonts,
   rgb,
   type PDFFont,
@@ -200,6 +202,40 @@ export function fontsForLocale(locale: string): {
   };
 }
 
+/** WhatsApp deep link behind the PDF contact band's tap target: wa.me
+ *  opens a chat with a prefilled bulk-quote message, so a mobile reader
+ *  goes straight into a quote request instead of copying the number. */
+const WHATSAPP_URL = `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(
+  "Hello Sachin Gold, I would like a quote for bulk supply.",
+)}`;
+
+/** Attach an invisible-tap link annotation to the kit's current page.
+ *  Rect is PDF user space from the bottom-left { x, y, w, h }; no border
+ *  or color is painted, so the printed page is pixel-identical — the
+ *  annotation only adds the interactive tap/click target. */
+function addLinkAnnotation(
+  kit: PdfKit,
+  rect: { x: number; y: number; w: number; h: number },
+  url: string,
+): void {
+  const context = kit.doc.context;
+  const annot = context.obj({
+    Type: PDFName.of("Annot"),
+    Subtype: PDFName.of("Link"),
+    Rect: [rect.x, rect.y, rect.x + rect.w, rect.y + rect.h],
+    Border: [0, 0, 0],
+    A: context.obj({
+      Type: PDFName.of("Action"),
+      S: PDFName.of("URI"),
+      URI: PDFString.of(url),
+    }),
+  });
+  const ref = context.register(annot);
+  const annots = kit.page.node.Annots();
+  if (annots) annots.push(ref);
+  else kit.page.node.set(PDFName.of("Annots"), context.obj([ref]));
+}
+
 export async function createPdfKit(opts: {
   title: string;
   author: string;
@@ -352,9 +388,16 @@ export async function createPdfKit(opts: {
 
     drawFooter(p) {
       const line = `${company.name} · ${siteUrl.replace("https://", "")} · ${company.phone}`;
+      // PDF user space measures from the BOTTOM. The old code wrapped
+      // from-top values in Y() — a double negative that landed in the
+      // right zone by accident but inverted the strip's internal order:
+      // the gold rule drew ABOVE the text (y=48 vs baseline y=40),
+      // stranding the footer against the page edge with a stray line
+      // between it and the content above. Correct strip, bottom-up:
+      // rule 36 → baseline 44 → 36pt clean page margin.
       p.drawText(line, {
         x: MARGIN,
-        y: Y(PAGE_H - 40),
+        y: 44,
         size: 7.5,
         font: helv,
         color: PINE,
@@ -362,7 +405,7 @@ export async function createPdfKit(opts: {
       });
       p.drawRectangle({
         x: MARGIN,
-        y: Y(PAGE_H - 48),
+        y: 36,
         width: CONTENT_W,
         height: 0.6,
         color: WHEAT_DARK,
@@ -380,7 +423,9 @@ export async function createPdfKit(opts: {
       // new page first. Text is placed absolutely — the cursor (which may
       // sit far above) no longer participates in the band's layout.
       const BAND_H = 86;
-      const FOOTER_ZONE = 56; // footer text + rule + breathing room
+      // Footer baseline sits 44pt up (drawFooter) and its ascender reaches
+      // ~49.6 — 62 leaves ~12pt of air between band and footer text.
+      const FOOTER_ZONE = 62;
       if (kit.y + BAND_H + FOOTER_ZONE > PAGE_H) kit.newPage();
       const bandTop = PAGE_H - FOOTER_ZONE - BAND_H; // from page top
       page.drawRectangle({
@@ -405,6 +450,19 @@ export async function createPdfKit(opts: {
         font: helv,
         color: WHITE,
       });
+      // The phone number is the band's one big call-to-action — make the
+      // drawn glyphs themselves the WhatsApp tap zone (see WHATSAPP_URL).
+      const phoneW = kit.helv.widthOfTextAtSize(company.phone, 9.5);
+      addLinkAnnotation(
+        kit,
+        {
+          x: MARGIN - 2,
+          y: Y(bandTop + 42) - 3.5,
+          w: phoneW + 6,
+          h: 13,
+        },
+        WHATSAPP_URL,
+      );
       page.drawText(company.email, {
         x: bx,
         y: Y(bandTop + 57),
