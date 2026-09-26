@@ -418,19 +418,52 @@ export async function createPdfKit(opts: {
       // cursor-drawn band floated mid-page on short documents (rates.pdf,
       // profile.pdf): band ended where content ended, then dead white
       // space, then the footer's gold rule alone near the true bottom.
-      // Bottom-anchoring makes every document close the same way. Self-
-      // guards: if band + footer zone don't fit under the cursor, roll a
-      // new page first. Text is placed absolutely — the cursor (which may
-      // sit far above) no longer participates in the band's layout.
+      // Bottom-anchoring made every document close the same way — but it
+      // introduced a second, uglier failure the fix didn't cover: a
+      // document whose content spills JUST past the previous section's
+      // ensureSpace threshold rolls to a fresh page with almost nothing
+      // on it (spec.pdf for any service with a full "Products in this
+      // line" list — commodity-trading, pulses-processing, oil-extraction
+      // all do this; cold-storage/logistics have no products section and
+      // never spill, which is why only those three ever showed it). Force-
+      // anchoring the band to the bottom of that near-empty page leaves
+      // ~600+pt of blank space above a band stranded at the very bottom —
+      // reads as broken, not as a closing CTA.
+      //
+      // Fix: only bottom-anchor when doing so leaves a reasonable gap
+      // (a well-filled page — the case the original fix targeted). When
+      // the gap would be excessive, it means we just rolled onto a
+      // sparse continuation page — hug the actual content instead of the
+      // page edge. Both paths guarantee band + footer fit without
+      // collision (see the newPage() guard immediately below).
       const BAND_H = 86;
       // Footer baseline sits 44pt up (drawFooter) and its ascender reaches
       // ~49.6 — 62 leaves ~12pt of air between band and footer text.
       const FOOTER_ZONE = 62;
-      if (kit.y + BAND_H + FOOTER_ZONE > PAGE_H) kit.newPage();
-      const bandTop = PAGE_H - FOOTER_ZONE - BAND_H; // from page top
+      const BOTTOM_ANCHOR = PAGE_H - FOOTER_ZONE - BAND_H;
+      const MIN_GAP = 28; // content-to-band breathing room when hugging
+      const MAX_ANCHOR_GAP = 160; // beyond this, anchoring wastes the page
+
+      if (kit.y + BAND_H + FOOTER_ZONE > PAGE_H) {
+        kit.newPage();
+        // The band itself caused this page — there is no content above to
+        // hug, so present it as a deliberate closing page (bottom-anchored,
+        // like every well-filled document's last page) instead of hugging
+        // the top edge of an otherwise empty sheet.
+        kit.y = BOTTOM_ANCHOR;
+      }
+
+      const gapIfAnchored = BOTTOM_ANCHOR - kit.y;
+      const bandTop =
+        gapIfAnchored > MAX_ANCHOR_GAP ? kit.y + MIN_GAP : BOTTOM_ANCHOR; // from page top
       page.drawRectangle({
         x: 0,
-        y: Y(bandTop),
+        // pdf-lib rects extend UPWARD from y — pass the band's bottom
+        // edge (bandTop + BAND_H from top), exactly like drawMasthead
+        // passes Y(MAST_H). The old Y(bandTop) drew the pine box one
+        // band-height ABOVE its own text: white heading/phone/email on
+        // the white page (invisible), rect floating over real content.
+        y: Y(bandTop + BAND_H),
         width: PAGE_W,
         height: BAND_H,
         color: PINE_DEEP,

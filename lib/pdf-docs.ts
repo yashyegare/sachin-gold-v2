@@ -416,6 +416,10 @@ export async function renderSpecPdf(
 
   // ————— Where we operate. ——————————————————————————————————————————
   if (item.locations?.length > 0) {
+    // Keep the section together: when the page is nearly full, move the
+    // whole section to the next page as a unit, so the closing contact
+    // band hugs real content instead of opening a band-only page.
+    kit.ensureSpace(90 + item.locations.length * 28);
     kit.sectionTitle(L("where", "Where we operate"));
     for (const location of item.locations) kit.bullet(location);
   }
