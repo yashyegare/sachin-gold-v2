@@ -9,6 +9,7 @@ import {
   createPdfKit,
   drawMasthead,
   drawStatsBand,
+  INK,
   PINE,
   WHEAT_DARK,
   Y,
@@ -180,7 +181,8 @@ export async function renderProfilePdf(locale: string): Promise<Uint8Array> {
     kit.y += 6;
   }
 
-  kit.ensureSpace(110);
+  // contactBand only records the heading — finish() stamps the band
+  // fixed at the bottom of every page, so no ensureSpace needed here.
   kit.contactBand(L(msgs.about.pdfLabels ?? {}, "talkToUs", "Talk to us"));
 
   return kit.finish();
@@ -324,7 +326,6 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
     opacity: 0.7,
     lineGap: 3,
   });
-  kit.ensureSpace(110);
   kit.contactBand(msgs.rates.waCta || "Request a quote");
 
   return kit.finish();
@@ -386,45 +387,73 @@ export async function renderSpecPdf(
     for (const advantage of item.advantages) kit.bullet(advantage);
   }
 
-  // ————— Products in this line — Latin names (site parity), English
-  //       one-liners until product copy is translated. ———————————————
+  // ————— Products in this line — two-column grid (Latin names, site
+  //       parity; English one-liners until product copy is translated).
+  //       The two-column layout is what lets the six-product oil spec
+  //       fit on ONE page with the contact band. ——————————————————————
   if (products.length > 0) {
     kit.sectionTitle(
       `${L("productsInLine", "Products in this line")} (${products.length})`,
     );
-    for (const product of products) {
-      kit.ensureSpace(48);
-      kit.text(product.name, { size: 9.5, font: kit.bold, color: PINE });
-      const catW = kit.oblique.widthOfTextAtSize(product.category, 7.5);
-      kit.text(product.category, {
-        size: 7.5,
-        font: kit.oblique,
-        color: WHEAT_DARK,
-        dx: kit.w - catW,
+    const COL_W = kit.w / 2;
+    for (let i = 0; i < products.length; i += 2) {
+      const row = products.slice(i, i + 2);
+      // Measure both cells' wrapped descriptions first: rows must be as
+      // tall as their tallest cell, or columns misalign/overlap.
+      const rows = row.map((product) => {
+        const lines: string[] = [];
+        kit.wrapText(product.description, 8, kit.helv, COL_W - 26, (l) =>
+          lines.push(l),
+        );
+        return { product, lines };
       });
-      kit.y += 15;
-      kit.paragraph({
-        text: product.description,
-        size: 8.5,
-        font: kit.helv,
-        lineGap: 2.5,
-        opacity: 0.8,
-      });
-      kit.y += 6;
+      const rowH = 15 + Math.max(...rows.map((r) => r.lines.length)) * 10.5 + 8;
+      kit.ensureSpace(rowH);
+      const yStart = kit.y;
+      for (const [ci, { product, lines }] of rows.entries()) {
+        const colX = kit.x0 + ci * COL_W;
+        kit.page.drawText(product.name, {
+          x: colX,
+          y: Y(yStart + 9.5),
+          size: 9.5,
+          font: kit.bold,
+          color: PINE,
+        });
+        const catW = kit.oblique.widthOfTextAtSize(product.category, 7.5);
+        kit.page.drawText(product.category, {
+          x: colX + COL_W - 12 - catW,
+          y: Y(yStart + 8),
+          size: 7.5,
+          font: kit.oblique,
+          color: WHEAT_DARK,
+        });
+        lines.forEach((line, li) => {
+          kit.page.drawText(line, {
+            x: colX + 12,
+            y: Y(yStart + 24 + li * 10.5),
+            size: 8,
+            font: kit.helv,
+            color: INK,
+            opacity: 0.8,
+          });
+        });
+      }
+      kit.y = yStart + rowH;
     }
   }
 
-  // ————— Where we operate. ——————————————————————————————————————————
+  // ————— Where we operate — one compact inline line, not bullets. ———
   if (item.locations?.length > 0) {
-    // Keep the section together: when the page is nearly full, move the
-    // whole section to the next page as a unit, so the closing contact
-    // band hugs real content instead of opening a band-only page.
-    kit.ensureSpace(90 + item.locations.length * 28);
-    kit.sectionTitle(L("where", "Where we operate"));
-    for (const location of item.locations) kit.bullet(location);
+    kit.paragraph({
+      text: `${L("where", "Where we operate")}: ${item.locations.join(" · ")}`,
+      size: 8,
+      font: kit.oblique,
+      opacity: 0.7,
+      lineGap: 2,
+      dy: 6,
+    });
   }
 
-  kit.ensureSpace(110);
   kit.contactBand(L("requestQuote", "Request a quote"));
 
   return kit.finish();

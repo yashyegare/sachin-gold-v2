@@ -156,8 +156,11 @@ export interface PdfKit {
   sectionTitle: (title: string) => void;
   /** A bulleted line ("– " in wheat) with hanging indent. */
   bullet: (text: string, opts?: { size?: number; gap?: number }) => void;
-  drawFooter: (p: PDFPage, opts?: { ruleY?: number }) => void;
-  /** Pine-deep contact band; call ensureSpace(110) first. */
+  drawFooter: (p: PDFPage) => void;
+  /** Records the heading for the pine-deep contact band. The band is
+   *  drawn FIXED at the bottom of every page by finish() — page
+   *  furniture like drawFooter, not content — so it never moves with
+   *  the cursor and never needs an ensureSpace call. */
   contactBand: (heading?: string) => void;
   finish: () => Promise<Uint8Array>;
 }
@@ -217,6 +220,9 @@ function addLinkAnnotation(
   kit: PdfKit,
   rect: { x: number; y: number; w: number; h: number },
   url: string,
+  /** Page to attach to; defaults to the kit's current page. finish()'s
+   *  per-page band stamping passes the page it is painting. */
+  page: PDFPage = kit.page,
 ): void {
   const context = kit.doc.context;
   const annot = context.obj({
@@ -231,9 +237,9 @@ function addLinkAnnotation(
     }),
   });
   const ref = context.register(annot);
-  const annots = kit.page.node.Annots();
+  const annots = page.node.Annots();
   if (annots) annots.push(ref);
-  else kit.page.node.set(PDFName.of("Annots"), context.obj([ref]));
+  else page.node.set(PDFName.of("Annots"), context.obj([ref]));
 }
 
 export async function createPdfKit(opts: {
@@ -277,9 +283,17 @@ export async function createPdfKit(opts: {
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
   const pages: PDFPage[] = [page];
-  // Set by contactBand once it draws that page's footer directly under
-  // itself — finish() skips fixed-position footer duty for this page.
-  let bandFooterPage: PDFPage | null = null;
+
+  // Fixed bottom chrome, stamped by finish() on EVERY page: the pine-deep
+  // contact band sits directly above the footer zone (drawFooter's rule is
+  // at 36 from bottom, baseline 44 — FOOTER_ZONE 62 leaves ~12pt of air
+  // under the band). Content reserves FOOTER_ZONE + BAND_H via ensureSpace,
+  // so nothing ever flows under either strip.
+  const BAND_H = 86;
+  const FOOTER_ZONE = 62;
+  const BAND_TOP = PAGE_H - FOOTER_ZONE - BAND_H; // from page top
+  // Heading recorded by contactBand(); null until a document opts in.
+  let bandHeading: string | null = null;
 
   const kit: PdfKit = {
     doc,
@@ -310,7 +324,10 @@ export async function createPdfKit(opts: {
     },
 
     ensureSpace(needed) {
-      if (kit.y + needed > PAGE_H - 64) kit.newPage();
+      // Bottom limit = fixed footer zone + fixed contact band (+2pt air,
+      // matching the slack the old footer-only limit had). finish() stamps
+      // the chrome after content, so content must stay above it.
+      if (kit.y + needed > PAGE_H - (FOOTER_ZONE + BAND_H + 2)) kit.newPage();
     },
 
     text(s, { size, font, color = INK, dy = 0, opacity, dx = 0 }) {
@@ -389,7 +406,7 @@ export async function createPdfKit(opts: {
       kit.y += gap;
     },
 
-    drawFooter(p, opts) {
+    drawFooter(p) {
       const line = `${company.name} · ${siteUrl.replace("https://", "")} · ${company.phone}`;
       // PDF user space measures from the BOTTOM. The old code wrapped
       // from-top values in Y() — a double negative that landed in the
@@ -399,17 +416,14 @@ export async function createPdfKit(opts: {
       // between it and the content above. Correct strip, bottom-up:
       // rule 36 → baseline 44 → 36pt clean page margin.
       //
-      // opts.ruleY overrides the fixed bottom position — used for the
-      // band's own page (see contactBand) so this page's footer sits
-      // right under the band instead of always at the physical bottom.
-      // Without this override, a sparse continuation page (the band
-      // hugging content near the top) would leave a large dead gap
-      // between the band and a footer still pinned to the true bottom.
-      const ruleY = opts?.ruleY ?? 36;
-      const textY = ruleY + 8;
+      // FIXED bottom on every page — the footer is a per-page
+      // registration mark, not a trailing element. The pine-deep contact
+      // band is fixed the same way (stamped by finish() with its bottom
+      // edge at 62 from bottom), so band and footer coexist on every
+      // page by design with ~12pt of air between them.
       p.drawText(line, {
         x: MARGIN,
-        y: textY,
+        y: 44,
         size: 7.5,
         font: helv,
         color: PINE,
@@ -417,7 +431,7 @@ export async function createPdfKit(opts: {
       });
       p.drawRectangle({
         x: MARGIN,
-        y: ruleY,
+        y: 36,
         width: CONTENT_W,
         height: 0.6,
         color: WHEAT_DARK,
@@ -426,125 +440,87 @@ export async function createPdfKit(opts: {
     },
 
     contactBand(heading = "Talk to us") {
-      // Anchored to the PHYSICAL bottom of the current page. The old
-      // cursor-drawn band floated mid-page on short documents (rates.pdf,
-      // profile.pdf): band ended where content ended, then dead white
-      // space, then the footer's gold rule alone near the true bottom.
-      // Bottom-anchoring made every document close the same way — but it
-      // introduced a second, uglier failure the fix didn't cover: a
-      // document whose content spills JUST past the previous section's
-      // ensureSpace threshold rolls to a fresh page with almost nothing
-      // on it (spec.pdf for any service with a full "Products in this
-      // line" list — commodity-trading, pulses-processing, oil-extraction
-      // all do this; cold-storage/logistics have no products section and
-      // never spill, which is why only those three ever showed it). Force-
-      // anchoring the band to the bottom of that near-empty page leaves
-      // ~600+pt of blank space above a band stranded at the very bottom —
-      // reads as broken, not as a closing CTA.
+      // The band is FIXED page furniture now: finish() stamps it at
+      // BAND_TOP on every page, so all this method does is record the
+      // document's heading.
       //
-      // Fix: only bottom-anchor when doing so leaves a reasonable gap
-      // (a well-filled page — the case the original fix targeted). When
-      // the gap would be excessive, it means we just rolled onto a
-      // sparse continuation page — hug the actual content instead of the
-      // page edge. Both paths guarantee band + footer fit without
-      // collision (see the newPage() guard immediately below).
-      const BAND_H = 86;
-      // Footer baseline sits 44pt up (drawFooter) and its ascender reaches
-      // ~49.6 — 62 leaves ~12pt of air between band and footer text.
-      const FOOTER_ZONE = 62;
-      const BOTTOM_ANCHOR = PAGE_H - FOOTER_ZONE - BAND_H;
-      const MIN_GAP = 28; // content-to-band breathing room when hugging
-      const MAX_ANCHOR_GAP = 160; // beyond this, anchoring wastes the page
-
-      if (kit.y + BAND_H + FOOTER_ZONE > PAGE_H) {
-        kit.newPage();
-        // The band itself caused this page — there is no content above to
-        // hug, so present it as a deliberate closing page (bottom-anchored,
-        // like every well-filled document's last page) instead of hugging
-        // the top edge of an otherwise empty sheet.
-        kit.y = BOTTOM_ANCHOR;
-      }
-
-      const gapIfAnchored = BOTTOM_ANCHOR - kit.y;
-      const bandTop =
-        gapIfAnchored > MAX_ANCHOR_GAP ? kit.y + MIN_GAP : BOTTOM_ANCHOR; // from page top
-      page.drawRectangle({
-        x: 0,
-        // pdf-lib rects extend UPWARD from y — pass the band's bottom
-        // edge (bandTop + BAND_H from top), exactly like drawMasthead
-        // passes Y(MAST_H). The old Y(bandTop) drew the pine box one
-        // band-height ABOVE its own text: white heading/phone/email on
-        // the white page (invisible), rect floating over real content.
-        y: Y(bandTop + BAND_H),
-        width: PAGE_W,
-        height: BAND_H,
-        color: PINE_DEEP,
-      });
-      const bx = MARGIN;
-      page.drawText(heading, {
-        x: bx,
-        y: Y(bandTop + 26),
-        size: 13,
-        font: bold,
-        color: WHEAT_BRIGHT,
-      });
-      page.drawText(company.phone, {
-        x: bx,
-        y: Y(bandTop + 42),
-        size: 9.5,
-        font: helv,
-        color: WHITE,
-      });
-      // The phone number is the band's one big call-to-action — make the
-      // drawn glyphs themselves the WhatsApp tap zone (see WHATSAPP_URL).
-      const phoneW = kit.helv.widthOfTextAtSize(company.phone, 9.5);
-      addLinkAnnotation(
-        kit,
-        {
-          x: MARGIN - 2,
-          y: Y(bandTop + 42) - 3.5,
-          w: phoneW + 6,
-          h: 13,
-        },
-        WHATSAPP_URL,
-      );
-      page.drawText(company.email, {
-        x: bx,
-        y: Y(bandTop + 57),
-        size: 9.5,
-        font: helv,
-        color: WHITE,
-      });
-      page.drawText(`${siteUrl.replace("https://", "")}  ·  ${company.legalName}`, {
-        x: bx,
-        y: Y(bandTop + 72),
-        size: 8,
-        font: helv,
-        color: WHITE,
-        opacity: 0.75,
-      });
-      kit.y = bandTop;
-
-      // This page's footer belongs directly under the band, not at the
-      // generic fixed bottom — see drawFooter's ruleY comment. Whether
-      // the band above was bottom-anchored or hugging sparse content,
-      // 24pt below its bottom edge is always correct: on a well-filled,
-      // bottom-anchored page this lands within a couple points of the
-      // old fixed position anyway (BOTTOM_ANCHOR was derived from the
-      // same FOOTER_ZONE), so there's no visible seam between the two
-      // cases — one code path handles both.
-      const bandBottomAbs = Y(bandTop + BAND_H);
-      kit.drawFooter(kit.page, { ruleY: bandBottomAbs - 24 });
-      bandFooterPage = kit.page;
+      // History: the band used to be cursor-drawn content (floated mid-
+      // page on short docs), then adaptive (bottom-anchor when the gap
+      // was reasonable, hug content otherwise) — the hug path put it
+      // wherever content ended, and the anchor path stranded it at the
+      // bottom of near-empty continuation pages. A fixed band sidesteps
+      // both: content simply stops FOOTER_ZONE + BAND_H above the page
+      // edge (ensureSpace), and every page closes the same way.
+      bandHeading = heading;
     },
 
     async finish() {
       for (const p of pages) {
-        if (p !== bandFooterPage) kit.drawFooter(p);
+        if (bandHeading) drawContactBand(p, bandHeading);
+        kit.drawFooter(p);
       }
       return doc.save();
     },
   };
+
+  /** Stamp the fixed pine-deep contact band at the bottom of `p` —
+   *  heading + phone (WhatsApp tap) + email + site · legal name, then
+   *  the gold-ruled footer line below it (drawFooter). */
+  function drawContactBand(p: PDFPage, heading: string): void {
+    p.drawRectangle({
+      x: 0,
+      // pdf-lib rects extend UPWARD from y — pass the band's bottom edge
+      // (bandTop + BAND_H from top), exactly like drawMasthead passes
+      // Y(MAST_H).
+      y: Y(BAND_TOP + BAND_H),
+      width: PAGE_W,
+      height: BAND_H,
+      color: PINE_DEEP,
+    });
+    p.drawText(heading, {
+      x: MARGIN,
+      y: Y(BAND_TOP + 26),
+      size: 13,
+      font: bold,
+      color: WHEAT_BRIGHT,
+    });
+    p.drawText(company.phone, {
+      x: MARGIN,
+      y: Y(BAND_TOP + 42),
+      size: 9.5,
+      font: helv,
+      color: WHITE,
+    });
+    // The phone number is the band's one big call-to-action — make the
+    // drawn glyphs themselves the WhatsApp tap zone (see WHATSAPP_URL).
+    const phoneW = helv.widthOfTextAtSize(company.phone, 9.5);
+    addLinkAnnotation(
+      kit,
+      {
+        x: MARGIN - 2,
+        y: Y(BAND_TOP + 42) - 3.5,
+        w: phoneW + 6,
+        h: 13,
+      },
+      WHATSAPP_URL,
+      p,
+    );
+    p.drawText(company.email, {
+      x: MARGIN,
+      y: Y(BAND_TOP + 57),
+      size: 9.5,
+      font: helv,
+      color: WHITE,
+    });
+    p.drawText(`${siteUrl.replace("https://", "")}  ·  ${company.legalName}`, {
+      x: MARGIN,
+      y: Y(BAND_TOP + 72),
+      size: 8,
+      font: helv,
+      color: WHITE,
+      opacity: 0.75,
+    });
+  }
 
   return kit;
 }
