@@ -3,6 +3,7 @@ import { ArrowRight, Check } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import BrandPhoto from "@/components/BrandPhoto";
 import CustomerLogos from "@/components/CustomerLogos";
+import RatesStrip from "@/components/RatesStrip";
 import PageIntro from "@/components/PageIntro";
 import CTA from "@/components/CTA";
 import Reveal from "@/components/Reveal";
@@ -47,6 +48,9 @@ export default async function ServicesPage({ params }: Props) {
 
   return (
     <>
+      {/* Rates strip FIRST — the same ticker position as the home page. */}
+      <RatesStrip />
+
       {/* ————— Opening band ————— */}
       <PageIntro
         eyebrow={t("intro.eyebrow")}

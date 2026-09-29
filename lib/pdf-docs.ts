@@ -230,7 +230,14 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
   // embed real Noto fonts and keep the true "₹".
   const rupee = (s: string) => s.replace(/₹\s*/, "Rs ");
 
-  for (const group of rateGroups) {
+  for (const [index, group] of rateGroups.entries()) {
+    // One category per page: Soya Derivatives on page 1, Dals & Flour
+    // on page 2 — the layout the client asked for, and each page reads
+    // as a complete table rather than a continuation. finish() stamps
+    // the contact band + footer on every page, so page 2 needs no
+    // extra chrome of its own.
+    if (index > 0) kit.newPage();
+
     kit.sectionTitle(msgs.rates.groups?.[group.title] || group.title);
 
     // Table header row — small caps, hairline under.

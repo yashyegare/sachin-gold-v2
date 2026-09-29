@@ -6,6 +6,7 @@ import { faqs } from "@/data/faq";
 import { whatsappLink } from "@/lib/whatsapp";
 import ContactForm from "@/components/ContactForm";
 import PageIntro from "@/components/PageIntro";
+import RatesStrip from "@/components/RatesStrip";
 import Reveal from "@/components/Reveal";
 import { buildAlternates } from "@/i18n/seo";
 
@@ -69,6 +70,9 @@ export default async function ContactPage({ params }: Props) {
 
   return (
     <>
+      {/* Rates strip FIRST — the same ticker position as the home page. */}
+      <RatesStrip />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
