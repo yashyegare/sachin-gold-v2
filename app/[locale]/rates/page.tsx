@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Droplets,
   PhoneCall,
+  Share2,
   ShieldCheck,
   TimerReset,
   Wheat,
@@ -22,8 +23,9 @@ import { getLiveRateGroups } from "@/lib/rates-source";
 // the safety net under the instant /api/revalidate-rates webhook.
 export const revalidate = 300;
 import { company } from "@/data/company";
-import { whatsappLink } from "@/lib/whatsapp";
+import { whatsappLink, whatsappShareLink } from "@/lib/whatsapp";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
+import RatesFreshness from "@/components/RatesFreshness";
 
 interface Props {
   params: { locale: string };
@@ -106,9 +108,35 @@ export default async function RatesPage({ params }: Props) {
   // overlaid on the static fallback — a broken feed degrades to "On
   // request" rows, never to a broken page. Cached 5 min; the
   // /api/revalidate-rates webhook refreshes instantly on sheet edits.
-  const { groups: rateGroups } = await getLiveRateGroups();
+  const { groups: rateGroups, lastUpdated } = await getLiveRateGroups();
   const jsonLd = ratesJsonLd(rateGroups);
   const leadGroup = rateGroups[0];
+
+  // One-tap forward: WhatsApp prefilled with the day's real prices only
+  // (rows the sheet actually prices — never "On request" placeholders).
+  // The stamp carries the pull time in the shared text itself, so the
+  // recipient knows exactly how fresh the numbers are when they read it.
+  const pricedItems = rateGroups
+    .flatMap((group) => group.items)
+    .filter((item) => item.priceValue !== undefined);
+  const shareMessage = pricedItems.length
+    ? `*${company.name} — ${t("title")}*\n${pricedItems
+        .map((item) => `• ${item.product}: ${item.price} (${item.unit})`)
+        .join("\n")}${
+        lastUpdated
+          ? `\n${t("fresh.shareStamp", {
+              time: lastUpdated.toLocaleString("en-IN", {
+                timeZone: "Asia/Kolkata",
+                day: "2-digit",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              }),
+            })}`
+          : ""
+      }`
+    : null;
 
   return (
     <>
@@ -163,9 +191,27 @@ export default async function RatesPage({ params }: Props) {
               variant="solid"
               className="justify-center border-white/25 bg-white/5 text-white shadow-none hover:border-white/40 hover:bg-white/10 hover:shadow-none"
             />
+            {/* One-tap forward: the day's real prices prefilled into a
+                WhatsApp chat — every rate-checker becomes a distribution
+                channel. Hidden until the sheet has real numbers (never
+                shares "On request" rows). */}
+            {shareMessage && (
+              <a
+                href={whatsappShareLink(shareMessage)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
+              >
+                <Share2 size={15} aria-hidden="true" />
+                {t("shareCta")}
+              </a>
+            )}
           </div>
         </div>
       </PageIntro>
+
+      {/* ————— Freshness signal: "Updated Xm ago", front and center ————— */}
+      <RatesFreshness lastUpdated={lastUpdated} />
 
       {/* ————— Trust strip: three signals on white ————— */}
       <section className="border-b border-ink/10 bg-white">

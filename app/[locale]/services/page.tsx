@@ -6,11 +6,13 @@ import CustomerLogos from "@/components/CustomerLogos";
 import RatesStrip from "@/components/RatesStrip";
 import PageIntro from "@/components/PageIntro";
 import CTA from "@/components/CTA";
+import ProductsCatalogue from "@/components/ProductsCatalogue";
 import Reveal from "@/components/Reveal";
+import SectionHeading from "@/components/SectionHeading";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/i18n/seo";
 import { services } from "@/data/services";
-import { getProductsByService } from "@/data/products";
+import { getProductsByService, products } from "@/data/products";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
@@ -222,6 +224,26 @@ export default async function ServicesPage({ params }: Props) {
             </Reveal>
           );
         })}
+      </section>
+
+      {/* ————— Full catalogue: all 20 products, one filterable grid —————
+          The range is an asset here — three categories, twenty real
+          items, each still tied to its service line on the cards.
+          Filter chips toggle visibility client-side; the grid itself is
+          server-rendered (SEO/no-JS see everything). */}
+      <section className="section-standard border-t border-ink/10 bg-linen/40">
+        <div className="mx-auto max-w-6xl px-6">
+          <Reveal>
+            <SectionHeading
+              eyebrow={t("catalogueEyebrow")}
+              title={t("catalogueTitle")}
+              description={t("catalogueDesc")}
+            />
+            <div className="mt-10">
+              <ProductsCatalogue products={products} />
+            </div>
+          </Reveal>
+        </div>
       </section>
 
       {/* Trust proof at the decision point. */}

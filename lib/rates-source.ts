@@ -111,6 +111,11 @@ export interface LiveRates {
   groups: RateGroup[];
   /** Where this snapshot came from — dev diagnostics / logging. */
   source: "sheet" | "fallback";
+  /** Newest per-row sheet timestamp across ALL groups, as a Date (null
+   *  when the sheet exposes no parseable time). The rates page surfaces
+   *  this as its prominent "Updated Xm ago" freshness signal — for a
+   *  commodities buyer, price age is the first thing they check. */
+  lastUpdated: Date | null;
 }
 
 export async function getLiveRateGroups(): Promise<LiveRates> {
@@ -140,6 +145,28 @@ export async function getLiveRateGroups(): Promise<LiveRates> {
       });
     }
     if (byProduct.size === 0) throw new Error("no mapped rows");
+
+    // Newest parseable timestamp across all mapped rows — a single
+    // Date, independent of the per-group display strings below.
+    let lastUpdated: Date | null = null;
+    for (const { time } of byProduct.values()) {
+      const m = time.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})$/);
+      if (!m) continue;
+      // The sheet writes wall-clock IST; construct it directly rather
+      // than letting the server's timezone shift it.
+      const d = new Date(
+        Date.UTC(
+          Number(m[3]),
+          Number(m[2]) - 1,
+          Number(m[1]),
+          Number(m[4]) - 5,
+          Number(m[5]) - 30,
+          Number(m[6]),
+        ),
+      );
+      if (!Number.isNaN(d.getTime()) && (!lastUpdated || d > lastUpdated))
+        lastUpdated = d;
+    }
 
     const groups: RateGroup[] = staticRateGroups.map((group) => {
       const items = group.items.map((item) => {
@@ -172,10 +199,10 @@ export async function getLiveRateGroups(): Promise<LiveRates> {
       return { ...group, items, updatedOn };
     });
 
-    return { groups, source: "sheet" };
+    return { groups, source: "sheet", lastUpdated };
   } catch {
     // Google down / sheet private / parse garbage — degrade gracefully.
-    return { groups: staticRateGroups, source: "fallback" };
+    return { groups: staticRateGroups, source: "fallback", lastUpdated: null };
   }
 }
 

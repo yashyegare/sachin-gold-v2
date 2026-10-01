@@ -294,7 +294,10 @@
       "productsInLine": "Products in this line",
       "where": "Where we operate",
       "requestQuote": "Request a quote"
-    }
+    },
+    "catalogueEyebrow": "Full Catalogue",
+    "catalogueTitle": "Everything we trade, process and extract",
+    "catalogueDesc": "Twenty products across three lines — each one backed by the service that sources, processes or extracts it."
   },
   "rates": {
     "eyebrow": "Market Rates",
@@ -337,7 +340,17 @@
       "updated": "Updated",
       "disclaimer": "Rates are indicative and subject to market movement. Final pricing depends on volume, grade and delivery terms — call or message us for a firm quote."
     },
-    "pdfCta": "Download rate card (PDF)"
+    "pdfCta": "Download rate card (PDF)",
+    "fresh": {
+      "justNow": "just now",
+      "minutes": "{minutes} min ago",
+      "hours": "{hours} hr ago",
+      "days": "{days} days ago",
+      "updatedAgo": "Rates updated {age}",
+      "absolute": "Sheet updated {time} IST",
+      "shareStamp": "Prices pulled {time} IST — confirm before ordering"
+    },
+    "shareCta": "Share today's rates"
   },
   "contact": {
     "eyebrow": "Contact",
@@ -423,6 +436,9 @@
     "teamTitle": "Team",
     "storyEyebrow": "Partner Success Story",
     "storyTitle": "Hear from a partner who trusts us",
+    "galleryEyebrow": "Gallery",
+    "galleryTitle": "Inside Sachin Gold",
+    "galleryDesc": "The plant, the people and the products — real photographs from across our five-stage operation. Tap any photo to view it full size.",
     "testimonialWatch": "▶ Watch the customer's video feedback",
     "testimonialFallback": "Your browser does not support the video tag.",
     "tagline": "Bulk Agro Commodity Trading & Processing",

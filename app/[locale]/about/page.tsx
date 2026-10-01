@@ -19,6 +19,7 @@ import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
+import PhotoGallery from "@/components/PhotoGallery";
 import BrandPhoto from "@/components/BrandPhoto";
 import StatsBand from "@/components/StatsBand";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
@@ -503,40 +504,27 @@ export default async function AboutPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="section-standard border-t border-ink/10 px-6">
+      {/* Team — three same-geometry cards on the linen band. The
+          Founder's missing photo renders as a deliberate monogram panel
+          (initials + "Since 1969"), so the row reads designed, not
+          unfinished. Directors keep their full-ratio studio photos (no
+          small-circle crop — that's what blurred them before). */}
+      <section className="section-standard border-t border-ink/10 bg-linen/40 px-6">
         <Reveal className="mx-auto max-w-6xl">
           <SectionHeading
             eyebrow={t("teamEyebrow")}
             title={t("teamTitle")}
             align="center"
           />
-          {/* Portrait-ratio photos (Founder placeholder — none exists
-              yet) render as the round headshot; the directors' real
-              photos are landscape studio shots, so they render at their
-              full ratio in a bordered card — same presentation the old
-              site used, where they looked clear and correct. A photo
-              squeezed into a small square crop is exactly what made the
-              directors look blurry. */}
-          <div className="mx-auto mt-12 grid max-w-4xl gap-10 sm:grid-cols-3">
+          <div className="mx-auto mt-12 grid max-w-4xl gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-10">
             {team.map((member) => (
-              <div key={member.name} className="group space-y-2">
-                <div className="transition-transform duration-300 group-hover:-translate-y-1">
-                  <TeamMemberCard member={member} />
-                </div>
-                {member.facebook && (
-                  <p className="text-center">
-                    <a
-                      href={member.facebook}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-ink/50 transition-colors hover:text-pine"
-                    >
-                      Facebook ↗
-                    </a>
-                  </p>
-                )}
-              </div>
+              <TeamMemberCard
+                key={member.name}
+                member={member}
+                foundedSince={
+                  member.role === "Founder" ? company.foundedYear : undefined
+                }
+              />
             ))}
           </div>
         </Reveal>
@@ -558,6 +546,26 @@ export default async function AboutPage({ params }: Props) {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* Photo gallery — every real photo the site owns, browsable in
+          one place with a lightbox. Closes the narrative: after the
+          partner's story has been told in words and video, the grid lets
+          a visitor keep browsing the operation (plant, people, products,
+          fleet) — proof in pictures, straight into the CTA. Filter chips
+          + lightbox are client components; the grid itself is
+          server-rendered. */}
+      <section className="section-standard border-t border-ink/10 px-6">
+        <Reveal className="mx-auto max-w-6xl">
+          <SectionHeading
+            eyebrow={t("galleryEyebrow")}
+            title={t("galleryTitle")}
+            description={t("galleryDesc")}
+          />
+          <div className="mt-10">
+            <PhotoGallery />
+          </div>
+        </Reveal>
       </section>
 
       <CTA />
