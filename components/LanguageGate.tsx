@@ -51,18 +51,48 @@ export default function LanguageGate() {
 
   useEffect(() => {
     setMounted(true);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let fallback: ReturnType<typeof setTimeout> | undefined;
+
+    function schedule() {
+      if (timer) return; // the splash fallback and its event can both fire
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      timer = setTimeout(() => setOpen(true), reduced ? 0 : 600);
+    }
+
+    function onSplashDone() {
+      schedule();
+    }
+
     try {
-      if (!window.localStorage.getItem(STORAGE_KEY)) {
-        const reduced = window.matchMedia(
-          "(prefers-reduced-motion: reduce)",
-        ).matches;
-        const timer = setTimeout(() => setOpen(true), reduced ? 0 : 1100);
-        return () => clearTimeout(timer);
-      }
+      if (window.localStorage.getItem(STORAGE_KEY)) return;
     } catch {
       // Storage unavailable (private-mode edge cases) — stay silent
       // rather than nag on every load.
+      return;
     }
+
+    // Sequencing, not stacking: on a first visit the brand curtain owns the
+    // screen for its ~3s, and the gate starts its own short delay only once
+    // that has lifted (see BrandSplash's sg-splash-done). The fallback is
+    // longer than the curtain so the real event normally wins, and it keeps
+    // the gate alive if that event never arrives.
+    const waitingForSplash =
+      document.documentElement.hasAttribute("data-splash");
+    if (waitingForSplash) {
+      window.addEventListener("sg-splash-done", onSplashDone, { once: true });
+      fallback = setTimeout(schedule, 3600);
+    } else {
+      schedule();
+    }
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(fallback);
+      window.removeEventListener("sg-splash-done", onSplashDone);
+    };
   }, []);
 
   useEffect(() => {

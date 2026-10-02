@@ -2,8 +2,10 @@ import { notFound } from "next/navigation";
 import { company, siteUrl } from "@/data/company";
 import { services, getServiceBySlug } from "@/data/services";
 import { getProductsByService } from "@/data/products";
+import { commercialTerms, getSpecsForService } from "@/data/specs";
 import { customers } from "@/data/customers";
 import { getLiveRateGroups } from "@/lib/rates-source";
+import { unitLabel } from "@/lib/rates-basis";
 import { routing } from "@/i18n/routing";
 import {
   createPdfKit,
@@ -283,7 +285,7 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
       });
       kit.y += 13;
       // Unit line under the product, muted.
-      kit.text(item.unit, {
+      kit.text(unitLabel(item), {
         size: 7.5,
         font: kit.oblique,
         opacity: 0.65,
@@ -356,6 +358,7 @@ export async function renderSpecPdf(
 
   const labels: Record<string, string> = msgs.services.pdfLabels ?? {};
   const L = (key: string, en: string) => labels[key] || en;
+  const D: Record<string, string> = msgs.services.detail ?? {};
 
   const kit = await createPdfKit({
     title: `${company.name} — ${item.title} (${L("specTitle", "Spec Sheet")})`,
@@ -447,6 +450,106 @@ export async function renderSpecPdf(
       }
       kit.y = yStart + rowH;
     }
+  }
+
+  // ————— Commercial terms — the same grades, pack sizes, MOQ and lead
+  //       times the service page publishes (data/specs.ts). A buyer
+  //       forwards this sheet internally, so the numbers have to travel
+  //       with it; the product grid above is the index, this is the spec.
+  //       Labels come from the message catalog, the trade notation stays
+  //       English in every locale — exactly as on the page. —————
+  const specItems = getSpecsForService(slug);
+  if (specItems.length > 0) {
+    // Wrap everything up front: the first row's height is needed to keep
+    // the section heading from being stranded alone at a page foot.
+    const rows = specItems.map(({ product, spec }) => {
+      const grade: string[] = [];
+      kit.wrapText(spec.grade, 8, kit.helv, kit.w, (line) => grade.push(line));
+      const packs: string[] = [];
+      kit.wrapText(
+        `${D.specPacks || "Pack sizes"}: ${spec.packs}`,
+        7.5,
+        kit.oblique,
+        kit.w,
+        (line) => packs.push(line),
+      );
+      return { product, spec, grade, packs, h: 12 + grade.length * 9.5 + packs.length * 9 + 10 };
+    });
+    kit.ensureSpace(70 + (rows[0]?.h ?? 0));
+    kit.sectionTitle(D.specsTitle || "Grades, pack sizes, MOQ and lead time");
+    for (const { product, spec, grade, packs, h: rowH } of rows) {
+      kit.ensureSpace(rowH);
+      const yStart = kit.y;
+      kit.page.drawText(product.name, {
+        x: kit.x0,
+        y: Y(yStart + 9.5),
+        size: 9.5,
+        font: kit.bold,
+        color: PINE,
+      });
+      const meta = `${D.specMoq || "MOQ"} ${spec.moq} · ${spec.lead}`;
+      kit.page.drawText(meta, {
+        x: kit.x0 + kit.w - kit.oblique.widthOfTextAtSize(meta, 7.5),
+        y: Y(yStart + 8.5),
+        size: 7.5,
+        font: kit.oblique,
+        color: WHEAT_DARK,
+      });
+      grade.forEach((line, li) => {
+        kit.page.drawText(line, {
+          x: kit.x0,
+          y: Y(yStart + 20 + li * 9.5),
+          size: 8,
+          font: kit.helv,
+          color: INK,
+          opacity: 0.85,
+        });
+      });
+      packs.forEach((line, li) => {
+        kit.page.drawText(line, {
+          x: kit.x0,
+          y: Y(yStart + 21 + grade.length * 9.5 + li * 9),
+          size: 7.5,
+          font: kit.oblique,
+          color: INK,
+          opacity: 0.62,
+        });
+      });
+      kit.y = yStart + rowH - 4;
+      kit.page.drawRectangle({
+        x: kit.x0,
+        y: Y(kit.y),
+        width: kit.w,
+        height: 0.5,
+        color: INK,
+        opacity: 0.12,
+      });
+      kit.y += 4;
+    }
+
+    // Shared terms, stated once under the per-product rows.
+    for (const [label, value] of [
+      [D.termsPayment || "Payment terms", commercialTerms.payment],
+      [D.termsDispatch || "Dispatch", commercialTerms.dispatch],
+      [D.termsSurvey || "Quality survey", commercialTerms.survey],
+    ] as [string, string][]) {
+      kit.ensureSpace(28);
+      kit.y += 4;
+      kit.paragraph({
+        text: `${label}: ${value}`,
+        size: 8,
+        font: kit.helv,
+        lineGap: 2.5,
+        opacity: 0.8,
+      });
+    }
+    kit.paragraph({
+      text: commercialTerms.note,
+      size: 7,
+      font: kit.oblique,
+      dy: 6,
+      opacity: 0.55,
+    });
   }
 
   // ————— Where we operate — one compact inline line, not bullets. ———

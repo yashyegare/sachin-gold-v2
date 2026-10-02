@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/types";
 
@@ -13,13 +14,15 @@ import type { Product } from "@/lib/types";
  * extends the filter automatically.
  *
  * Category names render as-is (the data layer's English trade terms —
- * same convention as ProductCard's category line and product names).
+ * same convention as ProductCard's category line and product names). The
+ * filter's own chrome — the "All" chip and the group label — is translated.
  */
 export default function ProductsCatalogue({
   products,
 }: {
   products: Product[];
 }) {
+  const t = useTranslations("services");
   const categories = [...new Set(products.map((p) => p.category))];
   const [active, setActive] = useState<string | null>(null);
 
@@ -38,7 +41,7 @@ export default function ProductsCatalogue({
     <div>
       <div
         role="group"
-        aria-label="Filter products by category"
+        aria-label={t("catalogueFilterAria")}
         className="flex flex-wrap items-center gap-2"
       >
         <button
@@ -47,7 +50,7 @@ export default function ProductsCatalogue({
           aria-pressed={active === null}
           className={chipClass(active === null)}
         >
-          All · {products.length}
+          {t("catalogueAll")} · {products.length}
         </button>
         {categories.map((category) => (
           <button
@@ -65,8 +68,8 @@ export default function ProductsCatalogue({
 
       <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {visible.map((product) => (
-          <li key={product.slug}>
-            <ProductCard product={product} />
+          <li key={product.slug} className="h-full">
+            <ProductCard product={product} termsLabel={t("catalogueTermsLink")} />
           </li>
         ))}
       </ul>

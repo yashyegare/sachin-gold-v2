@@ -106,7 +106,7 @@ export const services: Service[] = [
       "Safe handling — specialized transport for sensitive commodities like edible oils and raw grains",
       "Efficient routing — optimized networks to minimize transit times and maintain freshness",
     ],
-    locations: ["Across Maharashtra & Karnataka"],
+    locations: ["Pan-India dispatch — anchored in Maharashtra & Karnataka"],
     image: "/images/services/logistics.webp",
     href: "/services/logistics",
   },

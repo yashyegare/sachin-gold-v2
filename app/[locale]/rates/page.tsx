@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import {
   ArrowRight,
   BadgeCheck,
-  Droplets,
   PhoneCall,
   Share2,
   ShieldCheck,
   TimerReset,
-  Wheat,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { siteUrl } from "@/data/company";
 import CTA from "@/components/CTA";
 import PageIntro from "@/components/PageIntro";
 import Reveal from "@/components/Reveal";
-import { buildAlternates } from "@/i18n/seo";
+import { pageMetadata } from "@/i18n/seo";
+import { Link } from "@/i18n/navigation";
 import { ratesLastUpdated } from "@/data/rates";
+import { quintalPrice, unitLabel } from "@/lib/rates-basis";
 import { getLiveRateGroups } from "@/lib/rates-source";
+import type { RateGroupView } from "@/components/RatesTables";
 
 // Published pages refresh in the background when the sheet changes —
 // the safety net under the instant /api/revalidate-rates webhook.
@@ -26,23 +26,15 @@ import { company } from "@/data/company";
 import { whatsappLink, whatsappShareLink } from "@/lib/whatsapp";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
 import RatesFreshness from "@/components/RatesFreshness";
+import RatesTables from "@/components/RatesTables";
 
 interface Props {
   params: { locale: string };
 }
 
-// Group-heading anchors: a real product photo (the same treated assets
-// from the catalogue) plus the site-wide icon language (Droplets/Wheat).
-// Keyed by group index — the group titles themselves are translated.
-const groupImagesByIndex: Record<number, string> = {
-  0: "/images/products/soya-doc.webp",
-  1: "/images/products/toor-dal.webp",
-};
-
-const groupIconsByIndex: Record<number, typeof Droplets> = {
-  0: Droplets,
-  1: Wheat,
-};
+// Group-heading anchors (photo + icon) live with the table itself in
+// components/RatesTables.tsx — they are presentational and the table is a
+// client island.
 
 // The old site's own page title was literally "Bulk Soya DOC Supplier &
 // Manufacturer" — a real signal of what the business leads with. Tagged
@@ -57,11 +49,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "rates" });
-  return {
+  return pageMetadata({
+    locale,
+    path: "/rates",
     title: t("title"),
     description: t("description"),
-    alternates: buildAlternates("/rates"),
-  };
+  });
 }
 
 // Offer/PriceSpecification structured data — activates automatically the
@@ -110,33 +103,62 @@ export default async function RatesPage({ params }: Props) {
   // /api/revalidate-rates webhook refreshes instantly on sheet edits.
   const { groups: rateGroups, lastUpdated } = await getLiveRateGroups();
   const jsonLd = ratesJsonLd(rateGroups);
-  const leadGroup = rateGroups[0];
 
   // One-tap forward: WhatsApp prefilled with the day's real prices only
   // (rows the sheet actually prices — never "On request" placeholders).
   // The stamp carries the pull time in the shared text itself, so the
   // recipient knows exactly how fresh the numbers are when they read it.
+  const istStamp = lastUpdated
+    ? lastUpdated.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        day: "2-digit",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : null;
   const pricedItems = rateGroups
     .flatMap((group) => group.items)
     .filter((item) => item.priceValue !== undefined);
   const shareMessage = pricedItems.length
     ? `*${company.name} — ${t("title")}*\n${pricedItems
-        .map((item) => `• ${item.product}: ${item.price} (${item.unit})`)
+        .map((item) => `• ${item.product}: ${item.price} (${unitLabel(item)})`)
         .join("\n")}${
-        lastUpdated
-          ? `\n${t("fresh.shareStamp", {
-              time: lastUpdated.toLocaleString("en-IN", {
-                timeZone: "Asia/Kolkata",
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,
-              }),
-            })}`
-          : ""
+        istStamp ? `\n${t("fresh.shareStamp", { time: istStamp })}` : ""
       }`
     : null;
+  const trackedCount = rateGroups.reduce(
+    (n, group) => n + group.items.length,
+    0,
+  );
+
+  // Rows for the table island. Both price bases and every WhatsApp link are
+  // computed here: the client component gets strings, so the pricing maths
+  // (and the enquiry copy, and the en-IN number formatting) never exist in
+  // two places. A row the sheet doesn't price has `quintal: null` — the
+  // toggle then keeps showing "On request" rather than inventing a number.
+  const perQuintal = t("perQuintal");
+  const rateTables: RateGroupView[] = rateGroups.map((group, gi) => ({
+    title: t(`groups.${gi === 0 ? "soya" : "dals"}`),
+    updatedOn: group.updatedOn ?? null,
+    enquiryHref: enquireLineLink(group.title),
+    rows: group.items.map((rate) => {
+      const quintal = quintalPrice(rate);
+      return {
+        product: rate.product,
+        flagship: rate.product.startsWith(FLAGSHIP),
+        quoted: { price: rate.price, unit: unitLabel(rate) },
+        quintal: quintal
+          ? {
+              price: quintal,
+              unit: unitLabel({ unit: perQuintal, unitNote: rate.unitNote }),
+            }
+          : null,
+        enquiryHref: enquireLink(rate.product),
+      };
+    }),
+  }));
 
   return (
     <>
@@ -153,12 +175,41 @@ export default async function RatesPage({ params }: Props) {
         title={t("title")}
         description={t("description")}
       >
-        <div className="flex flex-wrap items-end justify-between gap-8">
-          <p className="font-display text-display-md font-bold tracking-tight text-wheat">
-            {company.name}
-          </p>
+        {/* Three figures the page can actually attest to, then the actions.
+            This band used to hold a lone wordmark on the left with four
+            stacked CTAs on the right, which read as ~400px of empty green
+            on every desktop viewport. */}
+        <div className="flex flex-col gap-9">
+          <div className="flex flex-wrap gap-x-12 gap-y-6">
+            <div>
+              <p className="font-display text-2xl tabular-nums text-wheat">
+                {trackedCount}
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/55">
+                {t("intro.commodities")}
+              </p>
+            </div>
+            <div>
+              <p className="font-display text-2xl text-wheat">
+                {t("intro.daily")}
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/55">
+                {t("intro.revisions")}
+              </p>
+            </div>
+            {istStamp && (
+              <div>
+                <p className="font-display text-2xl tabular-nums text-wheat">
+                  {istStamp}
+                </p>
+                <p className="mt-1 text-xs uppercase tracking-[0.14em] text-white/55">
+                  {t("intro.lastUpdated")}
+                </p>
+              </div>
+            )}
+          </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <a
               href={whatsappLink(
                 company.whatsapp,
@@ -166,7 +217,7 @@ export default async function RatesPage({ params }: Props) {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-sm bg-wheat px-6 py-3 text-sm font-semibold text-ink transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="group inline-flex items-center justify-center gap-2 rounded-sm bg-wheat px-5 py-2.5 text-sm font-semibold text-ink transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
               {t("waCta")}
               <ArrowRight
@@ -177,7 +228,7 @@ export default async function RatesPage({ params }: Props) {
             </a>
             <a
               href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
-              className="inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
+              className="inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
             >
               <PhoneCall size={15} aria-hidden="true" />
               {t("callCta", { phone: company.phone })}
@@ -187,9 +238,6 @@ export default async function RatesPage({ params }: Props) {
             <PdfDownloadButton
               href="/rates.pdf"
               label={t("pdfCta")}
-              hint="PDF"
-              variant="solid"
-              className="justify-center border-white/25 bg-white/5 text-white shadow-none hover:border-white/40 hover:bg-white/10 hover:shadow-none"
             />
             {/* One-tap forward: the day's real prices prefilled into a
                 WhatsApp chat — every rate-checker becomes a distribution
@@ -200,7 +248,7 @@ export default async function RatesPage({ params }: Props) {
                 href={whatsappShareLink(shareMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
+                className="group inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
               >
                 <Share2 size={15} aria-hidden="true" />
                 {t("shareCta")}
@@ -240,156 +288,25 @@ export default async function RatesPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ————— The tables ————— */}
+      {/* ————— The tables (client island: the basis switch spans groups) ————— */}
       <section className="mx-auto max-w-4xl px-6 py-16 print:px-0 print:py-0">
-        {rateGroups.map((group, gi) => {
-          const GroupIcon = groupIconsByIndex[gi] ?? Wheat;
-          const groupImage = groupImagesByIndex[gi];
-          return (
-            <Reveal key={gi} className={gi > 0 ? "mt-16" : ""}>
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  {groupImage && (
-                    <Image
-                      src={groupImage}
-                      alt=""
-                      width={56}
-                      height={56}
-                      className="h-14 w-14 rounded-sm border border-ink/10 object-cover [filter:saturate(0.94)_contrast(1.05)_sepia(0.05)]"
-                    />
-                  )}
-                  <div className="flex items-center gap-2.5">
-                    <GroupIcon
-                      size={20}
-                      strokeWidth={1.75}
-                      aria-hidden="true"
-                      className="text-pine"
-                    />
-                    <h2 className="font-display text-display-md text-ink">
-                      {t(`groups.${gi === 0 ? "soya" : "dals"}`)}
-                    </h2>
-                  </div>
-                </div>
-                {group.updatedOn && (
-                  <p className="flex items-center gap-1.5 text-xs text-ink/50">
-                    <TimerReset size={13} aria-hidden="true" />
-                    Updated {group.updatedOn}
-                  </p>
-                )}
-              </div>
+        <RatesTables
+          groups={rateTables}
+          showBasisToggle={rateTables.some((group) =>
+            group.rows.some((row) => row.quintal),
+          )}
+        />
 
-              {/* Desktop: a real table (md and up, plus print). Mobile:
-                  stacked cards — a price list gets read on phones standing
-                  at a mandi, so that layout is primary, not an afterthought. */}
-              <div className="mt-5">
-                <div className="hidden md:block print:block">
-                  <table className="w-full border-collapse text-sm print:text-xs">
-                    <thead>
-                      <tr className="border-b border-ink/15 text-left text-[0.7rem] uppercase tracking-widest text-ink/50">
-                        <th scope="col" className="py-3 pr-2 font-semibold">
-                          {t("productHeader")}
-                        </th>
-                        <th
-                          scope="col"
-                          className="py-3 pl-2 text-right font-semibold"
-                        >
-                          {t("rateHeader")}
-                        </th>
-                        <th
-                          scope="col"
-                          className="py-3 pl-6 text-right font-semibold print:hidden"
-                        >
-                          <span className="sr-only">{t("enquire")}</span>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {group.items.map((rate, index) => (
-                        <tr
-                          key={rate.product}
-                          className={`group border-b border-ink/10 transition-colors hover:bg-linen/70 print:break-inside-avoid ${
-                            index % 2 === 1 ? "bg-linen/40" : ""
-                          }`}
-                        >
-                          <td className="px-2 py-4 font-medium text-ink first:pl-0 print:py-2.5">
-                            {rate.product}
-                            {rate.product.startsWith(FLAGSHIP) && (
-                              <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
-                                {t("flagship")}
-                              </span>
-                            )}
-                          </td>
-                          <td className="whitespace-nowrap px-2 py-4 text-right print:py-2.5">
-                            <span className="font-semibold text-ink">
-                              {rate.price}
-                            </span>{" "}
-                            <span className="text-ink/50">{rate.unit}</span>
-                          </td>
-                          <td className="w-px py-4 pl-6 pr-0 text-right print:hidden">
-                            <a
-                              href={enquireLink(rate.product)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 whitespace-nowrap rounded-sm border border-whatsapp/60 px-3 py-1.5 text-xs font-semibold text-whatsapp transition-all hover:bg-whatsapp hover:text-white"
-                              aria-label={t("enquireAria", {
-                                product: rate.product,
-                              })}
-                            >
-                              {t("enquire")}
-                              <ArrowRight size={11} aria-hidden="true" />
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile stacked cards — hidden at md+, hidden in print. */}
-                <ul className="space-y-3 md:hidden print:hidden">
-                  {group.items.map((rate) => (
-                    <li
-                      key={rate.product}
-                      className="border border-ink/10 bg-white p-4 transition-colors hover:border-pine/40"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="font-display text-base text-ink">
-                          {rate.product}
-                          {rate.product.startsWith(FLAGSHIP) && (
-                            <span className="ml-2 inline-block rounded-full border border-wheat-dark/50 px-1.5 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark">
-                              {t("flagship")}
-                            </span>
-                          )}
-                        </p>
-                        <a
-                          href={enquireLink(rate.product)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 rounded-sm bg-whatsapp/10 px-3 py-1.5 text-xs font-semibold text-whatsapp transition-colors hover:bg-whatsapp hover:text-white"
-                          aria-label={t("enquireAria", {
-                            product: rate.product,
-                          })}
-                        >
-                          {t("enquire")}
-                        </a>
-                      </div>
-                      <p className="mt-2 text-sm text-ink">
-                        <span className="font-semibold">{rate.price}</span>{" "}
-                        <span className="text-ink/50">{rate.unit}</span>
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {gi === 0 && leadGroup && (
-                <p className="mt-4 hidden text-xs text-ink/40 md:block print:hidden">
-                  {t("cannotFind")}
-                </p>
-              )}
-            </Reveal>
-          );
-        })}
+        <p className="mt-12 text-xs text-ink/45 print:hidden">
+          {t("cannotFind")}{" "}
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-1 whitespace-nowrap font-semibold text-pine underline decoration-pine/30 underline-offset-2 transition-colors hover:decoration-pine"
+          >
+            {t("gradesLink")}
+            <ArrowRight size={11} aria-hidden="true" />
+          </Link>
+        </p>
 
         {ratesLastUpdated && (
           <p className="mt-10 text-xs text-ink/50 print:mt-4">
@@ -419,4 +336,11 @@ function enquireLink(product: string): string {
     company.whatsapp,
     `Hi Sachin Gold, I am interested in bulk rates for ${product}.`,
   );
+}
+
+/** The one loud enquiry per group. Uses the English line name (`title` in
+ *  data/rates.ts) rather than the translated heading: the desk reads these
+ *  messages in English in every locale, same as the product names. */
+function enquireLineLink(line: string): string {
+  return enquireLink(line.toLowerCase());
 }

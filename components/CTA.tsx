@@ -4,6 +4,7 @@ import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
 interface CTAProps {
+  eyebrow?: string;
   title?: string;
   description?: string;
   ctaLabel?: string;
@@ -16,8 +17,13 @@ interface CTAProps {
  * restraint as the Hero — WhatsApp and phone as lighter-weight second
  * paths, not competing buttons. All copy translated; callers can override
  * title/description per page (translated by the caller).
+ *
+ * `eyebrow` names the thing the sentence refers to (a service title, say)
+ * so page-specific bands can state it as a label instead of winding it
+ * into the grammar of the headline.
  */
 export default async function CTA({
+  eyebrow,
   title,
   description,
   ctaLabel,
@@ -32,7 +38,16 @@ export default async function CTA({
     <section className="relative bg-pine-deep grain-dark">
       <div className="section-airy mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 sm:flex-row sm:items-center">
         <div>
-          <h2 className="font-display text-display-md text-white">
+          {eyebrow && (
+            <p className="text-sm font-medium uppercase tracking-wide text-wheat">
+              {eyebrow}
+            </p>
+          )}
+          <h2
+            className={`font-display text-display-md text-white ${
+              eyebrow ? "mt-2" : ""
+            }`}
+          >
             {resolvedTitle}
           </h2>
           <p className="mt-2 max-w-md text-white/70">{resolvedDescription}</p>

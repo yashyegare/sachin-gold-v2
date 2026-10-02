@@ -81,3 +81,20 @@ export const company: CompanyInfo = {
 
 // Canonical origin — used by metadata, JSON-LD, sitemap and robots.
 export const siteUrl = "https://sachingold.com";
+
+/**
+ * Licence and certification identifiers. EMPTY ON PURPOSE — nothing here was
+ * supplied by the owner, and these are legal identifiers rather than
+ * estimates, so a plausible-looking guess is worse than the gap it fills.
+ *
+ * Fill in what actually exists and the commercial-terms block on every
+ * service page renders it (data/specs.ts explains the same rule for the
+ * indicative grades and MOQs). While this array is empty that strip is
+ * omitted entirely.
+ */
+export const certifications: { label: string; value: string }[] = [
+  // { label: "GSTIN", value: "27XXXXXXXXXXXXXZ1" },
+  // { label: "FSSAI", value: "1XXXXXXXXX" },
+  // { label: "ISO 22000:2018", value: "XXXXXXXX" },
+  // { label: "IEC", value: "XXXXXXXX" },
+];

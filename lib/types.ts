@@ -119,7 +119,17 @@ export interface RateItem {
   /** Display string. "On request" until the client supplies real numbers —
    *  never "TODO" (a literal TODO string would render on the page). */
   price: string;
+  /** Weight basis the price is quoted against: "per Metric Ton", "per 10 kg". */
   unit: string;
+  /** Qualifier that belongs with the basis ("ex-plant", "premium grade").
+   *  Separate from `unit` so the per-quintal view can swap the basis while
+   *  the qualifier stays attached to the number. */
+  unitNote?: string;
+  /** Kilograms one `unit` covers — 1000 for a metric ton, 10 for a 10 kg
+   *  pack, 1 for per-kg. Required: it is the only thing that makes the
+   *  per-quintal normalisation possible, and a missing value must fail at
+   *  compile time rather than publish a price that is out by 10x or 100x. */
+  unitKg: number;
   /** Numeric price for schema.org Offer markup. Optional: the structured
    *  data on /rates only emits offers for items that have one, so filling
    *  this in later automatically activates pricing rich-results — no

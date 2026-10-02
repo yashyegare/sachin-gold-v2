@@ -7,15 +7,17 @@ import PageIntro from "@/components/PageIntro";
 import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
 import ProductCarousel from "@/components/ProductCarousel";
+import ProductSpecs from "@/components/ProductSpecs";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
 import RatesBanner from "@/components/RatesBanner";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { Link } from "@/i18n/navigation";
-import { buildAlternates } from "@/i18n/seo";
+import { absoluteUrl, pageMetadata } from "@/i18n/seo";
 import { routing, type Locale } from "@/i18n/routing";
 import { getServiceBySlug, services } from "@/data/services";
 import { getProductsByService } from "@/data/products";
+import { getSpecsForService } from "@/data/specs";
 import { siteUrl } from "@/data/company";
 import { getLiveRateGroups } from "@/lib/rates-source";
 
@@ -43,12 +45,12 @@ export async function generateMetadata({
   const title = t(`items.${service.slug}.title`);
   const description = t(`items.${service.slug}.description`).slice(0, 155);
 
-  return {
+  return pageMetadata({
+    locale,
+    path: `/services/${service.slug}`,
     title,
     description,
-    alternates: buildAlternates(`/services/${service.slug}`),
-    openGraph: { title, description },
-  };
+  });
 }
 
 /**
@@ -71,6 +73,7 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   const t = await getTranslations("services");
   const products = getProductsByService(service.slug);
+  const specItems = getSpecsForService(service.slug);
   const otherServices = services.filter((s) => s.slug !== service.slug);
 
   // Live-rate spotlight for the two services whose products the owner's
@@ -124,24 +127,27 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Phase 7, item 4 — Service JSON-LD. English source-of-truth (data
-  // layer) for now; per-locale schema once translations are reviewed.
+  // Service JSON-LD. Names come from the translated catalog because that
+  // is the text actually on the page; the data-layer English strings stay
+  // out of schema so the markup never describes a different document.
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: service.title,
-    description: service.shortDescription,
-    url: `${siteUrl}${service.href}`,
+    name: t(`items.${service.slug}.title`),
+    description: t(`items.${service.slug}.description`),
+    serviceType: service.title,
+    url: absoluteUrl(locale, service.href),
     provider: { "@id": `${siteUrl}/#organization` },
-    areaServed: ["Maharashtra", "Karnataka"].map((name) => ({
-      "@type": "State",
-      name,
-    })),
+    // Pan-India, in line with the visible copy and the FAQ; the two states
+    // we operate from are already in the Organization address.
+    areaServed: { "@type": "Country", name: "India" },
   };
 
   // BreadcrumbList — mirrors the visible breadcrumb below (Google
   // requires markup to match rendered content), so the service pages are
-  // eligible for breadcrumb rich results in search.
+  // eligible for breadcrumb rich results in search. Both the names and the
+  // `item` URLs are the locale's own: the crumb text is the translated
+  // eyebrow and the link is this page's locale path, not English's.
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -149,14 +155,14 @@ export default async function ServiceDetailPage({ params }: Props) {
       {
         "@type": "ListItem",
         position: 1,
-        name: "Our Services",
-        item: `${siteUrl}/services`,
+        name: t("intro.eyebrow"),
+        item: absoluteUrl(locale, "/services"),
       },
       {
         "@type": "ListItem",
         position: 2,
-        name: service.title,
-        item: `${siteUrl}${service.href}`,
+        name: t(`items.${service.slug}.title`),
+        item: absoluteUrl(locale, service.href),
       },
     ],
   };
@@ -333,18 +339,26 @@ export default async function ServiceDetailPage({ params }: Props) {
 
             {/* Forwardable spec sheet — the same catalogue + advantages
                 compiled into a one-page PDF from the data layer; a bulk
-                buyer forwards it internally instead of a link. */}
+                buyer forwards it internally instead of a link. Inline pill,
+                matching the profile download on /about. */}
             <Reveal className="mt-10">
               <PdfDownloadButton
                 href={`/services/${service.slug}/spec.pdf`}
                 label={t("detail.specSheet")}
-                hint="PDF"
-                variant="quiet"
+                tone="pine"
               />
             </Reveal>
           </div>
         </section>
       )}
+
+      {/* ————— Commercial terms — grade, pack size, MOQ and lead time for
+          each product in this line, then the shared payment / dispatch /
+          survey terms. This is what a bulk buyer needs in order to decide,
+          and it was the biggest content gap on the site: no terms were
+          published anywhere. Values are indicative (see data/specs.ts) and
+          labelled as such on the page. */}
+      {specItems.length > 0 && <ProductSpecs items={specItems} />}
 
       {/* ————— Locations — chips with a pin icon read as "operational
           network"; translated short form. */}
@@ -402,9 +416,8 @@ export default async function ServiceDetailPage({ params }: Props) {
       )}
 
       <CTA
-        title={t("detail.ctaTitle", {
-          service: t(`items.${service.slug}.title`).toLowerCase(),
-        })}
+        eyebrow={t(`items.${service.slug}.title`)}
+        title={t("detail.ctaTitle")}
         description={t("detail.ctaDescription")}
         ctaLabel={t("detail.contact")}
       />

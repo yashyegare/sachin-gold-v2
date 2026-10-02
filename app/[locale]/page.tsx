@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import BrandSplash from "@/components/BrandSplash";
 import Hero from "@/components/Hero";
 import RatesStrip from "@/components/RatesStrip";
 import StatsBand from "@/components/StatsBand";
@@ -10,7 +11,7 @@ import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { buildAlternates } from "@/i18n/seo";
+import { pageMetadata } from "@/i18n/seo";
 import { getFeaturedProducts } from "@/data/products";
 
 interface Props {
@@ -23,9 +24,8 @@ export async function generateMetadata({
   params: { locale: string };
 }): Promise<Metadata> {
   const { locale } = await params;
-  return {
-    alternates: buildAlternates("/"),
-  };
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  return pageMetadata({ locale, path: "/", description: t("description") });
 }
 
 export default async function HomePage({ params }: Props) {
@@ -35,6 +35,11 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
+      {/* First-visit brand curtain over the whole page (self-dismissing;
+          nothing for returning visitors). First in the tree so its markup
+          arrives in the initial HTML flush. */}
+      <BrandSplash />
+
       {/* Rates strip FIRST, at the very top — the old site's ticker
           position, now shared with Services and Contact via RatesStrip. */}
       <RatesStrip />
@@ -98,9 +103,12 @@ export default async function HomePage({ params }: Props) {
               categories; the complete list lives on each service's page. */}
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {getFeaturedProducts().map((product, i) => (
-              <Reveal key={product.slug}>
-                <div style={{ transitionDelay: `${(i % 3) * 60}ms` }}>
-                  <ProductCard product={product} />
+              <Reveal key={product.slug} className="h-full">
+                <div className="h-full" style={{ transitionDelay: `${(i % 3) * 60}ms` }}>
+                  <ProductCard
+                    product={product}
+                    termsLabel={t("products.termsLink")}
+                  />
                 </div>
               </Reveal>
             ))}

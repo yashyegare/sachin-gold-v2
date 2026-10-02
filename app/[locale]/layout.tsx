@@ -27,7 +27,7 @@ import LanguageGate from "@/components/LanguageGate";
 import LcpProbe from "@/components/LcpProbe";
 import { company, siteUrl } from "@/data/company";
 import { routing, type Locale } from "@/i18n/routing";
-import { buildAlternates } from "@/i18n/seo";
+import { ogImageUrl, pageMetadata } from "@/i18n/seo";
 import "../globals.css";
 
 // Fonts: the Latin brand pair (Inter/Marcellus) plus the Noto families for
@@ -111,30 +111,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const validLocale = routing.locales.includes(locale as Locale)
-    ? (locale as Locale)
-    : routing.defaultLocale;
 
   return {
-    metadataBase: new URL(siteUrl),
+    ...pageMetadata({ locale, path: "/", description: t("description") }),
+    // The template is a layout-only concern: pages set a bare `title` and
+    // inherit the suffix. pageMetadata can't know about it.
     title: {
       default: `${company.name} | ${company.tagline}`,
       template: `%s | ${company.name}`,
-    },
-    description: t("description"),
-    alternates: buildAlternates("/"),
-    openGraph: {
-      type: "website",
-      siteName: company.name,
-      url: siteUrl,
-      title: `${company.name} | ${company.tagline}`,
-      description: t("description"),
-      locale: validLocale === "en" ? "en_IN" : validLocale,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${company.name} | ${company.tagline}`,
-      description: t("description"),
     },
   };
 }
@@ -164,6 +148,9 @@ const jsonLd = {
       foundingDate: `${company.foundedYear ?? 1969}`,
       email: company.email,
       telephone: company.phone,
+      // Google's logo guidance is a square-ish image ≥112px; the badge is
+      // 900×852 and already the site's mark.
+      logo: `${siteUrl}/images/brand/sachin-badge.webp`,
     },
     {
       "@type": "LocalBusiness",
@@ -173,6 +160,15 @@ const jsonLd = {
       url: siteUrl,
       email: company.email,
       telephone: company.phone,
+      image: ogImageUrl("en"),
+      // The Main Plant's own pin, taken from the Google Maps embed URL on
+      // /contact — not an approximate city centroid.
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 18.4047223,
+        longitude: 76.9601921,
+      },
+      hasMap: company.facilities[0]?.mapUrl,
       // Main Plant's captured address — real data from the live contact page.
       address: {
         "@type": "PostalAddress",
@@ -182,12 +178,11 @@ const jsonLd = {
         postalCode: "413517",
         addressCountry: "IN",
       },
-      // States, not cities — company.locations holds the operating cities
-      // (Udgir, Latur, …); areaServed here is the broader footprint.
-      areaServed: ["Maharashtra", "Karnataka"].map((name) => ({
-        "@type": "State",
-        name,
-      })),
+      // Serving area is the whole country; the operating base is the two
+      // states in `address` and in company.locations below. Saying only
+      // Maharashtra & Karnataka here contradicted the FAQ's pan-India
+      // logistics answer and made buyers call to ask.
+      areaServed: { "@type": "Country", name: "India" },
     },
   ],
 };
@@ -216,6 +211,20 @@ export default async function LocaleLayout({
       className={`${inter.variable} ${marcellus.variable} ${notoSansDevanagari.variable} ${notoSansKannada.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSerifDevanagari.variable} ${notoSerifKannada.variable} ${notoSerifTelugu.variable} ${notoSerifTamil.variable}`}
     >
       <body className="flex min-h-screen flex-col font-sans">
+        {/* Brand splash gate — see components/BrandSplash.tsx. Runs before
+            first paint (first thing in <body>, so it is in the initial
+            flush) and marks <html> when this load is a first visit to the
+            homepage. Doing it here rather than in the client effect is what
+            makes the curtain present at the first frame instead of
+            appearing over an already-painted page. Three exits, all
+            silent: not the homepage, reduced motion, or already seen.
+            The storage key literal is repeated from BrandSplash — an inline
+            pre-paint script cannot import it. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(!/^(?:\\/(?:hi|mr|kn|te|ta))?\\/?$/.test(location.pathname))return;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;if(window.localStorage&&localStorage.getItem("sg-splash-seen"))return;document.documentElement.setAttribute("data-splash","1")}catch(e){}})();`,
+          }}
+        />
         {/* Skip link: first focusable element on every page, so keyboard
             users don't tab through the whole navbar each time. */}
         <a

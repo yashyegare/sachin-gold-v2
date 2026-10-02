@@ -27,7 +27,10 @@
     "rights": "All rights reserved.",
     "legalLine": "Sachin International Proteins Private Limited",
     "tagline": "Bulk Agro Commodity Trading & Processing",
-    "profile": "Company profile (PDF)"
+    "profile": "Company profile (PDF)",
+    "products": "Products",
+    "team": "Our team",
+    "faq": "FAQ"
   },
   "home": {
     "ratesStrip": {
@@ -45,7 +48,7 @@
         "facility": {
           "eyebrow": "Bulk Agro Commodities, Since 1969",
           "headline": "Your trusted partner in bulk agro commodity trading",
-          "subheadline": "An unwavering commitment to quality, innovation and customer satisfaction — from bulk sourcing and pulses processing to oil extraction, cold storage and logistics across Maharashtra and Karnataka."
+          "subheadline": "An unwavering commitment to quality, innovation and customer satisfaction — from bulk sourcing and pulses processing to oil extraction, cold storage and logistics, with pan-India dispatch from our Maharashtra & Karnataka base."
         },
         "trading": {
           "eyebrow": "Commodity Trading",
@@ -103,6 +106,7 @@
       "title": "What we trade and process",
       "subtitle": "A cross-section of what moves through our facilities — the full catalog lives on each service's page.",
       "browseAll": "Browse all products by service",
+      "termsLink": "Grade, packs & MOQ",
       "categories": {
         "trading": "Trading",
         "processing": "Processing",
@@ -146,7 +150,7 @@
       "contact": "Discuss your requirement",
       "backTitle": "Explore the service",
       "backDescription": "Ask about availability, grades and pricing for this service line — the trading desk answers with a written quote.",
-      "ctaTitle": "Need {service}?",
+      "ctaTitle": "Need this service?",
       "ctaDescription": "Tell us your requirement and we'll get back with pricing and availability.",
       "overview": "Overview",
       "atAGlance": "{title} at a glance",
@@ -156,7 +160,18 @@
       "networkTitle": "Where we operate",
       "othersEyebrow": "Explore More",
       "othersTitle": "Other services",
-      "specSheet": "Download spec sheet (PDF)"
+      "specSheet": "Download spec sheet (PDF)",
+      "specsEyebrow": "Commercial terms",
+      "specsTitle": "Grades, pack sizes, MOQ and lead time",
+      "specsDesc": "What a bulk order actually looks like for this line — the quality parameters we contract on, how it ships, and how fast.",
+      "specProduct": "Product",
+      "specGrade": "Grade & quality",
+      "specPacks": "Pack sizes",
+      "specMoq": "MOQ",
+      "specLead": "Lead time",
+      "termsPayment": "Payment terms",
+      "termsDispatch": "Dispatch",
+      "termsSurvey": "Quality survey"
     },
     "items": {
       "commodity-trading": {
@@ -233,7 +248,7 @@
           "Efficient routing — optimized networks to minimize transit times and maintain freshness"
         ],
         "locations": [
-          "Across Maharashtra & Karnataka"
+          "Pan-India dispatch — anchored in Maharashtra & Karnataka"
         ]
       }
     },
@@ -282,7 +297,7 @@
         },
         {
           "v": "2",
-          "l": "States covered"
+          "l": "Dispatch states"
         }
       ]
     },
@@ -297,7 +312,10 @@
     },
     "catalogueEyebrow": "Full Catalogue",
     "catalogueTitle": "Everything we trade, process and extract",
-    "catalogueDesc": "Twenty products across three lines — each one backed by the service that sources, processes or extracts it."
+    "catalogueDesc": "Twenty products across three lines — each one backed by the service that sources, processes or extracts it.",
+    "catalogueTermsLink": "Grade, packs & MOQ",
+    "catalogueAll": "All",
+    "catalogueFilterAria": "Filter products by category"
   },
   "rates": {
     "eyebrow": "Market Rates",
@@ -306,6 +324,12 @@
     "bannerCta": "View full rate card",
     "title": "Current Market Rates",
     "description": "Indicative rates for our full trading, processing and extraction lines — reconfirmed at booking, quoted in writing when you enquire.",
+    "intro": {
+      "commodities": "Commodities tracked",
+      "daily": "Daily",
+      "revisions": "Rate revisions",
+      "lastUpdated": "Last updated"
+    },
     "waCta": "Get today's rate on WhatsApp",
     "callCta": "Call {phone}",
     "trust": {
@@ -329,7 +353,18 @@
     "flagship": "Flagship",
     "enquire": "Enquire",
     "enquireAria": "Enquire about bulk rates for {product} on WhatsApp",
+    "enquireLine": "Enquire about this line",
+    "enquireLineAria": "Message the trading desk about {line} on WhatsApp",
+    "perQuintal": "per quintal",
+    "basis": {
+      "label": "Compare rates",
+      "aria": "Choose the unit rates are shown in",
+      "quoted": "As quoted",
+      "quintal": "Per quintal",
+      "hint": "One line is quoted per metric ton, another per 10 kg and another per kg. Switch to per quintal (100 kg) to read them side by side."
+    },
     "cannotFind": "Can't find a grade or pack size? Message us — the trading desk answers with a written quote.",
+    "gradesLink": "See every grade, pack size & MOQ",
     "productHeader": "Product",
     "rateHeader": "Rate",
     "ctaTitle": "Confirm today's rate before you order.",
@@ -359,6 +394,8 @@
     "pillCall": "Call {phone}",
     "pillWhatsapp": "WhatsApp us",
     "pillEmail": "Email us",
+    "pillShort": "Call us",
+    "directTitle": "Or reach us directly",
     "facilitiesTitle": "Reach the right facility",
     "facilitiesSubtitle": "Three locations, one network — each with a dedicated line.",
     "headquarters": "Headquarters",
@@ -371,6 +408,7 @@
     "findUsTitle": "Find us",
     "findUsSubtitle": "All three facilities sit within a few kilometres of Udgir, Dist. Latur — each card above links its exact location in Google Maps. The map below shows the Main Plant.",
     "mapTitle": "Map — Sachin International Proteins Private Limited, Udgir",
+    "mapLoad": "View on Google Maps",
     "faqTitle": "Frequently Asked Questions",
     "faqs": [
       {
@@ -402,8 +440,9 @@
   "about": {
     "eyebrow": "About Us",
     "title": "About Sachin Gold",
+    "jumpTo": "On this page",
     "p1": "Since 1969, Hude Group has been serving the nation with the finest Sortex-quality agro commodities, along with premium finished products and related services such as transportation, warehousing, and cold storage. Backed by decades of trust and continuous investment in modern technology, we ensure that every grain reaches our customers with purity, nutrition, and natural goodness.",
-    "p2": "We are proudly present across Maharashtra and Karnataka, in regions including Udgir, Latur, Solapur, Bhalki and Bidar. Our strong geographical presence allows us to offer high-protein crops of superior quality while being strategically located for easy access and round-the-clock service.",
+    "p2": "We are proudly present across Maharashtra and Karnataka, in regions including Udgir, Latur, Solapur, Bhalki and Bidar. Our strong geographical presence allows us to offer high-protein crops of superior quality while being strategically located for easy access and round-the-clock service — and we dispatch to bulk buyers across India from these locations.",
     "p3Pre": "At the heart of our operations is a strong belief in empowering our agricultural community. Through the",
     "p3Link": "ITC e-Choupal",
     "p3Post": "initiative, we've fostered deep bonds with our growers, connecting over 1.5 lakh farmers and customers to promote sustainable, mutually beneficial trade.",
@@ -470,7 +509,8 @@
   "privacy": {
     "title": "Privacy Policy",
     "eyebrow": "Legal",
-    "updated": "Last updated: September 2026"
+    "updated": "Last updated: September 2026",
+    "englishOnly": "This policy is available in English only."
   },
   "contactForm": {
     "name": "Name",
@@ -484,9 +524,10 @@
     "successTitle": "Thank you — message sent.",
     "successBody": "We'll get back to you shortly with pricing and availability.",
     "error": "Something went wrong sending your message — please try again, or call us directly.",
-    "disabledNote": "Submission activates once a Web3Forms access key is configured — see .env.example (Phase 6).",
     "requiredError": "This field is required.",
-    "emailError": "Enter a valid email address."
+    "emailError": "Enter a valid email address.",
+    "optional": "Optional",
+    "another": "Send another enquiry"
   },
   "notFound": {
     "eyebrow": "404",
@@ -502,7 +543,7 @@
     "errorRetry": "Try again"
   },
   "metadata": {
-    "description": "Trusted partner for bulk agro commodities — trading, pulses processing, oil extraction, cold storage and logistics across Maharashtra and Karnataka."
+    "description": "Trusted partner for bulk agro commodities — trading, pulses processing, oil extraction, cold storage and logistics, dispatching pan-India from Maharashtra & Karnataka."
   },
   "langGate": {
     "eyebrow": "Welcome",

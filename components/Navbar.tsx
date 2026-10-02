@@ -187,22 +187,26 @@ export default function Navbar() {
         aria-hidden="true"
       />
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6">
-        {/* The mark + wordmark — the simplified grain-sheaf badge (flat
-            pine/gold, public/sg-mark.svg), replacing the ornate gold-foil
-            logo that fought the site's restrained system. */}
+        {/* The mark + wordmark — the gold-foil Sachin Gold badge used across
+            the site (public/images/brand/sachin-badge.webp). */}
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2.5"
+          className="group flex shrink-0 items-center gap-2 sm:gap-2.5"
           aria-label="Sachin Gold — home"
         >
+          {/* A pre-shrunk, lightly sharpened cut of the badge: at 44px the
+              900px original downscales to a soft smudge, and the laurel tips
+              and inner wordmark are what make the mark readable. */}
           <Image
-            src="/sg-mark.svg"
+            src="/images/brand/sachin-badge-nav.webp"
             alt=""
-            width={34}
-            height={34}
-            className="rounded-[7px] transition-transform duration-300 group-hover:scale-105"
+            width={44}
+            height={42}
+            priority
+            unoptimized
+            className="h-10 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-11"
           />
-          <span className="font-display text-xl font-bold tracking-tight text-pine transition-colors group-hover:text-pine-deep">
+          <span className="font-display text-[1.4rem] font-bold leading-[2.5rem] tracking-tight text-pine transition-colors group-hover:text-pine-deep sm:text-[1.6rem] sm:leading-[2.75rem]">
             Sachin <span className="text-wheat">Gold</span>
           </span>
         </Link>

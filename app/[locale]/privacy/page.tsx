@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import SectionHeading from "@/components/SectionHeading";
-import { buildAlternates } from "@/i18n/seo";
+import { pageMetadata } from "@/i18n/seo";
 
 interface Props {
   params: { locale: string };
@@ -14,10 +14,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "privacy" });
-  return {
+  // The body is English-only by design (see below), so the description is
+  // too — a translated summary of untranslated legal prose oversells.
+  return pageMetadata({
+    locale,
+    path: "/privacy",
     title: t("title"),
-    alternates: buildAlternates("/privacy"),
-  };
+    description:
+      "How this website handles information: the enquiry form's data, Web3Forms processing, cookies, analytics, retention and how to request removal.",
+  });
 }
 
 // Long-tail legal prose: English-only for now, by design. The catalog's
@@ -68,6 +73,10 @@ export default async function PrivacyPage({ params }: Props) {
     <section className="section-standard mx-auto max-w-3xl px-6">
       <SectionHeading as="h1" eyebrow={t("eyebrow")} title={t("title")} />
       <p className="mt-4 text-sm text-ink/50">{t("updated")}</p>
+      {/* The body stays English by design (see the note above), so the
+          pages' own limitation is stated in the reader's language rather
+          than left for them to discover halfway down. */}
+      <p className="mt-1 text-sm text-ink/70">{t("englishOnly")}</p>
 
       <div className="mt-10 space-y-10">
         {sections.map((section) => (

@@ -10,7 +10,7 @@ import ProductsCatalogue from "@/components/ProductsCatalogue";
 import Reveal from "@/components/Reveal";
 import SectionHeading from "@/components/SectionHeading";
 import { Link } from "@/i18n/navigation";
-import { buildAlternates } from "@/i18n/seo";
+import { pageMetadata } from "@/i18n/seo";
 import { services } from "@/data/services";
 import { getProductsByService, products } from "@/data/products";
 import { company } from "@/data/company";
@@ -27,11 +27,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "services" });
-  return {
+  return pageMetadata({
+    locale,
+    path: "/services",
     title: t("intro.title"),
     description: t("intro.description"),
-    alternates: buildAlternates("/services"),
-  };
+  });
 }
 
 /**
@@ -231,7 +232,7 @@ export default async function ServicesPage({ params }: Props) {
           items, each still tied to its service line on the cards.
           Filter chips toggle visibility client-side; the grid itself is
           server-rendered (SEO/no-JS see everything). */}
-      <section className="section-standard border-t border-ink/10 bg-linen/40">
+      <section id="products" className="section-standard border-t border-ink/10 bg-linen/40">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <SectionHeading

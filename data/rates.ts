@@ -11,6 +11,11 @@ import type { RateGroup } from "@/lib/types";
 // it leads. Fill priceValue (numeric, INR) at the same time as price:
 // the page's schema.org Offers and the home ticker both derive from this
 // file, so there is exactly one place prices can ever live.
+//
+// `unit` is the basis alone and `unitNote` the qualifier, split so the
+// rates page can re-express a line in ₹/quintal without dropping
+// "ex-plant" or "GST & freight". `unitKg` says how many kilograms one
+// unit of `price` covers — the sheet's number is meaningless without it.
 export const rateGroups: RateGroup[] = [
   {
     title: "Soya Derivatives",
@@ -19,38 +24,52 @@ export const rateGroups: RateGroup[] = [
       {
         product: "Soya DOC (Normal)",
         price: "On request",
-        unit: "per Metric Ton + GST & freight",
+        unit: "per Metric Ton",
+        unitNote: "plus GST & freight",
+        unitKg: 1000,
         // priceValue: undefined,
       },
       {
         product: "Soya DOC (High Pro)",
         price: "On request",
-        unit: "per Metric Ton + GST & freight",
+        unit: "per Metric Ton",
+        unitNote: "plus GST & freight",
+        unitKg: 1000,
       },
       {
         product: "Soya Crude Oil",
         price: "On request",
-        unit: "per 10kg, ex-plant",
+        unit: "per 10 kg",
+        unitNote: "ex-plant",
+        unitKg: 10,
       },
       {
         product: "Soya Refined Oil",
         price: "On request",
-        unit: "per 10kg, premium grade",
+        unit: "per 10 kg",
+        unitNote: "premium grade",
+        unitKg: 10,
       },
       {
         product: "Soya Fatty Oil",
         price: "On request",
-        unit: "per 10kg, industrial grade",
+        unit: "per 10 kg",
+        unitNote: "industrial grade",
+        unitKg: 10,
       },
       {
         product: "Soya Acid Oil",
         price: "On request",
-        unit: "per 10kg, industrial grade",
+        unit: "per 10 kg",
+        unitNote: "industrial grade",
+        unitKg: 10,
       },
       {
         product: "Soya Lecithin",
         price: "On request",
-        unit: "per kg, liquid grade",
+        unit: "per kg",
+        unitNote: "liquid grade",
+        unitKg: 1,
       },
     ],
   },
@@ -61,17 +80,23 @@ export const rateGroups: RateGroup[] = [
       {
         product: "Toor Dal",
         price: "On request",
-        unit: "per kg, premium quality",
+        unit: "per kg",
+        unitNote: "premium quality",
+        unitKg: 1,
       },
       {
         product: "Chana Dal",
         price: "On request",
-        unit: "per kg, super fine",
+        unit: "per kg",
+        unitNote: "super fine",
+        unitKg: 1,
       },
       {
         product: "Besan Flour",
         price: "On request",
-        unit: "per kg, pure chana besan",
+        unit: "per kg",
+        unitNote: "pure chana besan",
+        unitKg: 1,
       },
     ],
   },

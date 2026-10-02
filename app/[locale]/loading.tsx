@@ -25,11 +25,11 @@ export default function Loading() {
 
       <div className="flex min-h-[50vh] items-center justify-center">
         <img
-          src="/sg-mark.svg"
+          src="/images/brand/sachin-badge-nav.webp"
           alt=""
           width={40}
-          height={40}
-          className="animate-pulse rounded-[9px] opacity-40"
+          height={38}
+          className="h-10 w-auto animate-pulse rounded-[9px] opacity-40"
         />
       </div>
     </>

@@ -10,6 +10,10 @@ const nextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   reactStrictMode: true,
+  // Drop the `X-Powered-By: Next.js` response header. Nothing depends on
+  // it, it's a fingerprint, and removing it saves a round-trip's worth of
+  // bytes on every one of the site's ~40 static pages.
+  poweredByHeader: false,
   // Standard security headers. Deliberately conservative: no CSP yet —
   // a real content-security-policy has to account for the Google Maps
   // iframe, Web3Forms and next/image, and must be tested on the live

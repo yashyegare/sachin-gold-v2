@@ -9,7 +9,9 @@ import { useEffect, useRef, useState } from "react";
  * - `target` counts 0 → target over ~1.3s with easeOutCubic (fast start,
  *   gentle landing — reads as "settling", not "spinning").
  * - Decimals: pass decimals=1 for "1.5"; the sign ( "+" / "L+" ) stays
- *   in the component — the hook animates the number only.
+ *   in the component — the hook animates the number only. `target` is the
+ *   number as it should end up on screen, so a caller that already scaled
+ *   150000 down to 1.5 must not be divided again here.
  * - prefers-reduced-motion (or no IntersectionObserver): no animation at
  *   all — the final value renders immediately. SSR markup is the final
  *   value too, so content is never missing and hydration matches; the
@@ -37,7 +39,6 @@ export function useCountUp(target: number, decimals = 0) {
     ).matches;
     if (reduced || typeof IntersectionObserver === "undefined") return;
 
-    const factor = Math.pow(10, decimals);
     const duration = 1300;
     const stepMs = 33; // ~30fps — plenty smooth for a number tween
 
@@ -53,7 +54,7 @@ export function useCountUp(target: number, decimals = 0) {
                 1,
               );
               const eased = 1 - Math.pow(1 - p, 3);
-              setDisplay(((target * eased) / factor).toFixed(decimals));
+              setDisplay((target * eased).toFixed(decimals));
               if (p >= 1) clearInterval(timer);
             }, stepMs);
             break;

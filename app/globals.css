@@ -6,6 +6,11 @@
   html {
     scroll-behavior: smooth;
 
+    /* The header is sticky at 67px, so a hash jump would land its target
+       underneath the nav. One rule here covers every in-page anchor on
+       the site instead of a scroll-mt class per section. */
+    scroll-padding-top: 6rem;
+
     /* The one motion curve, as a custom property for the keyframe
        animations below (Tailwind's transitionTimingFunction.DEFAULT
        covers transitions; these var() references keep every ANIMATION
@@ -175,6 +180,286 @@
     --tw-prose-code: #16231c;
     --tw-prose-th-borders: rgba(22, 35, 28, 0.2);
     --tw-prose-td-borders: rgba(22, 35, 28, 0.1);
+  }
+
+  /* ————— First-visit brand splash (components/BrandSplash.tsx) —————
+
+     One timeline, tuned in one place: the --sg-* delays below. The panel
+     lifts away at --sg-out + --sg-out-dur ≈ 3.0s, which is the number the
+     component's teardown timer matches.
+
+     The element is always in the DOM on the home page but display:none
+     unless the inline gate script in the layout has set [data-splash] on
+     <html> before first paint. That ordering is the whole trick: the
+     curtain exists at the very first frame instead of slamming over an
+     already-painted page. (An attribute, not a class, because <html>
+     already carries React's font-variable className — React owns that
+     attribute's value and this one is nobody else's to fight over.) */
+  .sg-splash {
+    /* 3.0s end to end: shield lands, laurel descends onto it, a sheen crosses
+       the foil, the rule draws and fills as the honest "this will end" cue,
+       then the curtain lifts at --sg-out and is fully gone at
+       --sg-out + --sg-out-dur. Both halves of that sum are mirrored by the
+       teardown timer in BrandSplash.tsx — change one, change the other. */
+    --sg-shield: 0.15s;
+    --sg-laurel: 0.5s;
+    --sg-sheen: 1.2s;
+    --sg-hair: 1.35s;
+    --sg-bar: 1.6s;
+    --sg-bar-dur: 0.7s;
+    --sg-meta: 1.55s;
+    --sg-out: 2.3s;
+    --sg-out-dur: 0.7s;
+    display: none;
+  }
+
+  html[data-splash] .sg-splash {
+    display: grid;
+    place-items: center;
+    position: fixed;
+    inset: 0;
+    /* Above the sticky navbar (z-50) and the floating pair (z-40). */
+    z-index: 100;
+    /* Decorative: never intercepts a click. Skip detection listens on the
+       window instead, so this can stay transparent to pointers. */
+    pointer-events: none;
+    /* Warm near-black, taken from the seal's own ink (#1A1A18) and lit from
+       just above centre. The badge is gold foil on black — on a pine panel
+       the greens fought each other and the foil went muddy; on charcoal it
+       reads exactly like the printed card. .grain-dark rides along on the
+       same element, because a flat dark panel this large shows banding in
+       any gradient. */
+    background: radial-gradient(
+      115% 85% at 50% 42%,
+      #262319 0%,
+      #16140e 52%,
+      #0a0906 100%
+    );
+    /* Every animation ends off-screen with fill-mode both, so the curtain
+       is gone and inert at the end of the timeline whether or not JS ever
+       runs the teardown. */
+    animation: sg-splash-out var(--sg-out-dur) var(--ease-brand) var(--sg-out)
+      both;
+  }
+
+  .sg-splash-stack {
+    position: relative;
+    /* Above .grain-dark's ::after, which sits at z-index 1 over the panel. */
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Optical, not geometric, centre: the lockup sits a touch above the
+       middle so it doesn't read as dropped into the lower half. */
+    transform: translateY(-3vh);
+    text-align: center;
+  }
+
+  /* The two layers come from scripts/prepare-brand-mark.mjs, which keys the
+     photo's white ground out by border-seeded flood fill (so the white
+     SACHIN lettering inside the black plate survives) and splits the artwork
+     at its widest empty row band. 18.3% is that split: 156px of 852px. */
+  .sg-splash-badge {
+    position: relative;
+    width: clamp(178px, 100px + 15vw, 252px);
+    aspect-ratio: 900 / 852;
+    /* Clips the sheen to the artwork, which fills this box edge to edge. */
+    overflow: hidden;
+  }
+
+  .sg-splash-badge img {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    /* fill, not cover: each layer's own aspect already matches the slice it
+       came from, and cover would shave the feathered edge at the split. */
+    object-fit: fill;
+  }
+
+  .sg-splash-shield {
+    top: 18.3%;
+    height: 81.7%;
+    animation: sg-splash-settle 0.8s var(--ease-brand) var(--sg-shield) both;
+  }
+
+  .sg-splash-laurel {
+    top: 0;
+    height: 18.3%;
+    animation: sg-splash-descend 0.7s var(--ease-brand) var(--sg-laurel) both;
+  }
+
+  /* One pass of light across the foil, timed after both halves have met.
+     overlay blend: brightens the gold strongly, barely touches the black
+     plate, so it reads as reflective rather than as a wipe. */
+  .sg-splash-sheen {
+    position: absolute;
+    top: -12%;
+    bottom: -12%;
+    left: 0;
+    width: 55%;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgba(255, 244, 214, 0.55) 50%,
+      transparent
+    );
+    mix-blend-mode: overlay;
+    animation: sg-splash-sheen 0.95s var(--ease-brand) var(--sg-sheen) both;
+  }
+
+  /* The rule doubles as the progress indicator, so a 3s wait reads as
+     designed rather than as a stall. Track in, then fill left→right, ending
+     exactly as the curtain starts to lift. */
+  .sg-splash-rule {
+    position: relative;
+    width: 5.5rem;
+    height: 1px;
+    margin-top: 1.7rem;
+    background: rgba(255, 255, 255, 0.13);
+    animation: sg-splash-fade 0.5s var(--ease-brand) var(--sg-hair) both;
+  }
+
+  .sg-splash-rule-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, rgba(217, 169, 60, 0.4), #e7c070);
+    animation: sg-splash-progress var(--sg-bar-dur) var(--ease-brand)
+      var(--sg-bar) both;
+  }
+
+  .sg-splash-meta {
+    margin-top: 1.05rem;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(246, 244, 238, 0.55);
+    animation: sg-splash-rise 0.55s var(--ease-brand) var(--sg-meta) both;
+  }
+
+  .sg-splash-meta span {
+    /* The gold in the caption is the only place the brand colour appears as
+       text here — the wordmark itself is already in the artwork. */
+    color: rgba(231, 192, 112, 0.75);
+  }
+
+  /* The sizes above are set for a phone, where the lockup already fills a
+     comfortable share of the screen. On a desktop viewport the same box
+     floats in a lot of dark — so the whole lockup grows together, once,
+     rather than each piece being hand-tuned at two widths. */
+  @media (min-width: 768px) {
+    .sg-splash-rule {
+      width: 7rem;
+      margin-top: 2.1rem;
+    }
+
+    .sg-splash-meta {
+      margin-top: 1.25rem;
+      font-size: 11px;
+    }
+  }
+
+  /* Click / tap / any key: cut straight to the exit. */
+  html[data-splash] .sg-splash.is-skipped {
+    animation: sg-splash-out 0.35s var(--ease-brand) both;
+  }
+
+  @keyframes sg-splash-settle {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.965);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes sg-splash-descend {
+    from {
+      opacity: 0;
+      transform: translateY(-18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes sg-splash-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes sg-splash-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes sg-splash-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes sg-splash-sheen {
+    from {
+      opacity: 0;
+      transform: translateX(-150%);
+    }
+    30%,
+    70% {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(250%);
+    }
+  }
+
+  /* The lift. A curtain going UP, not a fade — the page is revealed rather
+     than replaced, which is why it reads as "arriving" instead of
+     "loading". */
+  @keyframes sg-splash-out {
+    from {
+      transform: translateY(0);
+      visibility: visible;
+    }
+    to {
+      transform: translateY(-100%);
+      visibility: hidden;
+    }
+  }
+
+  /* Belt to the inline script's braces: reduced motion means no curtain at
+     all, not a 0.01ms version of one. (The global rule collapses durations
+     but not delays, which would otherwise park the panel on screen for the
+     length of its own delay.) */
+  @media (prefers-reduced-motion: reduce) {
+    .sg-splash {
+      display: none !important;
+    }
+  }
+
+  @media print {
+    .sg-splash {
+      display: none !important;
+    }
   }
 }
 
@@ -418,3 +703,111 @@
   .sg-board:is(:has(.sg-stage-5:hover), :has(.sg-stage-5:focus-visible)) .sg-index-5 {
     visibility: visible;
   }
+
+/* ————— Rates CTA row: the rate-card download pill —————
+   The row's MVP. Solid white on the pine band already outranks the
+   outlined siblings; the gold ring and a slow breathing glow carry it
+   the rest of the way. Both live behind prefers-reduced-motion, and the
+   hover sheen + arrow nudge are the payoff for pointing at it. */
+.sg-dl {
+  box-shadow:
+    0 0 0 1px rgba(217, 169, 60, 0.22),
+    0 6px 18px -12px rgba(217, 169, 60, 0.55);
+}
+
+.sg-dl-sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(217, 169, 60, 0.26),
+    transparent
+  );
+  transform: translateX(-115%) skewX(-14deg);
+  transition: transform 0.85s var(--ease-brand);
+}
+
+.sg-dl-arrow {
+  transition:
+    background-color 0.25s var(--ease-brand),
+    color 0.25s var(--ease-brand);
+}
+
+.sg-dl-arrow svg {
+  transition: transform 0.35s var(--ease-brand);
+}
+
+.sg-dl:hover .sg-dl-sheen,
+.sg-dl:focus-visible .sg-dl-sheen {
+  transform: translateX(230%) skewX(-14deg);
+}
+
+.sg-dl:hover .sg-dl-arrow,
+.sg-dl:focus-visible .sg-dl-arrow {
+  background-color: #0f4c2e;
+  color: #fff;
+}
+
+.sg-dl:hover .sg-dl-arrow svg,
+.sg-dl:focus-visible .sg-dl-arrow svg {
+  transform: translateY(2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sg-dl {
+    animation: sg-dl-glow 3.4s ease-in-out infinite;
+  }
+
+  @keyframes sg-dl-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgba(217, 169, 60, 0.2),
+        0 6px 18px -12px rgba(217, 169, 60, 0.5);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(217, 169, 60, 0.5),
+        0 8px 22px -10px rgba(217, 169, 60, 0.72);
+    }
+  }
+}
+
+/* The same pill on the light sections (about, service spec sheets): only the
+   fill swaps to pine so the gold ring has something to read against. The sheen
+   gets denser — gold at the white-pill alpha disappears on deep green — and the
+   arrow inverts, since a pine hover chip on a pine pill would just vanish. */
+.sg-dl--pine .sg-dl-sheen {
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(217, 169, 60, 0.45),
+    transparent
+  );
+}
+
+.sg-dl--pine:hover .sg-dl-arrow,
+.sg-dl--pine:focus-visible .sg-dl-arrow {
+  background-color: #fff;
+  color: #0f4c2e;
+}
+
+/* ————— Spec table: the row a product card deep-linked to —————
+   Every product card points at #spec-<slug> on its service page. Landing on
+   an eight-row table with nothing marking the row you asked for is the usual
+   anchor-jump failure, so the target tints itself and keeps a gold edge. */
+.sg-spec {
+  transition:
+    background-color 0.5s var(--ease-brand),
+    box-shadow 0.5s var(--ease-brand);
+}
+
+.sg-spec:target {
+  background-color: rgba(217, 169, 60, 0.14);
+  box-shadow: inset 3px 0 0 #b68a1e;
+}

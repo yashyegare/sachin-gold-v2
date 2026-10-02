@@ -96,8 +96,13 @@ export default function RatesTicker({
           onClick={() => setPaused((p) => !p)}
           aria-pressed={paused}
           aria-label={paused ? t("tickerResume") : t("tickerPause")}
-          className="shrink-0 rounded-sm border border-white/20 p-2 text-white/70 transition-colors hover:border-wheat-bright hover:text-wheat-bright"
+          className="relative shrink-0 rounded-sm border border-white/20 p-2 text-white/70 transition-colors hover:border-wheat-bright hover:text-wheat-bright"
         >
+          {/* The band is only ~46px tall, so the glyph box stays small and
+              an invisible ring around it carries the touch target up to
+              46px — this is the control someone reaches for the moment the
+              marquee starts fighting their reading. */}
+          <span aria-hidden="true" className="absolute -inset-2" />
           {paused ? (
             <Play size={12} aria-hidden="true" />
           ) : (

@@ -37,8 +37,11 @@ export default function PageIntro({
         <div className="absolute inset-0" aria-hidden="true">
           <BrandPhoto src={image} alt="" sizes="100vw" />
           {/* Blend the photo into the band so left-aligned copy keeps a
-              solid field — the photo surfaces toward the right edge. */}
-          <div className="absolute inset-0 bg-gradient-to-r from-pine-deep via-pine-deep/90 to-pine-deep/60" />
+              solid field — the photo surfaces toward the right edge. The
+              middle stop has to stay near-opaque: this is where the
+              description and the action pills sit, and a 90% wash over a
+              lit photograph drops white-on-white below AA. */}
+          <div className="absolute inset-0 bg-gradient-to-r from-pine-deep via-pine-deep/95 to-pine-deep/70" />
         </div>
       )}
 
@@ -68,7 +71,7 @@ export default function PageIntro({
             {title}
           </h1>
           {description && (
-            <p className="mt-5 leading-relaxed text-white/80">{description}</p>
+            <p className="mt-5 leading-relaxed text-white/90">{description}</p>
           )}
         </div>
         {children && <div className="relative mt-10">{children}</div>}

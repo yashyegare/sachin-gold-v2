@@ -24,7 +24,7 @@ import BrandPhoto from "@/components/BrandPhoto";
 import StatsBand from "@/components/StatsBand";
 import PdfDownloadButton from "@/components/PdfDownloadButton";
 import { Link } from "@/i18n/navigation";
-import { buildAlternates } from "@/i18n/seo";
+import { pageMetadata } from "@/i18n/seo";
 import { company, locationRoles } from "@/data/company";
 import { team } from "@/data/team";
 import { testimonial } from "@/data/testimonial";
@@ -40,11 +40,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "about" });
-  return {
+  return pageMetadata({
+    locale,
+    path: "/about",
     title: t("title"),
     description: t("p1").slice(0, 155),
-    alternates: buildAlternates("/about"),
-  };
+  });
 }
 
 /**
@@ -55,10 +56,10 @@ export async function generateMetadata({
  * dense hero followed by two flat sections:
  *
  *   hero (punchy, real tagline) → StatsBand (the numbers the story is
- *   about to tell) → Our Story (p1, real photo) → Our Reach (p2,
- *   location chips) → Community (p3 + the farmers figure as a callout)
- *   → Facilities/processing tour → Team → Partner story (video right
- *   there, no toggle) → CTA.
+ *   about to tell) → Our Story (p1, real photo) → Team (the people behind
+ *   the story) → Our Reach (p2, location chips) → Community (p3 + the
+ *   farmers figure as a callout) → Facilities/processing tour → Partner
+ *   story (video right there, no toggle) → CTA.
  */
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
@@ -102,6 +103,38 @@ export default async function AboutPage({ params }: Props) {
         </div>
       </section>
 
+      {/* The page runs long, so its sections are reachable without
+          scrolling blind. Each label reuses that section's own eyebrow —
+          one name per section, already translated, nothing new to keep in
+          step. Globals.css carries scroll-padding-top so a jump lands
+          below the sticky header. */}
+      <nav aria-label={t("jumpTo")} className="border-b border-ink/10 px-6 py-4">
+        <ul className="mx-auto flex max-w-6xl flex-wrap items-center gap-2">
+          <li className="mr-1 text-xs font-semibold uppercase tracking-wider text-ink/55">
+            {t("jumpTo")}
+          </li>
+          {(
+            [
+              ["story", "ourStoryEyebrow"],
+              ["team", "teamEyebrow"],
+              ["reach", "reachEyebrow"],
+              ["process", "processEyebrow"],
+              ["facilities", "facEyebrow"],
+              ["gallery", "galleryEyebrow"],
+            ] as const
+          ).map(([id, key]) => (
+            <li key={id}>
+              <Link
+                href={`/about#${id}`}
+                className="inline-flex min-h-11 items-center rounded-full border border-ink/15 px-4 py-1.5 text-sm font-medium text-ink/70 transition-colors hover:border-pine/40 hover:text-pine sm:min-h-0"
+              >
+                {t(key)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       {/* The numbers the story below is about to explain — same figures,
           same component, as Home. */}
       <StatsBand />
@@ -109,7 +142,7 @@ export default async function AboutPage({ params }: Props) {
       {/* Our Story — p1, verbatim, with a real photo instead of sitting
           alone on a dark band. Asymmetric 60/40, not the even 50/50
           every other page uses — the copy is the subject here. */}
-      <section className="section-standard mx-auto max-w-6xl px-6">
+      <section id="story" className="section-standard mx-auto max-w-6xl px-6">
         <Reveal>
           <div className="grid items-start gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:gap-16">
             <div>
@@ -134,13 +167,40 @@ export default async function AboutPage({ params }: Props) {
         </Reveal>
       </section>
 
+      {/* Team — three same-geometry cards on the linen band, placed right
+          after the story so the people arrive before the geography. The
+          Founder's missing photo renders as a deliberate monogram panel
+          (initials + "Since 1969"), so the row reads designed, not
+          unfinished. Directors keep their full-ratio studio photos (no
+          small-circle crop — that's what blurred them before). */}
+      <section id="team" className="section-standard border-t border-ink/10 bg-linen/40 px-6">
+        <Reveal className="mx-auto max-w-6xl">
+          <SectionHeading
+            eyebrow={t("teamEyebrow")}
+            title={t("teamTitle")}
+            align="center"
+          />
+          <div className="mx-auto mt-12 grid max-w-4xl gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-10">
+            {team.map((member) => (
+              <TeamMemberCard
+                key={member.name}
+                member={member}
+                foundedSince={
+                  member.role === "Founder" ? company.foundedYear : undefined
+                }
+              />
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
       {/* Our Reach — p2, now as fact cards in the How It Works family:
           white bordered cards on the linen band, icon chip + state tag
           header, town name, and the location's real capabilities as
           pills. The roles aggregate each town's attested capabilities
           from the service pages (data/company.ts locationRoles) — the
           old flat chip row buried all of that. */}
-      <section className="section-standard border-t border-ink/10 bg-linen/40">
+      <section id="reach" className="section-standard border-t border-ink/10 bg-linen/40">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <SectionHeading
@@ -288,7 +348,7 @@ export default async function AboutPage({ params }: Props) {
           mirrors the real five-stage chain: Sourcing → commodity
           trading, Processing → pulses unit, Extraction → oil seed
           extraction, Storage → cold storage, Logistics → logistics. */}
-      <section className="section-standard border-t border-ink/10">
+      <section id="process" className="section-standard border-t border-ink/10">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <SectionHeading
@@ -415,19 +475,16 @@ export default async function AboutPage({ params }: Props) {
               hand to someone else in their organization; this compiles
               the same real data the site shows into a print-ready PDF
               generated from the data layer at /profile.pdf. Placed here,
-              right after the process story it excerpts, as a quiet
-              action rather than a shouty banner — aligned to the grid's
-              left edge so it reads as part of the section, not a stray
-              floating element. */}
+              right after the process story it excerpts, as an inline pill
+              rather than a full-width bar — the same download treatment
+              the rates page uses, on the pine surface so it reads on the
+              light section. */}
           <Reveal className="mt-12">
-            <div className="max-w-xl">
-              <PdfDownloadButton
-                href="/profile.pdf"
-                label={t("downloadProfile")}
-                hint="PDF"
-                variant="quiet"
-              />
-            </div>
+            <PdfDownloadButton
+              href="/profile.pdf"
+              label={t("downloadProfile")}
+              tone="pine"
+            />
           </Reveal>
         </div>
       </section>
@@ -436,7 +493,7 @@ export default async function AboutPage({ params }: Props) {
           tour link, now with the video's own thumbnail frame. Extra top
           padding on md+ gives the Community callout's overhang its
           headroom. */}
-      <section className="section-standard border-t border-ink/10 bg-linen/40 md:pt-24">
+      <section id="facilities" className="section-standard border-t border-ink/10 bg-linen/40 md:pt-24">
         <div className="mx-auto max-w-6xl px-6">
           <Reveal>
             <div className="grid gap-10 md:grid-cols-2 md:items-center">
@@ -504,32 +561,6 @@ export default async function AboutPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Team — three same-geometry cards on the linen band. The
-          Founder's missing photo renders as a deliberate monogram panel
-          (initials + "Since 1969"), so the row reads designed, not
-          unfinished. Directors keep their full-ratio studio photos (no
-          small-circle crop — that's what blurred them before). */}
-      <section className="section-standard border-t border-ink/10 bg-linen/40 px-6">
-        <Reveal className="mx-auto max-w-6xl">
-          <SectionHeading
-            eyebrow={t("teamEyebrow")}
-            title={t("teamTitle")}
-            align="center"
-          />
-          <div className="mx-auto mt-12 grid max-w-4xl gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-10">
-            {team.map((member) => (
-              <TeamMemberCard
-                key={member.name}
-                member={member}
-                foundedSince={
-                  member.role === "Founder" ? company.foundedYear : undefined
-                }
-              />
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
       {/* The one real testimonial — see data/testimonial.ts for why this
           is intentionally singular. The quote itself is never translated:
           it's a real customer's own words. Video sits right beside it,
@@ -555,7 +586,7 @@ export default async function AboutPage({ params }: Props) {
           fleet) — proof in pictures, straight into the CTA. Filter chips
           + lightbox are client components; the grid itself is
           server-rendered. */}
-      <section className="section-standard border-t border-ink/10 px-6">
+      <section id="gallery" className="section-standard border-t border-ink/10 px-6">
         <Reveal className="mx-auto max-w-6xl">
           <SectionHeading
             eyebrow={t("galleryEyebrow")}
