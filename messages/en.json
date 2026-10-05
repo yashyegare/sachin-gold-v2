@@ -356,6 +356,22 @@
     "enquireLine": "Enquire about this line",
     "enquireLineAria": "Message the trading desk about {line} on WhatsApp",
     "perQuintal": "per quintal",
+    "onRequest": "On request",
+    "units": {
+      "mt": "per Metric Ton",
+      "p10kg": "per 10 kg",
+      "kg": "per kg"
+    },
+    "notes": {
+      "gstFreight": "plus GST & freight",
+      "exPlant": "ex-plant",
+      "premiumGrade": "premium grade",
+      "industrialGrade": "industrial grade",
+      "liquidGrade": "liquid grade",
+      "premiumQuality": "premium quality",
+      "superFine": "super fine",
+      "pureChanaBesan": "pure chana besan"
+    },
     "basis": {
       "label": "Compare rates",
       "aria": "Choose the unit rates are shown in",
@@ -383,6 +399,8 @@
       "days": "{days} days ago",
       "updatedAgo": "Rates updated {age}",
       "absolute": "Sheet updated {time} IST",
+      "unavailable": "Live price feed unavailable",
+      "unavailableHint": "Today's prices could not be loaded — call for current rates:",
       "shareStamp": "Prices pulled {time} IST — confirm before ordering"
     },
     "shareCta": "Share today's rates"
@@ -505,6 +523,13 @@
     "process4Title": "Storage",
     "process4Desc": "Dry warehousing and cold storage run side by side, with pest management and humidity control in place to protect quality between processing and dispatch.",
     "process4Stat": "Dry + cold, side by side"
+  },
+  "gallery": {
+    "filterAria": "Filter gallery photos",
+    "openPhoto": "Open photo: {alt}",
+    "close": "Close gallery",
+    "previous": "Previous photo",
+    "next": "Next photo"
   },
   "privacy": {
     "title": "Privacy Policy",

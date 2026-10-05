@@ -4,8 +4,8 @@ import { Link } from "@/i18n/navigation";
 
 interface Props {
   items: { product: string; price: string }[];
-  /** Newest per-row sheet timestamp among the shown items, already
-   *  formatted ("25 Sep 2026, 07:36 IST"). Null hides the line. */
+  /** Newest per-row sheet timestamp among the shown items, formatted for
+   *  this page's locale ("25 Sept 2026, 07:36 IST"). Null hides the line. */
   updatedOn: string | null;
 }
 

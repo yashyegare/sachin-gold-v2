@@ -14,9 +14,9 @@ import PageIntro from "@/components/PageIntro";
 import Reveal from "@/components/Reveal";
 import { pageMetadata } from "@/i18n/seo";
 import { Link } from "@/i18n/navigation";
-import { ratesLastUpdated } from "@/data/rates";
-import { quintalPrice, unitLabel } from "@/lib/rates-basis";
+import { formatStamp, quintalPrice, unitLabel } from "@/lib/rates-basis";
 import { getLiveRateGroups } from "@/lib/rates-source";
+import type { RateItem } from "@/lib/types";
 import type { RateGroupView } from "@/components/RatesTables";
 
 // Published pages refresh in the background when the sheet changes —
@@ -98,32 +98,39 @@ export default async function RatesPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations("rates");
   // Live prices from the owner's Google Sheet (see lib/rates-source.ts),
-  // overlaid on the static fallback — a broken feed degrades to "On
-  // request" rows, never to a broken page. Cached 5 min; the
-  // /api/revalidate-rates webhook refreshes instantly on sheet edits.
-  const { groups: rateGroups, lastUpdated } = await getLiveRateGroups();
+  // overlaid on the static fallback. A broken feed never breaks the page:
+  // the rows keep their "On request" shape and RatesFreshness says out loud
+  // that the feed is down, so a buyer can't mistake our outage for "no
+  // published prices". Cached 5 min; the /api/revalidate-rates webhook
+  // refreshes instantly on sheet edits.
+  const { groups: rateGroups, lastUpdated, source } =
+    await getLiveRateGroups(locale);
   const jsonLd = ratesJsonLd(rateGroups);
+
+  // Unit + qualifier in the reader's language. data/rates.ts keeps its own
+  // English `unit`/`unitNote`/`price` strings because the rate-card PDF
+  // prints those — a forwarded trade document stays in one wording — so the
+  // two renderers read the same row through different fields on purpose.
+  const basisLabel = (
+    item: RateItem,
+    unit = t(`units.${item.unitKey}`),
+  ): string =>
+    unitLabel({
+      unit,
+      unitNote: item.noteKey ? t(`notes.${item.noteKey}`) : undefined,
+    });
 
   // One-tap forward: WhatsApp prefilled with the day's real prices only
   // (rows the sheet actually prices — never "On request" placeholders).
   // The stamp carries the pull time in the shared text itself, so the
   // recipient knows exactly how fresh the numbers are when they read it.
-  const istStamp = lastUpdated
-    ? lastUpdated.toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-    : null;
+  const istStamp = lastUpdated ? formatStamp(lastUpdated, locale) : null;
   const pricedItems = rateGroups
     .flatMap((group) => group.items)
     .filter((item) => item.priceValue !== undefined);
   const shareMessage = pricedItems.length
     ? `*${company.name} — ${t("title")}*\n${pricedItems
-        .map((item) => `• ${item.product}: ${item.price} (${unitLabel(item)})`)
+        .map((item) => `• ${item.product}: ${item.price} (${basisLabel(item)})`)
         .join("\n")}${
         istStamp ? `\n${t("fresh.shareStamp", { time: istStamp })}` : ""
       }`
@@ -148,12 +155,14 @@ export default async function RatesPage({ params }: Props) {
       return {
         product: rate.product,
         flagship: rate.product.startsWith(FLAGSHIP),
-        quoted: { price: rate.price, unit: unitLabel(rate) },
+        // An unpriced line says "On request" in the reader's language; the
+        // English literal in data/rates.ts is only the PDF's copy.
+        quoted: {
+          price: rate.priceValue === undefined ? t("onRequest") : rate.price,
+          unit: basisLabel(rate),
+        },
         quintal: quintal
-          ? {
-              price: quintal,
-              unit: unitLabel({ unit: perQuintal, unitNote: rate.unitNote }),
-            }
+          ? { price: quintal, unit: basisLabel(rate, perQuintal) }
           : null,
         enquiryHref: enquireLink(rate.product),
       };
@@ -258,8 +267,12 @@ export default async function RatesPage({ params }: Props) {
         </div>
       </PageIntro>
 
-      {/* ————— Freshness signal: "Updated Xm ago", front and center ————— */}
-      <RatesFreshness lastUpdated={lastUpdated} />
+      {/* ————— Freshness: "Updated Xm ago", or the dead-feed band ————— */}
+      <RatesFreshness
+        lastUpdated={lastUpdated}
+        live={source === "sheet"}
+        locale={locale}
+      />
 
       {/* ————— Trust strip: three signals on white ————— */}
       <section className="border-b border-ink/10 bg-white">
@@ -307,12 +320,6 @@ export default async function RatesPage({ params }: Props) {
             <ArrowRight size={11} aria-hidden="true" />
           </Link>
         </p>
-
-        {ratesLastUpdated && (
-          <p className="mt-10 text-xs text-ink/50 print:mt-4">
-            Last updated: {ratesLastUpdated}
-          </p>
-        )}
 
         {/* Print-only footer: this page gets printed at counters, so the
             print view identifies its source. */}

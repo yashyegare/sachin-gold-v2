@@ -39,7 +39,7 @@ export default async function CTA({
       <div className="section-airy mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 sm:flex-row sm:items-center">
         <div>
           {eyebrow && (
-            <p className="text-sm font-medium uppercase tracking-wide text-wheat">
+            <p className="text-sm font-medium uppercase tracking-wide text-wheat-bright">
               {eyebrow}
             </p>
           )}

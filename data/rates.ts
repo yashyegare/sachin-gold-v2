@@ -16,6 +16,13 @@ import type { RateGroup } from "@/lib/types";
 // rates page can re-express a line in ₹/quintal without dropping
 // "ex-plant" or "GST & freight". `unitKg` says how many kilograms one
 // unit of `price` covers — the sheet's number is meaningless without it.
+//
+// `unit`/`unitNote`/`price` here are the ENGLISH copy. Visitor-facing pages
+// resolve `unitKey`/`noteKey` against messages/<locale>.json instead; the
+// rate-card PDF keeps printing the English strings, because it is the
+// document that gets forwarded to buyers and quoted from — one canonical
+// trade wording, like the Latin product names on it. Adding a line
+// therefore means a row here plus a units/notes key in six message files.
 export const rateGroups: RateGroup[] = [
   {
     title: "Soya Derivatives",
@@ -27,6 +34,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per Metric Ton",
         unitNote: "plus GST & freight",
         unitKg: 1000,
+        unitKey: "mt",
+        noteKey: "gstFreight",
         // priceValue: undefined,
       },
       {
@@ -35,6 +44,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per Metric Ton",
         unitNote: "plus GST & freight",
         unitKg: 1000,
+        unitKey: "mt",
+        noteKey: "gstFreight",
       },
       {
         product: "Soya Crude Oil",
@@ -42,6 +53,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per 10 kg",
         unitNote: "ex-plant",
         unitKg: 10,
+        unitKey: "p10kg",
+        noteKey: "exPlant",
       },
       {
         product: "Soya Refined Oil",
@@ -49,6 +62,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per 10 kg",
         unitNote: "premium grade",
         unitKg: 10,
+        unitKey: "p10kg",
+        noteKey: "premiumGrade",
       },
       {
         product: "Soya Fatty Oil",
@@ -56,6 +71,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per 10 kg",
         unitNote: "industrial grade",
         unitKg: 10,
+        unitKey: "p10kg",
+        noteKey: "industrialGrade",
       },
       {
         product: "Soya Acid Oil",
@@ -63,6 +80,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per 10 kg",
         unitNote: "industrial grade",
         unitKg: 10,
+        unitKey: "p10kg",
+        noteKey: "industrialGrade",
       },
       {
         product: "Soya Lecithin",
@@ -70,6 +89,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per kg",
         unitNote: "liquid grade",
         unitKg: 1,
+        unitKey: "kg",
+        noteKey: "liquidGrade",
       },
     ],
   },
@@ -83,6 +104,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per kg",
         unitNote: "premium quality",
         unitKg: 1,
+        unitKey: "kg",
+        noteKey: "premiumQuality",
       },
       {
         product: "Chana Dal",
@@ -90,6 +113,8 @@ export const rateGroups: RateGroup[] = [
         unit: "per kg",
         unitNote: "super fine",
         unitKg: 1,
+        unitKey: "kg",
+        noteKey: "superFine",
       },
       {
         product: "Besan Flour",
@@ -97,15 +122,12 @@ export const rateGroups: RateGroup[] = [
         unit: "per kg",
         unitNote: "pure chana besan",
         unitKg: 1,
+        unitKey: "kg",
+        noteKey: "pureChanaBesan",
       },
     ],
   },
 ];
-
-// Kept for the page footer; prefer group.updatedOn for anything visible
-// next to a specific table. null hides the "Last updated" line entirely —
-// a stale date reads as worse than no date. Set once the client confirms.
-export const ratesLastUpdated: string | null = null;
 
 // --- Single source of truth for anything rate-shaped elsewhere ---
 

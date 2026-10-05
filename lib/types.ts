@@ -130,6 +130,23 @@ export interface RateItem {
    *  per-quintal normalisation possible, and a missing value must fail at
    *  compile time rather than publish a price that is out by 10x or 100x. */
   unitKg: number;
+  /** Message key for this basis under `rates.units` — `unit` itself stays
+   *  English because the rate-card PDF prints it that way on purpose (the
+   *  same reason its product names are Latin in every locale: a document
+   *  gets forwarded to buyers, so it keeps one canonical trade wording)
+   *  and schema.org emits it verbatim; the page looks the same basis up in
+   *  the visitor's locale. */
+  unitKey: "mt" | "p10kg" | "kg";
+  /** Same, for the qualifier, under `rates.notes`. */
+  noteKey?:
+    | "gstFreight"
+    | "exPlant"
+    | "premiumGrade"
+    | "industrialGrade"
+    | "liquidGrade"
+    | "premiumQuality"
+    | "superFine"
+    | "pureChanaBesan";
   /** Numeric price for schema.org Offer markup. Optional: the structured
    *  data on /rates only emits offers for items that have one, so filling
    *  this in later automatically activates pricing rich-results — no

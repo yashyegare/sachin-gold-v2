@@ -98,7 +98,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   let bannerUpdatedOn: string | null = null;
   const spotlight = spotlightSlugs[service.slug];
   if (spotlight) {
-    const { groups } = await getLiveRateGroups();
+    const { groups } = await getLiveRateGroups(locale);
     const wanted = new Map(
       groups.flatMap((g) => g.items).map((i) => [i.product, i]),
     );

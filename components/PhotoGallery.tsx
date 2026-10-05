@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Expand } from "lucide-react";
 import GalleryLightbox from "@/components/GalleryLightbox";
 import {
@@ -11,12 +12,33 @@ import {
 } from "@/lib/gallery";
 
 /**
+ * Chip labels reuse words the site already prints elsewhere — the home
+ * product categories and the About page's own five-stage headings. The
+ * gallery sits under those headings on the same page, so its chips get the
+ * same translation rather than a sixth synonym invented for this component.
+ */
+const SERVICE_LABEL: Record<GalleryPhoto["service"], string> = {
+  trading: "home.products.categories.trading",
+  processing: "home.products.categories.processing",
+  extraction: "home.products.categories.extraction",
+  storage: "about.process4Title",
+  logistics: "about.process5Title",
+  team: "about.teamTitle",
+};
+
+/**
  * The About gallery: a filterable grid of the site's real photography
  * with a lightbox. Server-rendered in full (the grid IS the content —
  * SEO, no-JS and print all see every photo); the client layer adds the
  * filter chips and the lightbox interaction on top of that markup.
+ *
+ * Photo captions and alt text stay English: they are the owner's editorial
+ * copy about specific photographs (lib/gallery.ts), not UI strings, and
+ * translating them is a content decision rather than a code one.
  */
 export default function PhotoGallery() {
+  const t = useTranslations("gallery");
+  const tLabel = useTranslations();
   const [filter, setFilter] = useState<GalleryPhoto["service"] | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -46,7 +68,7 @@ export default function PhotoGallery() {
       {/* Filter chips — All + one per service that has photos. */}
       <div
         role="group"
-        aria-label="Filter gallery photos"
+        aria-label={t("filterAria")}
         className="flex flex-wrap items-center gap-2"
       >
         <button
@@ -59,7 +81,7 @@ export default function PhotoGallery() {
               : "border-ink/15 bg-white text-ink/70 hover:border-pine/40 hover:text-pine"
           }`}
         >
-          All · {galleryPhotos.length}
+          {tLabel("services.catalogueAll")} · {galleryPhotos.length}
         </button>
         {galleryServices.map((service) => {
           const count = galleryPhotos.filter(
@@ -71,13 +93,13 @@ export default function PhotoGallery() {
               type="button"
               onClick={() => setFilter(service)}
               aria-pressed={filter === service}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
+              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
                 filter === service
                   ? "border-pine bg-pine text-white"
                   : "border-ink/15 bg-white text-ink/70 hover:border-pine/40 hover:text-pine"
               }`}
             >
-              {service} · {count}
+              {tLabel(SERVICE_LABEL[service])} · {count}
             </button>
           );
         })}
@@ -92,7 +114,7 @@ export default function PhotoGallery() {
               type="button"
               onClick={() => openLightbox(photo.src)}
               className="group relative block h-full w-full overflow-hidden border border-ink/10 shadow-elevated-sm transition-all duration-300 [transition-timing-function:var(--ease-brand)] hover:-translate-y-1 hover:shadow-elevated"
-              aria-label={`Open photo: ${photo.alt}`}
+              aria-label={t("openPhoto", { alt: photo.alt })}
             >
               <Image
                 src={photo.src}

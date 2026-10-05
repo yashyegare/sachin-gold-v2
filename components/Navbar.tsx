@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname as useNextPathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, Globe } from "lucide-react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
@@ -11,6 +11,63 @@ import { company } from "@/data/company";
 
 const companyPhoneDisplay = company.phone;
 const companyPhoneDial = company.phone.replace(/[^+\d]/g, "");
+
+/**
+ * Keyboard plumbing shared by the header's two dropdowns. A `role="menu"`
+ * list takes focus off the Tab order — items are reached with the arrows,
+ * Home and End — so the trigger's ArrowDown opens the menu and lands on
+ * its first item instead of dropping the keyboard user back into the page.
+ */
+function useMenuNav(open: boolean, setOpen: (next: boolean) => void) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const focusFirstOnOpen = useRef(false);
+
+  useEffect(() => {
+    if (!open || !focusFirstOnOpen.current) return;
+    focusFirstOnOpen.current = false;
+    listRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+  }, [open]);
+
+  function items(): HTMLElement[] {
+    return Array.from(
+      listRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [],
+    );
+  }
+
+  function triggerKeyDown(event: React.KeyboardEvent) {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      focusFirstOnOpen.current = true;
+      setOpen(true);
+    }
+  }
+
+  function menuKeyDown(event: React.KeyboardEvent) {
+    const list = items();
+    if (!list.length) return;
+    const at = list.indexOf(document.activeElement as HTMLElement);
+    const last = list.length - 1;
+    const to =
+      event.key === "ArrowDown" || event.key === "ArrowRight"
+        ? at >= last
+          ? 0
+          : at + 1
+        : event.key === "ArrowUp" || event.key === "ArrowLeft"
+          ? at <= 0
+            ? last
+            : at - 1
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? last
+              : null;
+    if (to === null) return;
+    event.preventDefault();
+    list[to]?.focus();
+  }
+
+  return { listRef, triggerKeyDown, menuKeyDown };
+}
 
 /**
  * The language switcher — swaps locale while staying on the same page.
@@ -28,6 +85,10 @@ function LanguageSwitcher() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  // This switcher is mounted twice — once in the desktop cluster, once in
+  // the mobile one — so a hard-coded menu id would be a duplicate id.
+  const menuId = useId();
+  const { listRef, triggerKeyDown, menuKeyDown } = useMenuNav(open, setOpen);
 
   useEffect(() => {
     function handlePointer(event: MouseEvent) {
@@ -63,7 +124,9 @@ function LanguageSwitcher() {
         ref={buttonRef}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-haspopup="true"
+        aria-haspopup="menu"
+        aria-controls={menuId}
+        onKeyDown={triggerKeyDown}
         className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 text-sm font-medium text-ink/70 transition-colors hover:bg-linen hover:text-pine aria-expanded:bg-linen aria-expanded:text-pine lg:min-h-0 lg:px-2.5 lg:py-2"
       >
         {/* The globe alone read as "some kind of info icon" — the control
@@ -90,15 +153,23 @@ function LanguageSwitcher() {
       </button>
 
       {open && (
-        <ul className="animate-fade-in absolute right-0 top-full w-44 rounded-sm border border-ink/10 bg-white p-1.5 shadow-elevated-sm">
+        <ul
+          ref={listRef}
+          id={menuId}
+          role="menu"
+          onKeyDown={menuKeyDown}
+          className="animate-fade-in absolute right-0 top-full w-44 rounded-sm border border-ink/10 bg-white p-1.5 shadow-elevated-sm"
+        >
           {routing.locales.map((code) => (
-            <li key={code}>
+            <li key={code} role="none">
               <Link
                 href={pathname}
                 locale={code}
+                role="menuitem"
+                tabIndex={-1}
                 onClick={() => setOpen(false)}
                 aria-current={code === locale ? "true" : undefined}
-                className={`block rounded-sm px-3 py-2 text-sm transition-colors hover:bg-linen hover:text-pine ${
+                className={`block rounded-sm px-3 py-2 text-sm transition-colors hover:bg-linen hover:text-pine focus:bg-linen focus:text-pine ${
                   code === locale
                     ? "font-semibold text-pine"
                     : "text-ink/75"
@@ -129,6 +200,11 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const servicesRef = useRef<HTMLLIElement>(null);
   const servicesButtonRef = useRef<HTMLButtonElement>(null);
+  const {
+    listRef: servicesListRef,
+    triggerKeyDown: servicesTriggerKeyDown,
+    menuKeyDown: servicesMenuKeyDown,
+  } = useMenuNav(servicesOpen, setServicesOpen);
 
   // Close the services dropdown on outside click or Escape.
   useEffect(() => {
@@ -279,8 +355,9 @@ export default function Navbar() {
                     : "font-medium text-ink/75"
                 }`}
                 aria-expanded={servicesOpen}
-                aria-haspopup="true"
+                aria-haspopup="menu"
                 aria-controls="services-dropdown"
+                onKeyDown={servicesTriggerKeyDown}
                 onClick={() => setServicesOpen((open) => !open)}
               >
                 {t("services")}
@@ -298,12 +375,20 @@ export default function Navbar() {
                   className="animate-fade-in absolute left-1/2 top-full w-[30rem] -translate-x-1/2 pt-3"
                 >
                   <div className="rounded-sm border border-ink/10 bg-white p-2 shadow-elevated-sm">
-                    <ul className="grid grid-cols-1 gap-0.5">
-                      <li>
+                    <ul
+                      ref={servicesListRef}
+                      role="menu"
+                      aria-label={t("services")}
+                      onKeyDown={servicesMenuKeyDown}
+                      className="grid grid-cols-1 gap-0.5"
+                    >
+                      <li role="none">
                         <Link
                           href="/services"
+                          role="menuitem"
+                          tabIndex={-1}
                           onClick={() => setServicesOpen(false)}
-                          className="block rounded-sm px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:bg-linen hover:text-pine"
+                          className="block rounded-sm px-4 py-3 text-sm font-medium text-ink/80 transition-colors hover:bg-linen hover:text-pine focus:bg-linen focus:text-pine"
                         >
                           {t("servicesOverview")}
                         </Link>
@@ -315,16 +400,18 @@ export default function Navbar() {
                         "cold-storage",
                         "logistics",
                       ].map((slug) => (
-                        <li key={slug}>
+                        <li key={slug} role="none">
                           <Link
                             href={`/services/${slug}`}
+                            role="menuitem"
+                            tabIndex={-1}
                             onClick={() => setServicesOpen(false)}
                             aria-current={
                               nextPathname === `/services/${slug}`
                                 ? "page"
                                 : undefined
                             }
-                            className={`block rounded-sm px-4 py-3 transition-colors hover:bg-linen hover:text-pine ${
+                            className={`block rounded-sm px-4 py-3 transition-colors hover:bg-linen hover:text-pine focus:bg-linen focus:text-pine ${
                               nextPathname === `/services/${slug}`
                                 ? "text-pine"
                                 : "text-ink/80"
@@ -409,7 +496,7 @@ export default function Navbar() {
           <LanguageSwitcher />
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center"
+            className="flex h-11 w-11 items-center justify-center"
             aria-expanded={mobileOpen}
             aria-controls="mobile-nav"
             aria-label={mobileOpen ? t("close") : t("menu")}
