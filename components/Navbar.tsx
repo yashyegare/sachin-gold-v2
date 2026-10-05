@@ -64,11 +64,23 @@ function LanguageSwitcher() {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="true"
-        aria-label={t("language")}
-        className="flex items-center gap-1.5 rounded-sm px-2.5 py-2 text-sm font-medium text-ink/70 transition-colors hover:bg-linen hover:text-pine aria-expanded:bg-linen aria-expanded:text-pine"
+        className="flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 text-sm font-medium text-ink/70 transition-colors hover:bg-linen hover:text-pine aria-expanded:bg-linen aria-expanded:text-pine lg:min-h-0 lg:px-2.5 lg:py-2"
       >
-        <Globe size={15} strokeWidth={1.5} aria-hidden="true" />
-        <span className="hidden xl:inline">{localeNames[locale]}</span>
+        {/* The globe alone read as "some kind of info icon" — the control
+            now says what it is in the page's own language. The icon stays
+            as a secondary cue from sm up, where it costs nothing. The active
+            locale is deliberately not echoed here: at xl the header has
+            1104px of content box and logo + five single-line nav links +
+            phone + CTA leave ~434px for this cluster, so the extra ~66px of
+            "· English" pushed every nav label into wrapping. The dropdown
+            marks the active language in every layout. */}
+        <Globe
+          size={15}
+          strokeWidth={1.5}
+          aria-hidden="true"
+          className="hidden sm:block"
+        />
+        {t("language")}
         <ChevronDown
           size={13}
           strokeWidth={1.5}
@@ -206,7 +218,7 @@ export default function Navbar() {
             unoptimized
             className="h-10 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-11"
           />
-          <span className="font-display text-[1.4rem] font-bold leading-[2.5rem] tracking-tight text-pine transition-colors group-hover:text-pine-deep sm:text-[1.6rem] sm:leading-[2.75rem]">
+          <span className="font-display text-[1.4rem] font-bold leading-[2.5rem] tracking-tight text-pine transition-colors group-hover:text-pine-deep max-[359px]:hidden sm:text-[1.6rem] sm:leading-[2.75rem]">
             Sachin <span className="text-wheat">Gold</span>
           </span>
         </Link>
@@ -372,9 +384,13 @@ export default function Navbar() {
 
         <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <LanguageSwitcher />
+          {/* From xl only: at 1024-1279 the header's 976px content box cannot
+              hold logo + five unwrapped nav labels + this cluster, and the
+              labels were breaking mid-phrase to fit. The number stays in the
+              mobile menu, the CTA, the footer and the WhatsApp float. */}
           <a
             href={`tel:${companyPhoneDial}`}
-            className="whitespace-nowrap text-sm font-medium tabular-nums text-ink/70 transition-colors hover:text-pine"
+            className="hidden whitespace-nowrap text-sm font-medium tabular-nums text-ink/70 transition-colors hover:text-pine xl:inline"
           >
             {companyPhoneDisplay}
           </a>
