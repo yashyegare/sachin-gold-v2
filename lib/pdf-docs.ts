@@ -41,18 +41,26 @@ import {
  * or the data files. Nothing invented.
  */
 
-/** Build the PDF Response with per-locale filename prefixing. */
+/**
+ * Build the PDF Response with per-locale filename prefixing.
+ *
+ * The default caches for a day, which suits the spec sheets — their content
+ * is static data that only changes on deploy. The rate card passes a short
+ * window instead: it renders live sheet prices, and a 24 h edge cache would
+ * keep serving yesterday's prices long after the ISR entry expires.
+ */
 export function pdfResponse(
   bytes: Uint8Array,
   baseFilename: string,
   locale: string,
+  cacheControl = "public, max-age=86400",
 ): Response {
   const prefix = locale === routing.defaultLocale ? "" : `${locale}-`;
   return new Response(bytes as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${prefix}${baseFilename}"`,
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": cacheControl,
       "Content-Language": locale as string,
     },
   });

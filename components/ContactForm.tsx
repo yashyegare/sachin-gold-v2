@@ -14,7 +14,7 @@ import { useTranslations } from "next-intl";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
-type Status = "idle" | "submitting" | "success" | "error";
+type Status = "idle" | "submitting" | "success" | "handoff" | "error";
 type FieldErrors = Record<string, string>;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,7 +43,11 @@ const FIELD_OK_CLASS = "border-ink/25";
  * The form renders either way — with no key, submit hands the composed
  * message to the visitor's own mail client (mailto) instead of dropping it,
  * so the highest-intent form on the site is never inert and never shows a
- * visitor an internal build note.
+ * visitor an internal build note. That path reports a "handoff", never the
+ * "message sent" panel: a mail client that was cancelled or never
+ * configured is invisible to us, and the enquiry is not stored anywhere, so
+ * claiming delivery would be a lie. The form stays filled and the handoff
+ * panel carries a labelled retry link.
  *
  * Spam protection: honeypot field (`botcheck`) — bots fill everything,
  * humans never see it; Web3Forms drops submissions where it's filled.
@@ -69,6 +73,7 @@ export default function ContactForm() {
   const tc = useTranslations("contact");
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [handoffHref, setHandoffHref] = useState("");
   const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
 
   function validateField(name: string, value: string): string | null {
@@ -123,6 +128,11 @@ export default function ContactForm() {
       // visitor's own mail client, which reaches the same address the
       // form would have posted to. Validation has already run, so the
       // body is complete.
+      //
+      // This is a handoff, not a send — we cannot see whether the mail
+      // client opened or the visitor pressed send, so the form stays
+      // populated and says what actually happened instead of claiming a
+      // delivery. The retry link is the same href.
       const line = (label: string, value: unknown) =>
         `${label}: ${String(value || "").trim() || "—"}`;
       const body = [
@@ -134,12 +144,13 @@ export default function ContactForm() {
         `${t("requirement")}:`,
         String(formData.get("message")),
       ].join("\n");
-      window.location.href = `mailto:${company.email}?subject=${encodeURIComponent(
+      const href = `mailto:${company.email}?subject=${encodeURIComponent(
         "New enquiry from sachingold.com",
       )}&body=${encodeURIComponent(body)}`;
-      form.reset();
       setErrors({});
-      setStatus("success");
+      setHandoffHref(href);
+      setStatus("handoff");
+      window.location.href = href;
       return;
     }
 
@@ -238,6 +249,32 @@ export default function ContactForm() {
             />
             {errors.message && <FieldError id="message-error">{errors.message}</FieldError>}
           </div>
+
+          {status === "handoff" && (
+            <div
+              role="status"
+              className="animate-fade-in border border-wheat/45 bg-wheat/[0.07] px-4 py-4"
+            >
+              <p className="flex items-start gap-2.5 font-display text-base text-pine-deep">
+                <Mail
+                  size={19}
+                  className="mt-0.5 shrink-0 text-wheat-dark"
+                  aria-hidden="true"
+                />
+                {t("handoffTitle")}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-ink/80">
+                {t("handoffBody", { email: company.email })}
+              </p>
+              <a
+                href={handoffHref}
+                className="mt-4 inline-flex items-center gap-1.5 border border-pine/30 bg-white px-4 py-2.5 text-sm font-semibold text-pine transition-colors hover:border-pine hover:bg-linen"
+              >
+                <Mail size={14} aria-hidden="true" />
+                {t("handoffAction")}
+              </a>
+            </div>
+          )}
 
           {status === "error" && (
             <p
