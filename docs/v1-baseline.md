@@ -154,7 +154,7 @@ layer** unless the line says otherwise. This section doubles as the
       `team/anna.jpg` processed but **unwired** pending client
       confirmation (may be the Founder; documented in data/team.ts)
 
-## 6. Redirect map (Phase 7 deliverable, verified 2026-09-19)
+## 6. Redirect map (Phase 7 deliverable, verified 2026-09-19, re-checked live 2026-10-08)
 
 All filenames verified against the live domain and the old repo; mirrors
 `redirects()` in `next.config.mjs`. Every row confirmed:
@@ -171,7 +171,14 @@ All filenames verified against the live domain and the old repo; mirrors
 | `/commodity-trading.html` | `/services/commodity-trading` | confirmed |
 | `/pulses-processing.html` | `/services/pulses-processing` | confirmed |
 | `/cold-storage.html` | `/services/cold-storage` | confirmed |
+| `/testimonials.html` | `/about` | confirmed live (200), not in sitemap; template remnant, so it lands on the page holding the one real quote |
+| `/blog-details.html` | `/` | confirmed live (200), not in sitemap; empty template page |
 | any other `.html` page | same path, no extension (catch-all) | confirmed |
+
+Five aliases that were guesses have been **removed** after the 2026-10-08
+live check — each returns 404 on the old site, so none carries equity:
+`/rates.html`, `/trading.html`, `/pulses.html`, `/pulses-flour.html`,
+`/cold-storages.html`.
 
 ## 7. Deliberately left behind (Phase 2 deliverable)
 

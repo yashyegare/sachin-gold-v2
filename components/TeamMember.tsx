@@ -28,7 +28,6 @@ export default function TeamMemberCard({
   foundedSince,
 }: Props) {
   const hasImage = member.image.length > 0;
-  const isLandscape = member.imageShape === "landscape";
 
   const initials = member.name
     .split(" ")

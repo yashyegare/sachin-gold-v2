@@ -101,6 +101,10 @@ export default function BrandSplash() {
         <div className="sg-splash-badge">
           {/* Explicit width/height attributes match the layer's slice of the
               900x852 canvas, so the box is sized before the bytes arrive. */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- the two
+              layers must decode in lockstep for the assembly animation, and
+              this overlay paints before hydration; next/image offers neither
+              decoding control nor a pre-hydration-safe path. */}
           <img
             className="sg-splash-shield"
             src="/images/brand/sachin-shield.webp"
@@ -110,6 +114,8 @@ export default function BrandSplash() {
             decoding="sync"
             fetchPriority="high"
           />
+          {/* eslint-disable-next-line @next/next/no-img-element -- see the
+              shield above; both layers share the same constraint. */}
           <img
             className="sg-splash-laurel"
             src="/images/brand/sachin-laurel.webp"

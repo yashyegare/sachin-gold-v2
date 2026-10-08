@@ -39,12 +39,17 @@ const nextConfig = {
   },
   // Phase 7/10 of the plan: preserve the old site's search equity. Every
   // legacy .html URL must 301 to its new route before cutover to
-  // sachingold.com. Entries marked unconfirmed were not verifiable from the
-  // live site — check exact filenames against the old repo (Phase 1) and
-  // prune the wrong aliases before launch.
+  // sachingold.com.
+  //
+  // Verified against the live old site on 2026-10-08: each source below
+  // returned HTTP 200 on sachingold.com, and every removed alias returned
+  // 404 there, so it carries no equity to preserve. The old sitemap.xml
+  // lists exactly 11 URLs — the 10 pages below plus "/". Two further pages
+  // exist but are NOT in the sitemap (testimonials.html, blog-details.html);
+  // they are unedited BootstrapMade template remnants, so they redirect to
+  // the nearest real content instead of to a path V2 has no route for.
   async redirects() {
     return [
-      // --- Confirmed live URLs (Google index, Sept 2026) ---
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/about.html", destination: "/about", permanent: true },
       { source: "/services.html", destination: "/services", permanent: true },
@@ -59,21 +64,28 @@ const nextConfig = {
         destination: "/services/logistics",
         permanent: true,
       },
-
-      // --- Rates page: exact old filename unconfirmed (the plan calls it
-      // "rate"); cover both spellings ---
       { source: "/rate.html", destination: "/rates", permanent: true },
-      { source: "/rates.html", destination: "/rates", permanent: true },
+      {
+        source: "/commodity-trading.html",
+        destination: "/services/commodity-trading",
+        permanent: true,
+      },
+      {
+        source: "/pulses-processing.html",
+        destination: "/services/pulses-processing",
+        permanent: true,
+      },
+      {
+        source: "/cold-storage.html",
+        destination: "/services/cold-storage",
+        permanent: true,
+      },
 
-      // --- Remaining service pages: old filenames unconfirmed. Aliases
-      // cover the plausible legacy names; delete whichever turn out wrong.
-      { source: "/trading.html", destination: "/services/commodity-trading", permanent: true },
-      { source: "/commodity-trading.html", destination: "/services/commodity-trading", permanent: true },
-      { source: "/pulses.html", destination: "/services/pulses-processing", permanent: true },
-      { source: "/pulses-processing.html", destination: "/services/pulses-processing", permanent: true },
-      { source: "/pulses-flour.html", destination: "/services/pulses-processing", permanent: true },
-      { source: "/cold-storage.html", destination: "/services/cold-storage", permanent: true },
-      { source: "/cold-storages.html", destination: "/services/cold-storage", permanent: true },
+      // --- Live on the old site, but the closest V2 content is elsewhere:
+      // the only genuine customer quote and the feedback video are on
+      // About, and blog-details is an empty template page. ---
+      { source: "/testimonials.html", destination: "/about", permanent: true },
+      { source: "/blog-details.html", destination: "/", permanent: true },
 
       // --- Safety net: any other legacy .html page falls back to the same
       // path without the extension. Keep this LAST — Next evaluates

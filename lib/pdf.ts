@@ -14,7 +14,7 @@ import {
 // global definition) before fontkit fixes it for both `next start` and
 // the build-time prerender workers.
 import "regenerator-runtime/runtime.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any -- the UMD build must be required, not imported, so it evaluates after regenerator-runtime above */
 const fontkit = require("@pdf-lib/fontkit/dist/fontkit.umd.js") as any;
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -104,6 +104,12 @@ export interface PdfKit {
   helv: PDFFont;
   bold: PDFFont;
   oblique: PDFFont;
+  /** Subset Noto Sans carrying the glyphs the standard-14 Latin faces
+   *  cannot encode — ₹ (U+20B9) and ★ (U+2605) — so a single currency
+   *  sign can be drawn without moving the whole document off Helvetica.
+   *  In Indic documents this is the document font itself, which already
+   *  covers both. */
+  symbol: PDFFont;
   page: PDFPage;
   pages: PDFPage[];
   /** The one and only vertical cursor (points from page top). */
@@ -138,7 +144,6 @@ export interface PdfKit {
     font: PDFFont,
     maxWidth: number,
     draw: (line: string) => void,
-    lineHeight?: number,
   ) => void;
   /** Wrapped paragraph at the cursor; advances y by total height. */
   paragraph: (opts: {
@@ -267,6 +272,7 @@ export async function createPdfKit(opts: {
   let helv: PDFFont;
   let bold: PDFFont;
   let oblique: PDFFont;
+  let symbol: PDFFont;
 
   const noto = opts.locale
     ? fontsForLocale(opts.locale)
@@ -275,10 +281,15 @@ export async function createPdfKit(opts: {
     helv = await doc.embedFont(loadFont(noto.regular), { subset: true });
     bold = await doc.embedFont(loadFont(noto.bold), { subset: true });
     oblique = helv; // Noto has no italic; opacity does the differentiating
+    symbol = helv;
   } else {
     helv = await doc.embedFont(StandardFonts.Helvetica);
     bold = await doc.embedFont(StandardFonts.HelveticaBold);
     oblique = await doc.embedFont(StandardFonts.HelveticaOblique);
+    // Subset, so this costs only the glyphs actually drawn.
+    symbol = await doc.embedFont(loadFont("NotoSans-Regular.ttf"), {
+      subset: true,
+    });
   }
 
   let page = doc.addPage([PAGE_W, PAGE_H]);
@@ -300,6 +311,7 @@ export async function createPdfKit(opts: {
     helv,
     bold,
     oblique,
+    symbol,
     page,
     pages,
     y: MARGIN,
@@ -341,8 +353,7 @@ export async function createPdfKit(opts: {
       });
     },
 
-    wrapText(text, size, font, maxWidth, draw, lineHeight) {
-      const lh = lineHeight ?? size;
+    wrapText(text, size, font, maxWidth, draw) {
       const words = text.replace(/\s+/g, " ").trim().split(" ");
       let line = "";
       for (const word of words) {

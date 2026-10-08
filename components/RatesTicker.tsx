@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { getLiveTickerRates } from "@/lib/rates-source";
 
 /**
  * Data flow: prices come from the owner's Google Sheet via

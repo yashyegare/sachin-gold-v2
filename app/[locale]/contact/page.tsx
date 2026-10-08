@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Mail, MessageSquareText, PhoneCall } from "lucide-react";
 import { company } from "@/data/company";
 import { customers } from "@/data/customers";
-import { faqs } from "@/data/faq";
 import { whatsappLink } from "@/lib/whatsapp";
 import ContactForm from "@/components/ContactForm";
 import MapFacade from "@/components/MapFacade";
@@ -30,20 +29,6 @@ export async function generateMetadata({
     description: t("description"),
   });
 }
-
-// The visible FAQ accordion renders from the message catalogs (translated);
-// this JSON-LD stays on the English source-of-truth (data/faq.ts) until
-// the translated FAQs are client-reviewed — schema must never outrun the
-// page's actual rendered text per locale.
-const faqJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqs.map((faq) => ({
-    "@type": "Question",
-    name: faq.question,
-    acceptedAnswer: { "@type": "Answer", text: faq.answer },
-  })),
-};
 
 // Embedded map of the Main Plant — the same embed the old site used on its
 // contact page. Per-facility links are the real maps.app.goo.gl short URLs
@@ -84,6 +69,21 @@ export default async function ContactPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("contact");
+
+  // ONE source for both the accordion and the structured data. Google's FAQ
+  // markup has to match the text a visitor actually sees, so it is built
+  // from this locale's catalog rather than from an English copy that would
+  // describe questions the page never asks in that language.
+  const faqItems = t.raw("faqs") as { q: string; a: string }[];
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: { "@type": "Answer", text: faq.a },
+    })),
+  };
 
   return (
     <>
@@ -264,11 +264,11 @@ export default async function ContactPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Real FAQ content — translated verbatim in every catalog; the
-          English source stays data/faq.ts. Native details/summary keeps
-          it keyboard-accessible with zero JS. The rows are boxed and
-          react to hover/open so they read as controls, not as a list of
-          sentences that happen to expand. The id is the footer's
+      {/* Real FAQ content — the message catalogs are its only source, in
+          every locale, and the JSON-LD above reads the same array. Native
+          details/summary keeps it keyboard-accessible with zero JS. The rows
+          are boxed and react to hover/open so they read as controls, not as
+          a list of sentences that happen to expand. The id is the footer's
           "FAQ" jump target. */}
       <section id="faq" className="section-standard mx-auto max-w-3xl px-6">
         <h2 className="font-display text-display-md text-ink">
@@ -276,7 +276,7 @@ export default async function ContactPage({ params }: Props) {
         </h2>
         <div className="mt-8 divide-y divide-ink/10 border-y border-ink/10">
           <Reveal>
-            {t.raw("faqs").map(
+            {faqItems.map(
               (
                 faq: { q: string; a: string },
                 index: number,

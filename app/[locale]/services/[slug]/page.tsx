@@ -94,7 +94,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     ],
     "pulses-processing": ["toor-dal", "chana-dal", "besan-gram-flour"],
   };
-  let bannerItems: { product: string; price: string }[] = [];
+  const bannerItems: { product: string; price: string }[] = [];
   let bannerUpdatedOn: string | null = null;
   const spotlight = spotlightSlugs[service.slug];
   if (spotlight) {

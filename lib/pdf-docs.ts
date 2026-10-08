@@ -234,11 +234,32 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
   const productHeader = msgs.rates.productHeader || "Product";
   const rateHeader = msgs.rates.rateHeader || "Indicative rate";
 
-  // Live prices arrive formatted with "₹" (en-IN). The English document
-  // uses Helvetica/WinAnsi, which cannot encode "₹" (0x20b9) — pdf-lib
-  // throws at draw time. Render "Rs 50,000" instead; Indic-locale PDFs
-  // embed real Noto fonts and keep the true "₹".
-  const rupee = (s: string) => s.replace(/₹\s*/, "Rs ");
+  // Live prices arrive formatted "₹ 50,000" (en-IN). The English document
+  // is set in Helvetica, whose WinAnsi encoding has no rupee sign — so the
+  // sign alone is drawn from the subset Noto face and the digits stay in
+  // the document font. Indic PDFs need no split: their embedded Noto covers
+  // ₹ and kit.symbol is that same font.
+  const RUPEE = "₹";
+  const priceWidth = (s: string, size: number): number =>
+    s.startsWith(RUPEE)
+      ? kit.symbol.widthOfTextAtSize(RUPEE, size) +
+        kit.helv.widthOfTextAtSize(s.slice(RUPEE.length), size)
+      : kit.helv.widthOfTextAtSize(s, size);
+  const priceText = (
+    s: string,
+    opts: { size: number; dx: number; dy?: number },
+  ): void => {
+    if (!s.startsWith(RUPEE)) {
+      return void kit.text(s, { ...opts, font: kit.helv });
+    }
+    const signW = kit.symbol.widthOfTextAtSize(RUPEE, opts.size);
+    kit.text(RUPEE, { ...opts, font: kit.symbol });
+    kit.text(s.slice(RUPEE.length), {
+      ...opts,
+      font: kit.helv,
+      dx: opts.dx + signW,
+    });
+  };
 
   for (const [index, group] of rateGroups.entries()) {
     // One category per page: Soya Derivatives on page 1, Dals & Flour
@@ -281,13 +302,12 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
         size: 9.5,
         font: kit.bold,
       });
-      // Price at a fixed right column ("Rs"-prefixed in Latin locales —
-      // WinAnsi can't encode ₹; see the rupee() note above).
-      const price = rupee(item.price);
-      const priceW = kit.helv.widthOfTextAtSize(price, 9);
-      kit.text(price, {
+      // Price at a fixed right column, ₹ drawn from the symbol face so
+      // Latin documents keep real currency notation (see priceText above).
+      const price = item.price;
+      const priceW = priceWidth(price, 9);
+      priceText(price, {
         size: 9,
-        font: kit.helv,
         dx: kit.w - Math.min(170, priceW + 4),
         dy: 0.5,
       });

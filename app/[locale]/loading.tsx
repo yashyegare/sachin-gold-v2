@@ -24,6 +24,10 @@ export default function Loading() {
       </div>
 
       <div className="flex min-h-[50vh] items-center justify-center">
+        {/* Raw <img> on purpose: this is the Suspense fallback, and
+            next/image would ship the optimizer client into the very route
+            that exists to avoid waiting on JS. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- see above */}
         <img
           src="/images/brand/sachin-badge-nav.webp"
           alt=""
