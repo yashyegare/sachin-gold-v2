@@ -185,7 +185,7 @@
   /* ————— First-visit brand splash (components/BrandSplash.tsx) —————
 
      One timeline, tuned in one place: the --sg-* delays below. The panel
-     lifts away at --sg-out + --sg-out-dur ≈ 3.0s, which is the number the
+     lifts away at --sg-out + --sg-out-dur ≈ 4.0s, which is the number the
      component's teardown timer matches.
 
      The element is always in the DOM on the home page but display:none
@@ -196,20 +196,28 @@
      already carries React's font-variable className — React owns that
      attribute's value and this one is nobody else's to fight over.) */
   .sg-splash {
-    /* 3.0s end to end: shield lands, laurel descends onto it, a sheen crosses
-       the foil, the rule draws and fills as the honest "this will end" cue,
-       then the curtain lifts at --sg-out and is fully gone at
-       --sg-out + --sg-out-dur. Both halves of that sum are mirrored by the
+    /* 4.0s end to end, one beat at a time: shield lands, laurel descends onto
+       it, a sheen crosses the foil, the rule draws out from the centre and
+       fills as the honest "this will end" cue, the caption rises — then the
+       lockup settles and the curtain lifts at --sg-out and is fully gone at
+       --sg-out + --sg-out-dur. The last element settles at 2.5s and the lift
+       starts at 3.15s, so 650ms of that is dwell: the mark sits complete and
+       lit before it goes, which is where the extra second actually lands —
+       not in more movement. Both halves of the total are mirrored by the
        teardown timer in BrandSplash.tsx — change one, change the other. */
     --sg-shield: 0.15s;
     --sg-laurel: 0.5s;
-    --sg-sheen: 1.2s;
-    --sg-hair: 1.35s;
+    --sg-sheen: 0.95s;
+    --sg-hair: 1.3s;
     --sg-bar: 1.6s;
     --sg-bar-dur: 0.7s;
-    --sg-meta: 1.55s;
-    --sg-out: 2.3s;
+    --sg-meta: 1.95s;
+    --sg-out: 3.3s;
     --sg-out-dur: 0.7s;
+    /* The lockup starts leaving 150ms before the panel does, so the badge is
+       already fading when the lift begins instead of being sliced by it. */
+    --sg-lock: calc(var(--sg-out) - 0.15s);
+    --sg-lock-dur: 0.4s;
     display: none;
   }
 
@@ -218,6 +226,9 @@
     place-items: center;
     position: fixed;
     inset: 0;
+    /* The bloom is wider than the mark and the sheen travels past the badge;
+       neither must be able to push the panel's own bounds. */
+    overflow: hidden;
     /* Above the sticky navbar (z-50) and the floating pair (z-40). */
     z-index: 100;
     /* Decorative: never intercepts a click. Skip detection listens on the
@@ -253,6 +264,35 @@
        middle so it doesn't read as dropped into the lower half. */
     transform: translateY(-3vh);
     text-align: center;
+    animation: sg-splash-lockup-out var(--sg-lock-dur) var(--ease-brand)
+      var(--sg-lock) both;
+  }
+
+  /* The mark wrapper carries the light. It is a separate box from .sg-splash-
+     badge because that one clips to the artwork for the sheen, and the bloom
+     has to spill past the badge to read as light rather than as a halo. */
+  .sg-splash-mark {
+    position: relative;
+  }
+
+  .sg-splash-bloom {
+    position: absolute;
+    left: 50%;
+    top: 54%;
+    width: 230%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    /* Gold, not white: a white bloom desaturates the foil next to it. Centred
+       slightly below the badge so the light reads as coming off the shield
+       onto the dark, which is also what fills the empty desktop frame. */
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(231, 192, 112, 0.2) 0%,
+      rgba(217, 169, 60, 0.09) 34%,
+      rgba(217, 169, 60, 0.025) 55%,
+      transparent 72%
+    );
+    animation: sg-splash-bloom 1.2s var(--ease-brand) var(--sg-laurel) both;
   }
 
   /* The two layers come from scripts/prepare-brand-mark.mjs, which keys the
@@ -261,7 +301,7 @@
      at its widest empty row band. 18.3% is that split: 156px of 852px. */
   .sg-splash-badge {
     position: relative;
-    width: clamp(178px, 100px + 15vw, 252px);
+    width: clamp(178px, 100px + 15vw, 300px);
     aspect-ratio: 900 / 852;
     /* Clips the sheen to the artwork, which fills this box edge to edge. */
     overflow: hidden;
@@ -304,38 +344,49 @@
       transparent
     );
     mix-blend-mode: overlay;
-    animation: sg-splash-sheen 0.95s var(--ease-brand) var(--sg-sheen) both;
+    animation: sg-splash-sheen 0.8s var(--ease-brand) var(--sg-sheen) both;
   }
 
-  /* The rule doubles as the progress indicator, so a 3s wait reads as
-     designed rather than as a stall. Track in, then fill left→right, ending
-     exactly as the curtain starts to lift. */
+  /* The rule doubles as the progress indicator, so a 4s wait reads as
+     designed rather than as a stall. Track draws out from the centre, then
+     the fill follows the same direction, ending exactly as the curtain starts
+     to lift. Both grow from the middle rather than left-to-right because the
+     lockup above it is symmetrical — a side-anchored line reads as an
+     unfinished element under a centred mark. */
   .sg-splash-rule {
     position: relative;
     width: 5.5rem;
     height: 1px;
     margin-top: 1.7rem;
     background: rgba(255, 255, 255, 0.13);
-    animation: sg-splash-fade 0.5s var(--ease-brand) var(--sg-hair) both;
+    transform-origin: center;
+    animation: sg-splash-draw 0.5s var(--ease-brand) var(--sg-hair) both;
   }
 
   .sg-splash-rule-fill {
     position: absolute;
     inset: 0;
-    transform-origin: left center;
+    transform-origin: center;
     transform: scaleX(0);
-    background: linear-gradient(90deg, rgba(217, 169, 60, 0.4), #e7c070);
+    /* Ends brighter than the track so the line reads as charged, not as a
+       grey bar that got painted over. */
+    background: linear-gradient(
+      90deg,
+      rgba(217, 169, 60, 0.35),
+      #e7c070 50%,
+      rgba(217, 169, 60, 0.35)
+    );
     animation: sg-splash-progress var(--sg-bar-dur) var(--ease-brand)
       var(--sg-bar) both;
   }
 
   .sg-splash-meta {
     margin-top: 1.05rem;
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(246, 244, 238, 0.55);
+    color: rgba(246, 244, 238, 0.62);
     animation: sg-splash-rise 0.55s var(--ease-brand) var(--sg-meta) both;
   }
 
@@ -358,6 +409,22 @@
     .sg-splash-meta {
       margin-top: 1.25rem;
       font-size: 11px;
+    }
+  }
+
+  /* A 252px mark on a 1440x900 viewport is 17% of the width and reads as
+     dropped into the dark. The badge clamp already grows with the viewport, so
+     this only widens the space around it — the rule and caption have to scale
+     with the mark or the lockup falls apart proportionally. */
+  @media (min-width: 1024px) {
+    .sg-splash-rule {
+      width: 8rem;
+      margin-top: 2.4rem;
+    }
+
+    .sg-splash-meta {
+      margin-top: 1.5rem;
+      font-size: 12px;
     }
   }
 
@@ -399,12 +466,41 @@
     }
   }
 
-  @keyframes sg-splash-fade {
+  @keyframes sg-splash-draw {
     from {
       opacity: 0;
+      transform: scaleX(0);
     }
     to {
       opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+
+  /* Light arrives with the laurel rather than with the shield: the bloom is
+     the consequence of the mark being complete, so it has to come after it. */
+  @keyframes sg-splash-bloom {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.86);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  /* The lockup leaves before the panel so the badge is already going when the
+     lift starts; the -3vh optical centre has to be repeated here or the
+     animation replaces the transform and the mark jumps down. */
+  @keyframes sg-splash-lockup-out {
+    from {
+      opacity: 1;
+      transform: translateY(-3vh) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(calc(-3vh - 14px)) scale(0.985);
     }
   }
 

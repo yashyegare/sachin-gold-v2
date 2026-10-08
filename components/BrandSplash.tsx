@@ -24,7 +24,7 @@ import { company } from "@/data/company";
  * - The whole timeline is CSS (globals.css), driven by animation-delay, so
  *   it never waits on React hydration or a slow JS bundle.
  * - Every animation ends in the "gone" state with fill-mode `both`, so the
- *   curtain is off-screen and non-interactive at ~3.0s even if this effect
+ *   curtain is off-screen and non-interactive at ~4.0s even if this effect
  *   never runs. A visitor with JS broken still reaches the site.
  * - `prefers-reduced-motion`: the inline script never sets the attribute
  *   and the CSS hides the element outright — two independent paths to "no
@@ -85,12 +85,12 @@ export default function BrandSplash() {
     window.addEventListener("keydown", skip);
 
     // CSS owns the motion; this timer only tears the element down after it
-    // has left. 3000ms = --sg-out + --sg-out-dur in globals.css.
+    // has left. 4000ms = --sg-out + --sg-out-dur in globals.css.
     //
     // Deliberately NOT cleared on unmount: nothing here touches component
     // state, so a stray finish() after a mid-animation navigation is simply
     // an attribute removal and an event nobody listens to.
-    let teardown = setTimeout(finish, 3000);
+    let teardown = setTimeout(finish, 4000);
   }, []);
 
   return (
@@ -98,34 +98,41 @@ export default function BrandSplash() {
     // banding; its ::after sits at z-index 1, under .sg-splash-stack.
     <div ref={overlayRef} className="sg-splash grain-dark" aria-hidden="true">
       <div className="sg-splash-stack">
-        <div className="sg-splash-badge">
-          {/* Explicit width/height attributes match the layer's slice of the
-              900x852 canvas, so the box is sized before the bytes arrive. */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- the two
-              layers must decode in lockstep for the assembly animation, and
-              this overlay paints before hydration; next/image offers neither
-              decoding control nor a pre-hydration-safe path. */}
-          <img
-            className="sg-splash-shield"
-            src="/images/brand/sachin-shield.webp"
-            alt=""
-            width={900}
-            height={696}
-            decoding="sync"
-            fetchPriority="high"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element -- see the
-              shield above; both layers share the same constraint. */}
-          <img
-            className="sg-splash-laurel"
-            src="/images/brand/sachin-laurel.webp"
-            alt=""
-            width={900}
-            height={156}
-            decoding="sync"
-            fetchPriority="high"
-          />
-          <span className="sg-splash-sheen" />
+        <div className="sg-splash-mark">
+          {/* Light, not decoration: the bloom gives the foil a source to be
+              lit by and fills the dark around the mark on a desktop viewport.
+              It lives here rather than inside .sg-splash-badge because that
+              box clips to the artwork for the sheen. */}
+          <span className="sg-splash-bloom" />
+          <div className="sg-splash-badge">
+            {/* Explicit width/height attributes match the layer's slice of the
+                900x852 canvas, so the box is sized before the bytes arrive. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- the two
+                layers must decode in lockstep for the assembly animation, and
+                this overlay paints before hydration; next/image offers neither
+                decoding control nor a pre-hydration-safe path. */}
+            <img
+              className="sg-splash-shield"
+              src="/images/brand/sachin-shield.webp"
+              alt=""
+              width={900}
+              height={696}
+              decoding="sync"
+              fetchPriority="high"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element -- see the
+                shield above; both layers share the same constraint. */}
+            <img
+              className="sg-splash-laurel"
+              src="/images/brand/sachin-laurel.webp"
+              alt=""
+              width={900}
+              height={156}
+              decoding="sync"
+              fetchPriority="high"
+            />
+            <span className="sg-splash-sheen" />
+          </div>
         </div>
         <div className="sg-splash-rule">
           <span className="sg-splash-rule-fill" />
