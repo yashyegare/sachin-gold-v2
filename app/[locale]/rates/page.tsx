@@ -14,7 +14,7 @@ import PageIntro from "@/components/PageIntro";
 import Reveal from "@/components/Reveal";
 import { pageMetadata } from "@/i18n/seo";
 import { Link } from "@/i18n/navigation";
-import { formatStamp, quintalPrice, unitLabel } from "@/lib/rates-basis";
+import { formatStamp, unitLabel } from "@/lib/rates-basis";
 import { getLiveRateGroups } from "@/lib/rates-source";
 import type { RateItem } from "@/lib/types";
 import type { RateGroupView } from "@/components/RatesTables";
@@ -24,7 +24,6 @@ import type { RateGroupView } from "@/components/RatesTables";
 export const revalidate = 300;
 import { company } from "@/data/company";
 import { whatsappLink, whatsappShareLink } from "@/lib/whatsapp";
-import PdfDownloadButton from "@/components/PdfDownloadButton";
 import RatesFreshness from "@/components/RatesFreshness";
 import RatesTables from "@/components/RatesTables";
 
@@ -111,12 +110,9 @@ export default async function RatesPage({ params }: Props) {
   // English `unit`/`unitNote`/`price` strings because the rate-card PDF
   // prints those — a forwarded trade document stays in one wording — so the
   // two renderers read the same row through different fields on purpose.
-  const basisLabel = (
-    item: RateItem,
-    unit = t(`units.${item.unitKey}`),
-  ): string =>
+  const basisLabel = (item: RateItem): string =>
     unitLabel({
-      unit,
+      unit: t(`units.${item.unitKey}`),
       unitNote: item.noteKey ? t(`notes.${item.noteKey}`) : undefined,
     });
 
@@ -140,33 +136,25 @@ export default async function RatesPage({ params }: Props) {
     0,
   );
 
-  // Rows for the table island. Both price bases and every WhatsApp link are
-  // computed here: the client component gets strings, so the pricing maths
-  // (and the enquiry copy, and the en-IN number formatting) never exist in
-  // two places. A row the sheet doesn't price has `quintal: null` — the
-  // toggle then keeps showing "On request" rather than inventing a number.
-  const perQuintal = t("perQuintal");
+  // Rows for the table island. Every price string and every WhatsApp link
+  // is computed here: the client component gets strings, so the pricing
+  // maths (and the enquiry copy, and the en-IN number formatting) never
+  // exist in two places.
   const rateTables: RateGroupView[] = rateGroups.map((group, gi) => ({
     title: t(`groups.${gi === 0 ? "soya" : "dals"}`),
     updatedOn: group.updatedOn ?? null,
     enquiryHref: enquireLineLink(group.title),
-    rows: group.items.map((rate) => {
-      const quintal = quintalPrice(rate);
-      return {
-        product: rate.product,
-        flagship: rate.product.startsWith(FLAGSHIP),
-        // An unpriced line says "On request" in the reader's language; the
-        // English literal in data/rates.ts is only the PDF's copy.
-        quoted: {
-          price: rate.priceValue === undefined ? t("onRequest") : rate.price,
-          unit: basisLabel(rate),
-        },
-        quintal: quintal
-          ? { price: quintal, unit: basisLabel(rate, perQuintal) }
-          : null,
-        enquiryHref: enquireLink(rate.product),
-      };
-    }),
+    rows: group.items.map((rate) => ({
+      product: rate.product,
+      flagship: rate.product.startsWith(FLAGSHIP),
+      // An unpriced line says "On request" in the reader's language; the
+      // English literal in data/rates.ts is only the PDF's copy.
+      quoted: {
+        price: rate.priceValue === undefined ? t("onRequest") : rate.price,
+        unit: basisLabel(rate),
+      },
+      enquiryHref: enquireLink(rate.product),
+    })),
   }));
 
   return (
@@ -242,12 +230,6 @@ export default async function RatesPage({ params }: Props) {
               <PhoneCall size={15} aria-hidden="true" />
               {t("callCta", { phone: company.phone })}
             </a>
-            {/* The printable rate card — same data as this page, as a
-                forwardable PDF (counter printout / WhatsApp forward). */}
-            <PdfDownloadButton
-              href="/rates.pdf"
-              label={t("pdfCta")}
-            />
             {/* One-tap forward: the day's real prices prefilled into a
                 WhatsApp chat — every rate-checker becomes a distribution
                 channel. Hidden until the sheet has real numbers (never
@@ -301,14 +283,9 @@ export default async function RatesPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ————— The tables (client island: the basis switch spans groups) ————— */}
+      {/* ————— The tables (client island: shared strings per row) ————— */}
       <section className="mx-auto max-w-4xl px-6 py-16 print:px-0 print:py-0">
-        <RatesTables
-          groups={rateTables}
-          showBasisToggle={rateTables.some((group) =>
-            group.rows.some((row) => row.quintal),
-          )}
-        />
+        <RatesTables groups={rateTables} />
 
         <p className="mt-12 text-xs text-ink/45 print:hidden">
           {t("cannotFind")}{" "}

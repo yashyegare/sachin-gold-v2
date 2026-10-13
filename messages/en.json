@@ -355,7 +355,6 @@
     "enquireAria": "Enquire about bulk rates for {product} on WhatsApp",
     "enquireLine": "Enquire about this line",
     "enquireLineAria": "Message the trading desk about {line} on WhatsApp",
-    "perQuintal": "per quintal",
     "onRequest": "On request",
     "units": {
       "mt": "per Metric Ton",
@@ -371,13 +370,6 @@
       "premiumQuality": "premium quality",
       "superFine": "super fine",
       "pureChanaBesan": "pure chana besan"
-    },
-    "basis": {
-      "label": "Compare rates",
-      "aria": "Choose the unit rates are shown in",
-      "quoted": "As quoted",
-      "quintal": "Per quintal",
-      "hint": "One line is quoted per metric ton, another per 10 kg and another per kg. Switch to per quintal (100 kg) to read them side by side."
     },
     "cannotFind": "Can't find a grade or pack size? Message us — the trading desk answers with a written quote.",
     "gradesLink": "See every grade, pack size & MOQ",

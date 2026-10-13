@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -13,9 +12,9 @@ import { useTranslations } from "next-intl";
 import Reveal from "@/components/Reveal";
 
 /**
- * The rate tables, as one client island: the "as quoted / per quintal"
- * switch has to be shared by both groups, so the toggle and the tables
- * cannot be separate server-rendered blocks.
+ * The rate tables, as one client island: the row enquiry chips and the
+ * per-group update stamps need the same translated strings, so the table
+ * cannot be a server-rendered block.
  *
  * Actions here follow one rule — a loud enquiry per line group, and a
  * restrained labelled chip per row. Eleven identical green buttons turned
@@ -32,8 +31,6 @@ export interface RateRowView {
   flagship: boolean;
   /** The line as the desk quotes it. */
   quoted: { price: string; unit: string };
-  /** The same price per 100 kg — null while the row is "On request". */
-  quintal: { price: string; unit: string } | null;
   enquiryHref: string;
 }
 
@@ -57,8 +54,6 @@ const groupIconsByIndex: Record<number, typeof Droplets> = {
   1: Wheat,
 };
 
-type Basis = "quoted" | "quintal";
-
 /**
  * The per-row enquiry chip. Labelled, not glyph-only — "Enquire" has to be
  * readable for the button to mean anything to a first-time visitor. It
@@ -73,63 +68,18 @@ const ROW_CTA =
 
 export default function RatesTables({
   groups,
-  showBasisToggle,
 }: {
   groups: RateGroupView[];
-  showBasisToggle: boolean;
 }) {
   const t = useTranslations("rates");
-  const [basis, setBasis] = useState<Basis>("quoted");
 
   return (
     <>
-      {showBasisToggle && (
-        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-b border-ink/10 pb-5 print:hidden">
-          <div>
-            <p className="text-[0.7rem] font-semibold uppercase tracking-widest text-pine">
-              {t("basis.label")}
-            </p>
-            <p className="mt-1.5 max-w-md text-xs leading-relaxed text-ink/50">
-              {t("basis.hint")}
-            </p>
-          </div>
-          <div
-            role="group"
-            aria-label={t("basis.aria")}
-            className="inline-flex rounded-sm border border-ink/15 bg-white p-1 shadow-elevated-sm"
-          >
-            {(
-              [
-                ["quoted", t("basis.quoted")],
-                ["quintal", t("basis.quintal")],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={basis === value}
-                onClick={() => setBasis(value)}
-                className={`rounded-[3px] px-3.5 py-2 text-xs font-semibold tabular-nums transition-colors ${
-                  basis === value
-                    ? "bg-pine text-white"
-                    : "text-ink/55 hover:text-pine"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {groups.map((group, gi) => {
         const GroupIcon = groupIconsByIndex[gi] ?? Wheat;
         const groupImage = groupImagesByIndex[gi];
         return (
-          <Reveal
-            key={group.title}
-            className={gi > 0 ? "mt-14" : showBasisToggle ? "mt-12" : ""}
-          >
+          <Reveal key={group.title} className={gi > 0 ? "mt-14" : ""}>
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-4">
               <div className="flex items-center gap-4">
                 {groupImage && (
@@ -207,10 +157,6 @@ export default function RatesTables({
                   </thead>
                   <tbody>
                     {group.rows.map((row, index) => {
-                      const shown =
-                        basis === "quintal" && row.quintal
-                          ? row.quintal
-                          : row.quoted;
                       return (
                         <tr
                           key={row.product}
@@ -228,9 +174,11 @@ export default function RatesTables({
                           </td>
                           <td className="whitespace-nowrap px-2 py-4 text-right print:py-2.5">
                             <span className="font-semibold tabular-nums text-ink">
-                              {shown.price}
+                              {row.quoted.price}
                             </span>{" "}
-                            <span className="text-ink/50">{shown.unit}</span>
+                            <span className="text-ink/50">
+                              {row.quoted.unit}
+                            </span>
                           </td>
                           {/* Labelled chip, right-aligned in a column that
                               hugs it. */}
@@ -258,8 +206,6 @@ export default function RatesTables({
               {/* Mobile stacked cards — hidden at md+, hidden in print. */}
               <ul className="space-y-3 md:hidden print:hidden">
                 {group.rows.map((row) => {
-                  const shown =
-                    basis === "quintal" && row.quintal ? row.quintal : row.quoted;
                   return (
                     <li
                       key={row.product}
@@ -279,9 +225,9 @@ export default function RatesTables({
                       <div className="mt-3 flex items-end justify-between gap-3">
                         <p className="text-sm text-ink">
                           <span className="font-semibold tabular-nums">
-                            {shown.price}
+                            {row.quoted.price}
                           </span>{" "}
-                          <span className="text-ink/50">{shown.unit}</span>
+                          <span className="text-ink/50">{row.quoted.unit}</span>
                         </p>
                         <a
                           href={row.enquiryHref}
