@@ -8,12 +8,13 @@ import { company } from "@/data/company";
  * near-black curtain over the whole viewport, then the curtain lifts away to
  * reveal the page. Rendered by the home page only.
  *
- * Who sees it: a browser visiting the homepage for the first time, once,
- * ever. All the gating happens in the inline script in the root layout,
- * which runs BEFORE first paint and marks <html> with `data-splash` — so
- * the curtain is present at first paint instead of slamming over an
- * already rendered page. This component only writes the `sg-splash-seen`
- * flag that makes it a one-time event.
+ * Who sees it: each browser tab, the first time it loads the homepage. All
+ * the gating happens in the inline script in the root layout, which runs
+ * BEFORE first paint and marks <html> with `data-splash` — so the curtain is
+ * present at first paint instead of slamming over an already rendered page.
+ * This component only writes the `sg-splash-seen` flag into `sessionStorage`
+ * that makes it one moment per tab: a refresh or a new tab replays it, a
+ * click-through to another page in the same tab does not.
  *
  * The artwork is not the supplied JPG: scripts/prepare-brand-mark.mjs keys
  * out the photo's white ground and splits the badge into the two layers
@@ -56,7 +57,7 @@ export default function BrandSplash() {
     started = true;
 
     try {
-      window.localStorage.setItem(SPLASH_SEEN_KEY, "1");
+      window.sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
     } catch {
       // Storage unavailable — the splash just replays next load, which is
       // better than suppressing it for everyone whose browser blocks it.

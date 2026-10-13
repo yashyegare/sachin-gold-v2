@@ -119,9 +119,9 @@ export const galleryPhotos: GalleryPhoto[] = [
     service: "processing",
   },
   {
-    src: "/images/products/jowar-dal.webp",
-    alt: "Jowar dal processed pulses",
-    caption: "Jowar — one of the pulses and grains we trade in bulk.",
+    src: "/images/products/jowar.webp",
+    alt: "Jowar sorghum bulk grain",
+    caption: "Jowar — one of the grains we trade in bulk.",
     service: "trading",
   },
   {

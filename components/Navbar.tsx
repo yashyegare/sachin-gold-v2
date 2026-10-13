@@ -284,7 +284,10 @@ export default function Navbar() {
         >
           {/* A pre-shrunk, lightly sharpened cut of the badge: at 44px the
               900px original downscales to a soft smudge, and the laurel tips
-              and inner wordmark are what make the mark readable. */}
+              and inner wordmark are what make the mark readable. Rendered
+              above that cut — 48px on a phone, 56px from the sm breakpoint —
+              which still oversamples the 176px artwork at 3x on desktop and
+              is what holds the wordmark's weight in the 64px bar. */}
           <Image
             src="/images/brand/sachin-badge-nav.webp"
             alt=""
@@ -292,7 +295,7 @@ export default function Navbar() {
             height={42}
             priority
             unoptimized
-            className="h-10 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-11"
+            className="h-12 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-14"
           />
           <span className="font-display text-[1.4rem] font-bold leading-[2.5rem] tracking-tight text-pine transition-colors group-hover:text-pine-deep max-[359px]:hidden sm:text-[1.6rem] sm:leading-[2.75rem]">
             Sachin <span className="text-wheat">Gold</span>

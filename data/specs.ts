@@ -114,12 +114,6 @@ export const productSpecs: Record<string, ProductSpec> = {
     moq: "10 MT",
     lead: "2–4 working days",
   },
-  "jowar-dal": {
-    grade: "Milled jowar · moisture max 12% · foreign matter max 0.5%",
-    packs: "25/50 kg PP bag · 1 MT jumbo",
-    moq: "10 MT",
-    lead: "2–4 working days",
-  },
   "besan-gram-flour": {
     grade: "Protein min 20% · fat min 5% · moisture max 5% · fine mesh, pure chana besan",
     packs: "1/5/10/20/50 kg PP & HDPE bag · 1 MT jumbo",

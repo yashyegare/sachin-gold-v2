@@ -8,7 +8,6 @@ import SectionHeading from "@/components/SectionHeading";
 import ServiceCard from "@/components/ServiceCard";
 import ProductCarousel from "@/components/ProductCarousel";
 import ProductSpecs from "@/components/ProductSpecs";
-import PdfDownloadButton from "@/components/PdfDownloadButton";
 import RatesBanner from "@/components/RatesBanner";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
@@ -335,18 +334,6 @@ export default async function ServiceDetailPage({ params }: Props) {
             </Reveal>
             <Reveal className="mt-10">
               <ProductCarousel products={products} />
-            </Reveal>
-
-            {/* Forwardable spec sheet — the same catalogue + advantages
-                compiled into a one-page PDF from the data layer; a bulk
-                buyer forwards it internally instead of a link. Inline pill,
-                matching the profile download on /about. */}
-            <Reveal className="mt-10">
-              <PdfDownloadButton
-                href={`/services/${service.slug}/spec.pdf`}
-                label={t("detail.specSheet")}
-                tone="pine"
-              />
             </Reveal>
           </div>
         </section>

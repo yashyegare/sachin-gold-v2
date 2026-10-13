@@ -4,10 +4,12 @@ import type { Product } from "@/lib/types";
 // / Extracted Products" catalogue on the live site (not just the About page
 // summary — those catalogues listed more distinct products than the About
 // page mentioned, e.g. Crude Oil as separate from Refined Oil, and Urad/
-// Moong/Jowar Dal alongside Toor/Chana). The trading catalogue is the
+// Moong Dal alongside Toor/Chana). The trading catalogue is the
 // twelve-item list on commodity-trading.html (the _full dal images there
 // duplicate the processing products below, so only genuinely new items
-// are added here). `service` maps each product to its owning service line
+// are added here; "Jowar Dal", which the old site also listed, is dropped
+// because we do not mill it). `service` maps each product to its owning
+// service line
 // in data/services.ts so service detail pages show only their own products
 // via getProductsByService(). Images are real product photography migrated
 // from the old repo via `npm run images`.
@@ -107,14 +109,6 @@ export const products: Product[] = [
     category: "Processing",
     description: "Protein-rich moong dal, processed to retain natural essence.",
     image: "/images/products/moong-dal.webp",
-    service: "pulses-processing",
-  },
-  {
-    name: "Jowar Dal",
-    slug: "jowar-dal",
-    category: "Processing",
-    description: "Processed jowar, milled for household and industrial buyers.",
-    image: "/images/products/jowar-dal.webp",
     service: "pulses-processing",
   },
   {

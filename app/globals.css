@@ -200,24 +200,34 @@
        it, a sheen crosses the foil, the rule draws out from the centre and
        fills as the honest "this will end" cue, the caption rises — then the
        lockup settles and the curtain lifts at --sg-out and is fully gone at
-       --sg-out + --sg-out-dur. The last element settles at 2.5s and the lift
-       starts at 3.15s, so 650ms of that is dwell: the mark sits complete and
-       lit before it goes, which is where the extra second actually lands —
-       not in more movement. Both halves of the total are mirrored by the
-       teardown timer in BrandSplash.tsx — change one, change the other. */
-    --sg-shield: 0.15s;
-    --sg-laurel: 0.5s;
-    --sg-sheen: 0.95s;
-    --sg-hair: 1.3s;
-    --sg-bar: 1.6s;
-    --sg-bar-dur: 0.7s;
-    --sg-meta: 1.95s;
+       --sg-out + --sg-out-dur. Both halves of that sum are mirrored by the
+       teardown timer in BrandSplash.tsx — change one, change the other.
+       The build-up is deliberately front-loaded: the last element settles at
+       2.0s and the lift starts at 3.15s, so 1.15s of the 4.0s is dwell on a
+       complete mark. That is where the extra second actually lands — not in
+       more movement. It also keeps the opening frame from being an empty dark
+       panel, which is what a 0.15s first delay read as. */
+    --sg-shield: 0.05s;
+    --sg-laurel: 0.35s;
+    --sg-sheen: 0.75s;
+    --sg-hair: 1s;
+    --sg-bar: 1.25s;
+    --sg-bar-dur: 0.6s;
+    --sg-meta: 1.5s;
+    --sg-meta-dur: 0.5s;
     --sg-out: 3.3s;
     --sg-out-dur: 0.7s;
     /* The lockup starts leaving 150ms before the panel does, so the badge is
        already fading when the lift begins instead of being sliced by it. */
     --sg-lock: calc(var(--sg-out) - 0.15s);
     --sg-lock-dur: 0.4s;
+    /* One number drives the whole lockup. Sized from the viewport's short
+       edge, because the curtain is the viewport: a fixed cap left the mark at
+       300px inside a 1440x900 field, which reads as dropped into the dark
+       rather than as a brand moment. Everything below — rule, gaps, caption —
+       is a fraction of this, so the proportions hold at any size and there is
+       no second set of breakpoint overrides to keep in step. */
+    --sg-bw: clamp(200px, min(52vh, 62vw), 460px);
     display: none;
   }
 
@@ -301,7 +311,7 @@
      at its widest empty row band. 18.3% is that split: 156px of 852px. */
   .sg-splash-badge {
     position: relative;
-    width: clamp(178px, 100px + 15vw, 300px);
+    width: var(--sg-bw);
     aspect-ratio: 900 / 852;
     /* Clips the sheen to the artwork, which fills this box edge to edge. */
     overflow: hidden;
@@ -355,9 +365,9 @@
      unfinished element under a centred mark. */
   .sg-splash-rule {
     position: relative;
-    width: 5.5rem;
+    width: calc(var(--sg-bw) * 0.42);
     height: 1px;
-    margin-top: 1.7rem;
+    margin-top: calc(var(--sg-bw) * 0.15);
     background: rgba(255, 255, 255, 0.13);
     transform-origin: center;
     animation: sg-splash-draw 0.5s var(--ease-brand) var(--sg-hair) both;
@@ -381,51 +391,23 @@
   }
 
   .sg-splash-meta {
-    margin-top: 1.05rem;
-    font-size: 10px;
+    margin-top: calc(var(--sg-bw) * 0.11);
+    /* Tracked-out small caps at 10px is the size that stops being readable on
+       a dark field, and the curtain is now large enough that a fixed 10px
+       would sit under a 460px mark looking like a footnote. */
+    font-size: clamp(11px, calc(var(--sg-bw) * 0.045), 16px);
     font-weight: 500;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    color: rgba(246, 244, 238, 0.62);
-    animation: sg-splash-rise 0.55s var(--ease-brand) var(--sg-meta) both;
+    color: rgba(246, 244, 238, 0.78);
+    animation: sg-splash-rise var(--sg-meta-dur) var(--ease-brand)
+      var(--sg-meta) both;
   }
 
   .sg-splash-meta span {
     /* The gold in the caption is the only place the brand colour appears as
        text here — the wordmark itself is already in the artwork. */
-    color: rgba(231, 192, 112, 0.75);
-  }
-
-  /* The sizes above are set for a phone, where the lockup already fills a
-     comfortable share of the screen. On a desktop viewport the same box
-     floats in a lot of dark — so the whole lockup grows together, once,
-     rather than each piece being hand-tuned at two widths. */
-  @media (min-width: 768px) {
-    .sg-splash-rule {
-      width: 7rem;
-      margin-top: 2.1rem;
-    }
-
-    .sg-splash-meta {
-      margin-top: 1.25rem;
-      font-size: 11px;
-    }
-  }
-
-  /* A 252px mark on a 1440x900 viewport is 17% of the width and reads as
-     dropped into the dark. The badge clamp already grows with the viewport, so
-     this only widens the space around it — the rule and caption have to scale
-     with the mark or the lockup falls apart proportionally. */
-  @media (min-width: 1024px) {
-    .sg-splash-rule {
-      width: 8rem;
-      margin-top: 2.4rem;
-    }
-
-    .sg-splash-meta {
-      margin-top: 1.5rem;
-      font-size: 12px;
-    }
+    color: rgba(231, 192, 112, 0.85);
   }
 
   /* Click / tap / any key: cut straight to the exit. */
