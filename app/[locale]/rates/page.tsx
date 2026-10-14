@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import {
   ArrowRight,
   BadgeCheck,
+  Info,
   PhoneCall,
   Share2,
   ShieldCheck,
@@ -119,7 +120,9 @@ export default async function RatesPage({ params }: Props) {
   // One-tap forward: WhatsApp prefilled with the day's real prices only
   // (rows the sheet actually prices — never "On request" placeholders).
   // The stamp carries the pull time in the shared text itself, so the
-  // recipient knows exactly how fresh the numbers are when they read it.
+  // recipient knows exactly how fresh the numbers are when they read it,
+  // and the disclaimer travels with them — a forwarded screenshot is the
+  // one copy we can't keep attached to the page.
   const istStamp = lastUpdated ? formatStamp(lastUpdated, locale) : null;
   const pricedItems = rateGroups
     .flatMap((group) => group.items)
@@ -129,7 +132,7 @@ export default async function RatesPage({ params }: Props) {
         .map((item) => `• ${item.product}: ${item.price} (${basisLabel(item)})`)
         .join("\n")}${
         istStamp ? `\n${t("fresh.shareStamp", { time: istStamp })}` : ""
-      }`
+      }\n_${t("disclaimer")}_`
     : null;
   const trackedCount = rateGroups.reduce(
     (n, group) => n + group.items.length,
@@ -287,7 +290,16 @@ export default async function RatesPage({ params }: Props) {
       <section className="mx-auto max-w-4xl px-6 py-16 print:px-0 print:py-0">
         <RatesTables groups={rateTables} />
 
-        <p className="mt-12 text-xs text-ink/45 print:hidden">
+        {/* The line that keeps every figure above honest. Deliberately not
+            print:hidden: this page gets printed at counters, and a paper
+            sheet is exactly the copy that outlives the day's rate — it has
+            to carry the same wording the screen does. */}
+        <div className="mt-10 flex items-start gap-2.5 rounded-sm border border-ink/10 bg-linen px-4 py-3 print:border-ink/25 print:bg-transparent">
+          <Info size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-pine" />
+          <p className="text-xs leading-relaxed text-ink/65">{t("disclaimer")}</p>
+        </div>
+
+        <p className="mt-6 text-xs text-ink/45 print:hidden">
           {t("cannotFind")}{" "}
           <Link
             href="/services"

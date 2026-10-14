@@ -6,7 +6,7 @@ import { getProductsByService } from "@/data/products";
  * READ THIS BEFORE SHIPPING. Nothing in this file came from the old site or
  * from the owner; the old site published no terms at all. The grades below
  * are the standard trade grades for these commodities (AGMARK / typical
- * contract wording) and the MOQs, pack sizes, lead times and payment terms
+ * contract wording) and the MOQs, pack sizes and lead times
  * are ordinary market practice for a Maharashtra soya-and-dal trader. They
  * are therefore *indicative*, and the UI says so on every page that renders
  * them (`services.detail.specsNote`).
@@ -42,50 +42,50 @@ export const productSpecs: Record<string, ProductSpec> = {
   // ————— Trading: raw commodities, cleaned and graded at our own lines —————
   soyabean: {
     grade: "Sortex-cleaned · moisture max 12% · oil basis 18–20% · ADMAX as per AGMARK FAQ",
-    packs: "50/60 kg jute or PP bag · 1 MT jumbo · bulk in bags",
-    moq: "50 MT",
+    packs: "30 / 50 kg PP bag",
+    moq: "25 MT",
     lead: "4–6 working days",
   },
   bajra: {
     grade: "Local/Desi grade · moisture max 12% · foreign matter max 1% · Sortex-cleaned",
-    packs: "25/50 kg PP bag · 1 MT jumbo",
+    packs: "30 / 50 kg PP bag",
     moq: "25 MT",
     lead: "3–5 working days",
   },
   jowar: {
     grade: "White/mixed jowar · moisture max 12% · foreign matter max 0.75%",
-    packs: "25/50 kg PP bag · 1 MT jumbo",
+    packs: "30 / 50 kg PP bag",
     moq: "25 MT",
     lead: "3–5 working days",
   },
   corn: {
     grade: "Yellow maize, AFD grade · moisture max 12% · broken & damaged max 2%",
-    packs: "50 kg PP bag · 1 MT jumbo · bulk tipper",
-    moq: "50 MT",
+    packs: "30 / 50 kg PP bag",
+    moq: "25 MT",
     lead: "4–6 working days",
   },
   jaggery: {
     grade: "Grade A/B · colour 60–80 IU · moisture max 3.5% · sulphur-free on request",
-    packs: "25/50 kg PP bag · 12 kg carton for retail packs",
-    moq: "20 MT",
+    packs: "30 / 50 kg PP bag",
+    moq: "25 MT",
     lead: "3–5 working days",
   },
   "cotton-seed-oil-cake": {
     grade: "Protein min 22–24% · oil residue max 1.5% · moisture max 12%",
-    packs: "50 kg PP bag · 1 MT jumbo",
+    packs: "30 / 50 kg PP bag",
     moq: "25 MT",
     lead: "3–5 working days",
   },
   "masoor-dal": {
     grade: "Whole masoor, unpolished · moisture max 12% · foreign matter max 0.5%",
-    packs: "1/5/10/25/50 kg PP & HDPE bag · 1 MT jumbo",
-    moq: "10 MT",
+    packs: "30 / 50 kg PP bag",
+    moq: "25 MT",
     lead: "2–4 working days",
   },
   tamarind: {
     grade: "Pressed ball, seedless · moisture max 16% · tartaric acid 28–32%",
-    packs: "20/25 kg PP bag",
-    moq: "15 MT",
+    packs: "30 / 50 kg PP bag",
+    moq: "25 MT",
     lead: "4–6 working days",
   },
 
@@ -125,47 +125,45 @@ export const productSpecs: Record<string, ProductSpec> = {
   "soya-doc": {
     grade: "Normal: protein min 46%, fat max 1.5%, fibre max 7% · High-Pro: protein min 48–50% · moisture max 12%",
     packs: "50 kg PP bag · 1 MT jumbo · loose bulk",
-    moq: "25 MT",
+    moq: "30 MT",
     lead: "2–3 working days",
   },
   "soya-crude-oil": {
     grade: "FFA max 2.0% · moisture & impurity max 0.5% · Lovibond 1.5R / 15Y",
     packs: "Bulk tanker · 190 kg MS drum · 1 MT IBC",
-    moq: "20 MT (one tanker lot)",
+    moq: "25 MT",
     lead: "3–5 working days",
   },
   "soya-refined-oil": {
     grade: "FFA max 0.1% · moisture max 0.1% · smoke point ~230°C · neutralised, bleached, deodorised",
     packs: "15 L / 1 kg retail pouch (on request) · 19 L can · 1 MT IBC · bulk tanker",
-    moq: "5 MT · full tanker 16 MT",
+    moq: "25 MT",
     lead: "3–5 working days",
   },
   "soya-acid-oil": {
     grade: "FFA min 50% · moisture max 1.0% · for soap, fatty-acid and chemical feedstock",
     packs: "190 kg MS drum · bulk tanker",
-    moq: "5 MT",
+    moq: "25 MT",
     lead: "3–5 working days",
   },
   "soya-fatty-oil": {
     grade: "Acid value and ester value to buyer spec · for cosmetics, paints and industrial blends",
     packs: "190 kg MS drum · 1 MT IBC · bulk tanker",
-    moq: "5 MT",
+    moq: "25 MT",
     lead: "3–5 working days",
   },
   "soya-lecithin": {
     grade: "Acetone insolubles min 60% · moisture max 0.5% · colour K-18, non-bleached",
     packs: "190 kg MS drum · 1 MT IBC · bulk tanker",
-    moq: "2 MT",
+    moq: "25 MT",
     lead: "4–6 working days",
   },
 };
 
 /** The shared commercial terms — stated once per page, under the table. */
 export const commercialTerms = {
-  payment:
-    "30% advance with the order, balance before dispatch · LC at sight above 100 MT · credit terms for repeat buyers on review",
   dispatch:
-    "Ex-plant Udgir (MIDC) · truck and rake loading from site · freight quoted separately against your pincode",
+    "Ex-plant Udgir, Solapur and Latur · truck and rake loading from site · freight quoted separately against your pincode",
   survey:
     "Third-party quality and weight survey at loading on request · reweigh allowed at destination",
   /** The sentence that keeps every figure above honest. */

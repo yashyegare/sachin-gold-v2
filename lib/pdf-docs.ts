@@ -261,6 +261,13 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
     });
   };
 
+  // The "indicative" wording, hoisted because it closes every category
+  // page rather than the document — see the note inside the loop.
+  const disclaimer = L(
+    "disclaimer",
+    "Rates are indicative and subject to market movement. Final pricing depends on volume, grade and delivery terms — call or message us for a firm quote.",
+  );
+
   for (const [index, group] of rateGroups.entries()) {
     // One category per page: Soya Derivatives on page 1, Dals & Flour
     // on page 2 — the layout the client asked for, and each page reads
@@ -349,20 +356,22 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
       kit.y += 12;
     }
     kit.y += 4;
+
+    // Disclaimer closes each page, not just the document: a category page
+    // gets printed or forwarded on its own, so the "indicative" wording
+    // has to travel with the numbers it qualifies.
+    kit.ensureSpace(56);
+    kit.paragraph({
+      text: disclaimer,
+      size: 8,
+      font: kit.helv,
+      opacity: 0.7,
+      lineGap: 3,
+    });
+    kit.y += 4;
   }
 
-  // ————— Disclaimer + contact band. ——————————————————————————————————
-  kit.ensureSpace(120);
-  kit.paragraph({
-    text: L(
-      "disclaimer",
-      "Rates are indicative and subject to market movement. Final pricing depends on volume, grade and delivery terms — call or message us for a firm quote.",
-    ),
-    size: 8,
-    font: kit.helv,
-    opacity: 0.7,
-    lineGap: 3,
-  });
+  // ————— Contact band (fixed page furniture — see lib/pdf.ts). —————————
   kit.contactBand(msgs.rates.waCta || "Request a quote");
 
   return kit.finish();
@@ -557,7 +566,6 @@ export async function renderSpecPdf(
 
     // Shared terms, stated once under the per-product rows.
     for (const [label, value] of [
-      [D.termsPayment || "Payment terms", commercialTerms.payment],
       [D.termsDispatch || "Dispatch", commercialTerms.dispatch],
       [D.termsSurvey || "Quality survey", commercialTerms.survey],
     ] as [string, string][]) {

@@ -169,7 +169,6 @@
       "specPacks": "Pack sizes",
       "specMoq": "MOQ",
       "specLead": "Lead time",
-      "termsPayment": "Payment terms",
       "termsDispatch": "Dispatch",
       "termsSurvey": "Quality survey"
     },
@@ -375,6 +374,7 @@
     "gradesLink": "See every grade, pack size & MOQ",
     "productHeader": "Product",
     "rateHeader": "Rate",
+    "disclaimer": "Rates shown are indicative and subject to change — the final rate is confirmed in writing at booking.",
     "ctaTitle": "Confirm today's rate before you order.",
     "ctaDescription": "Call or WhatsApp with your requirement and quantity, and we'll confirm the prevailing rate — in writing.",
     "pdfLabels": {

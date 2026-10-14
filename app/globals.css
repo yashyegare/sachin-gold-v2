@@ -613,6 +613,71 @@
     }
   }
 
+  /* Customer logo marquee — same seamless convention as the rates ticker
+     (two identical halves, translateX(-50%)), but slower, and pausable by
+     hover or keyboard focus so a visitor can actually read a mark. Each
+     half carries its own trailing gap as padding-right, which is what
+     makes the -50% loop land exactly on the seam. Edge fades are a mask,
+     not gradients over the logos, so the linen stays one flat surface.
+     Reduced motion and print collapse it back to the static centred row
+     this replaced — one half, wrapped, no mask. */
+  .sg-logo-marquee {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+  }
+
+  .sg-logo-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 55s linear infinite;
+  }
+
+  .sg-logo-marquee:hover .sg-logo-track,
+  .sg-logo-marquee:focus-within .sg-logo-track {
+    animation-play-state: paused;
+  }
+
+  .sg-logo-half {
+    display: flex;
+    align-items: center;
+    gap: 4.5rem;
+    padding-right: 4.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce), print {
+    .sg-logo-marquee {
+      overflow: visible;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .sg-logo-track {
+      animation: none;
+      width: auto;
+    }
+    .sg-logo-half {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.5rem 3.5rem;
+      padding-right: 0;
+    }
+    .sg-logo-half[aria-hidden="true"] {
+      display: none;
+    }
+  }
+
   /* Scroll-reveal (lib/useReveal.ts) — hidden until .is-revealed lands.
      Under prefers-reduced-motion the global rule collapses the transition
      and the hook adds .is-revealed immediately, so content is never

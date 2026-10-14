@@ -340,11 +340,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       )}
 
       {/* ————— Commercial terms — grade, pack size, MOQ and lead time for
-          each product in this line, then the shared payment / dispatch /
-          survey terms. This is what a bulk buyer needs in order to decide,
-          and it was the biggest content gap on the site: no terms were
-          published anywhere. Values are indicative (see data/specs.ts) and
-          labelled as such on the page. */}
+          each product in this line, then the shared dispatch / survey
+          terms. This is what a bulk buyer needs in order to decide, and it
+          was the biggest content gap on the site: no terms were published
+          anywhere. Values are indicative (see data/specs.ts) and labelled
+          as such on the page. */}
       {specItems.length > 0 && <ProductSpecs items={specItems} />}
 
       {/* ————— Locations — chips with a pin icon read as "operational

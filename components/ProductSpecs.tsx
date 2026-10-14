@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { BadgeCheck, Layers, Scale, Truck } from "lucide-react";
+import { BadgeCheck, Layers, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/SectionHeading";
 import Reveal from "@/components/Reveal";
@@ -9,7 +9,7 @@ import type { Product } from "@/lib/types";
 
 /**
  * The commercial-terms block: grade, pack sizes, MOQ and lead time per
- * product, plus the shared payment / dispatch / survey terms.
+ * product, plus the shared dispatch / survey terms.
  *
  * Rows carry `id="spec-<slug>"` so a product card anywhere on the site can
  * deep-link straight to its own terms, and `:target` tints the row the
@@ -107,12 +107,7 @@ export default function ProductSpecs({
 
         {/* Shared terms — stated once, under the per-product rows. */}
         <Reveal className="mt-10">
-          <div className="grid gap-px overflow-hidden rounded-sm border border-ink/10 bg-ink/10 sm:grid-cols-3">
-            <Term
-              icon={<Scale size={15} aria-hidden="true" />}
-              label={t("detail.termsPayment")}
-              value={commercialTerms.payment}
-            />
+          <div className="grid gap-px overflow-hidden rounded-sm border border-ink/10 bg-ink/10 sm:grid-cols-2">
             <Term
               icon={<Truck size={15} aria-hidden="true" />}
               label={t("detail.termsDispatch")}
