@@ -19,6 +19,7 @@ import TeamMemberCard from "@/components/TeamMember";
 import Testimonial from "@/components/Testimonial";
 import Reveal from "@/components/Reveal";
 import CTA from "@/components/CTA";
+import CustomerLogos from "@/components/CustomerLogos";
 import PhotoGallery from "@/components/PhotoGallery";
 import BrandPhoto from "@/components/BrandPhoto";
 import StatsBand from "@/components/StatsBand";
@@ -598,6 +599,12 @@ export default async function AboutPage({ params }: Props) {
           </div>
         </Reveal>
       </section>
+
+      {/* Who buys from us — closes the narrative between the photo gallery's
+          proof-in-pictures and the closing CTA, and keeps the linen band off
+          the testimonial's linen above. Same strip as Home and Services,
+          unchanged. */}
+      <CustomerLogos />
 
       <CTA />
     </>

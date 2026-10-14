@@ -31,7 +31,10 @@ export default async function Footer() {
 
   return (
     <footer className="border-t border-ink/10 bg-linen">
-      <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-12 px-6 py-14 sm:grid-cols-2 md:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.15fr)]">
+      {/* The brand column carries the 1.5x lockup, so it takes the extra
+          fraction at lg — at the old 1.1fr the enlarged wordmark would wrap
+          mid-name inside a 267px column. */}
+      <div className="mx-auto grid max-w-6xl gap-x-8 gap-y-12 px-6 py-14 sm:grid-cols-2 md:py-16 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1.05fr)]">
         {/* ————— Brand ————————————————————————————————————————————— */}
         <div className="flex flex-col items-center text-center">
           <Image
@@ -40,9 +43,9 @@ export default async function Footer() {
             width={400}
             height={379}
             unoptimized
-            className="h-[104px] w-auto rounded-[10px]"
+            className="h-[156px] w-auto rounded-[10px]"
           />
-          <p className="mt-4 font-display text-[2.4rem] leading-[1.05] text-ink">
+          <p className="mt-4 font-display text-[3.6rem] leading-[1.05] text-ink">
             Sachin <span className="text-wheat-dark">Gold</span>
           </p>
           <p className="mt-1.5 max-w-[16rem] text-sm leading-snug text-ink/60">

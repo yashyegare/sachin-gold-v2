@@ -395,7 +395,8 @@
       "unavailableHint": "Today's prices could not be loaded — call for current rates:",
       "shareStamp": "Prices pulled {time} IST — confirm before ordering"
     },
-    "shareCta": "Share today's rates"
+    "shareSoya": "Share soya rates",
+    "shareDals": "Share dals & flour"
   },
   "contact": {
     "eyebrow": "Contact",

@@ -118,22 +118,36 @@ export default async function RatesPage({ params }: Props) {
     });
 
   // One-tap forward: WhatsApp prefilled with the day's real prices only
-  // (rows the sheet actually prices — never "On request" placeholders).
-  // The stamp carries the pull time in the shared text itself, so the
-  // recipient knows exactly how fresh the numbers are when they read it,
-  // and the disclaimer travels with them — a forwarded screenshot is the
-  // one copy we can't keep attached to the page.
+  // (rows the sheet actually prices — never "On request" placeholders),
+  // under the same heading the table uses. The stamp carries the pull
+  // time in the shared text itself, so the recipient knows exactly how
+  // fresh the numbers are when they read it, and the disclaimer travels
+  // with them — a forwarded screenshot is the one copy we can't keep
+  // attached to the page.
   const istStamp = lastUpdated ? formatStamp(lastUpdated, locale) : null;
-  const pricedItems = rateGroups
-    .flatMap((group) => group.items)
-    .filter((item) => item.priceValue !== undefined);
-  const shareMessage = pricedItems.length
-    ? `*${company.name} — ${t("title")}*\n${pricedItems
-        .map((item) => `• ${item.product}: ${item.price} (${basisLabel(item)})`)
-        .join("\n")}${
-        istStamp ? `\n${t("fresh.shareStamp", { time: istStamp })}` : ""
-      }\n_${t("disclaimer")}_`
-    : null;
+  const shareText = (heading: string, lines: string[]): string =>
+    `*${company.name} — ${t("title")}*\n\n*${heading}*\n${lines.join("\n")}${
+      istStamp ? `\n\n${t("fresh.shareStamp", { time: istStamp })}` : ""
+    }\n_${t("disclaimer")}_`;
+  // Two buyer populations, two messages: a dal buyer has no use for seven
+  // soya DOC lines and vice versa, so each half of the share control sends
+  // only its own segment — heading, stamp and disclaimer included. A
+  // segment the sheet hasn't priced is omitted rather than shared empty.
+  const shareSegments = rateGroups
+    .map((group, gi) => {
+      const lines = group.items
+        .filter((item) => item.priceValue !== undefined)
+        .map(
+          (item) => `• ${item.product}: ${item.price} (${basisLabel(item)})`,
+        );
+      return {
+        key: gi === 0 ? ("soya" as const) : ("dals" as const),
+        labelKey: gi === 0 ? ("shareSoya" as const) : ("shareDals" as const),
+        lines,
+        message: shareText(t(`groups.${gi === 0 ? "soya" : "dals"}`), lines),
+      };
+    })
+    .filter((segment) => segment.lines.length > 0);
   const trackedCount = rateGroups.reduce(
     (n, group) => n + group.items.length,
     0,
@@ -233,20 +247,25 @@ export default async function RatesPage({ params }: Props) {
               <PhoneCall size={15} aria-hidden="true" />
               {t("callCta", { phone: company.phone })}
             </a>
-            {/* One-tap forward: the day's real prices prefilled into a
-                WhatsApp chat — every rate-checker becomes a distribution
-                channel. Hidden until the sheet has real numbers (never
-                shares "On request" rows). */}
-            {shareMessage && (
-              <a
-                href={whatsappShareLink(shareMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2 rounded-sm border border-white/25 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:border-wheat-bright hover:text-wheat-bright"
-              >
-                <Share2 size={15} aria-hidden="true" />
-                {t("shareCta")}
-              </a>
+            {/* Two buyer populations, two forwards: a dal buyer has no use
+                for the soya DOC lines and vice versa, so each half prefills
+                WhatsApp with only its own segment. Stacked on phones, side by
+                side from sm up. Hidden until the sheet has real numbers. */}
+            {shareSegments.length > 0 && (
+              <div className="inline-flex flex-col divide-y divide-white/25 overflow-hidden rounded-sm border border-white/25 sm:flex-row sm:divide-x sm:divide-y-0">
+                {shareSegments.map((segment) => (
+                  <a
+                    key={segment.key}
+                    href={whatsappShareLink(segment.message)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 hover:text-wheat-bright"
+                  >
+                    <Share2 size={15} aria-hidden="true" />
+                    {t(segment.labelKey)}
+                  </a>
+                ))}
+              </div>
             )}
           </div>
         </div>

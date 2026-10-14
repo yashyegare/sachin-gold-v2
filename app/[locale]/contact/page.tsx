@@ -5,6 +5,7 @@ import { company } from "@/data/company";
 import { customers } from "@/data/customers";
 import { whatsappLink } from "@/lib/whatsapp";
 import ContactForm from "@/components/ContactForm";
+import CustomerLogos from "@/components/CustomerLogos";
 import MapFacade from "@/components/MapFacade";
 import PageIntro from "@/components/PageIntro";
 import RatesStrip from "@/components/RatesStrip";
@@ -300,6 +301,13 @@ export default async function ContactPage({ params }: Props) {
           </Reveal>
         </div>
       </section>
+
+      {/* Closing trust beat: the form, the map and the answers are all done,
+          so the last thing on the page is the roster of companies that
+          already buy here — the same strip as Home and Services, unchanged.
+          It sits after the white FAQ band so the two linen surfaces (map,
+          then this) never touch. */}
+      <CustomerLogos />
     </>
   );
 }
