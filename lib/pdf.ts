@@ -50,6 +50,95 @@ export const LINEN = rgb(0xf6 / 255, 0xf4 / 255, 0xee / 255); // linen #F6F4EE
 export const WHITE = rgb(1, 1, 1);
 
 /**
+ * The type scale — six roles on a ~1.2 ratio, and the only sizes a
+ * document may draw text at.
+ *
+ * Before this, the profile sheet picked a size per section as it went: the
+ * same supporting line existed at 9.5, 9 and 8.5 with three opacities and
+ * four leading ratios, the stage number (11) was louder than the stage
+ * title (10.5), and the section eyebrow (11) outranked every item heading.
+ * Eleven sizes in one document reads as three documents stapled together.
+ * Roles now decide the size, and a role appears at exactly one size.
+ */
+export const TYPE = {
+  /** Masthead wordmark — brand, not copy; the one oversized line. */
+  display: 24,
+  /** Stat figures in the band under the masthead (display x 1.2/…). */
+  stat: 14,
+  /** Section-level item title: process stage, service line, facility. */
+  heading: 11.5,
+  /** Narrative copy — and, in uppercase with tracking, the section eyebrow,
+   *  which earns its rank from colour, caps and spacing rather than size. */
+  body: 9.5,
+  /** Supporting copy under a heading: descriptions, bullets, addresses. */
+  detail: 8,
+  /** Page furniture: stat labels, footer strip. */
+  micro: 7,
+} as const;
+
+/** Line height for every wrapped block, so leading never drifts per section. */
+export const LEAD = 1.42;
+/** `lineGap` for kit.paragraph at `size` (kit adds size + lineGap per line). */
+export const leadGap = (size: number): number =>
+  Math.round(size * (LEAD - 1) * 10) / 10;
+
+/** Two text tints, no others: content, and content that supports content. */
+export const OPACITY_BODY = 0.86;
+export const OPACITY_DETAIL = 0.78;
+
+/** Letter-spacing for the two kinds of line that want it: the wordmark and
+ *  the uppercase eyebrow. Never applied to wrapped copy — kit measurement
+ *  (`widthOfTextAtSize`) does not know about tracking, so a tracked
+ *  paragraph would overflow its column. */
+export const TRACK = { display: 1.2, eyebrow: 1.4 } as const;
+
+/**
+ * Tracking may only be applied to a plain Latin run. In an Indic document
+ * the font is a shaping TTF: once fontkit has produced the conjuct, PDF
+ * Tc inserts space between *every* glyph pair, which pries a base
+ * consonant away from its matra. So the kit silently drops charSpace on
+ * anything outside 7-bit ASCII, and the Indic sheets keep their shaping.
+ */
+const trackable = (s: string): boolean => /^[\x20-\x7E]+$/.test(s);
+
+/**
+ * Draw one tracked line. pdf-lib's drawText exposes no character spacing
+ * (no Tc), so tracking is done by drawing a character at a time and
+ * advancing by its own width plus the gap. Only for single-line Latin runs:
+ * per-character drawing suppresses kerning (which is the point, at display
+ * and eyebrow sizes) and would tear a shaped Indic conjunct apart, so
+ * callers gate it through `trackable`.
+ *
+ * Returns the drawn width, so a caller that places something after the
+ * tracked text can measure from it instead of guessing.
+ */
+function drawTracked(
+  p: PDFPage,
+  text: string,
+  opts: {
+    x: number;
+    y: number;
+    size: number;
+    font: PDFFont;
+    color: ReturnType<typeof rgb>;
+    opacity?: number;
+    charSpace: number;
+  },
+): number {
+  const { charSpace, ...draw } = opts;
+  let x = opts.x;
+  for (const ch of text) {
+    p.drawText(ch, {
+      ...draw,
+      x,
+      ...(opts.opacity !== undefined ? { opacity: opts.opacity } : {}),
+    });
+    x += opts.font.widthOfTextAtSize(ch, opts.size) + charSpace;
+  }
+  return x - opts.x - charSpace;
+}
+
+/**
  * fontkit's GPOS mark-positioning crashes on certain Telugu conjuncts
  * ("Cannot read properties of null (reading 'xCoordinate')") — 18 of the
  * Telugu catalog's real strings abort embed/measure/draw entirely, killing
@@ -133,8 +222,10 @@ export interface PdfKit {
       color?: ReturnType<typeof rgb>;
       dy?: number;
       opacity?: number;
-      /** Draw at an x-offset from x0 for this one call without scoping. */
+      /** Left edge offset for this call, without re-scoping. */
       dx?: number;
+      /** Letter-spacing in points. Single-line draws only — see TRACK. */
+      charSpace?: number;
     },
   ) => void;
   /** Greedy word-wrap; calls back per line, advancing y. */
@@ -160,7 +251,10 @@ export interface PdfKit {
   /** Thin gold rule + small-caps section title, the site's rhythm. */
   sectionTitle: (title: string) => void;
   /** A bulleted line ("– " in wheat) with hanging indent. */
-  bullet: (text: string, opts?: { size?: number; gap?: number }) => void;
+  bullet: (
+    text: string,
+    opts?: { size?: number; gap?: number; opacity?: number },
+  ) => void;
   drawFooter: (p: PDFPage) => void;
   /** Records the heading for the pine-deep contact band. The band is
    *  drawn FIXED at the bottom of every page by finish() — page
@@ -342,10 +436,23 @@ export async function createPdfKit(opts: {
       if (kit.y + needed > PAGE_H - (FOOTER_ZONE + BAND_H + 2)) kit.newPage();
     },
 
-    text(s, { size, font, color = INK, dy = 0, opacity, dx = 0 }) {
+    text(s, { size, font, color = INK, dy = 0, opacity, dx = 0, charSpace }) {
+      const baseline = Y(kit.y + size + dy);
+      if (charSpace !== undefined && trackable(s)) {
+        drawTracked(page, s, {
+          x: kit.x0 + dx,
+          y: baseline,
+          size,
+          font,
+          color,
+          charSpace,
+          ...(opacity !== undefined ? { opacity } : {}),
+        });
+        return;
+      }
       page.drawText(s, {
         x: kit.x0 + dx,
-        y: Y(kit.y + size + dy),
+        y: baseline,
         size,
         font,
         color,
@@ -388,8 +495,14 @@ export async function createPdfKit(opts: {
     },
 
     sectionTitle(title) {
-      kit.ensureSpace(64);
-      kit.y += 16;
+      kit.ensureSpace(52);
+      // 36pt of chrome per section, measured against the tallest thing it
+      // can introduce: 12 above the rule, the tracked eyebrow, then 15 to
+      // the first baseline. The old 50pt (16 + 12 + 22) was the single
+      // largest controllable cost in the profile sheet — six sections
+      // carried 140pt of pure air, which is what pushed the sheet onto a
+      // third page.
+      kit.y += 12;
       page.drawRectangle({
         x: kit.x0,
         y: Y(kit.y + 2),
@@ -397,12 +510,17 @@ export async function createPdfKit(opts: {
         height: 2,
         color: WHEAT_DARK,
       });
-      kit.y += 12;
-      kit.text(title.toUpperCase(), { size: 11, font: bold, color: PINE });
-      kit.y += 22;
+      kit.y += 9;
+      kit.text(title.toUpperCase(), {
+        size: TYPE.body,
+        font: bold,
+        color: PINE,
+        charSpace: TRACK.eyebrow,
+      });
+      kit.y += 15;
     },
 
-    bullet(text, { size = 9, gap = 5 } = {}) {
+    bullet(text, { size = 9, gap = 5, opacity = 0.85 } = {}) {
       kit.ensureSpace(24);
       kit.text("–", { size, font: bold, color: WHEAT_DARK });
       kit.paragraph({
@@ -410,8 +528,8 @@ export async function createPdfKit(opts: {
         size,
         font: helv,
         color: INK,
-        lineGap: 2.5,
-        opacity: 0.85,
+        lineGap: leadGap(size),
+        opacity,
         dx: 14,
       });
       kit.y += gap;
@@ -435,7 +553,7 @@ export async function createPdfKit(opts: {
       p.drawText(line, {
         x: MARGIN,
         y: 44,
-        size: 7.5,
+        size: TYPE.micro,
         font: helv,
         color: PINE,
         opacity: 0.75,
@@ -488,23 +606,34 @@ export async function createPdfKit(opts: {
       height: BAND_H,
       color: PINE_DEEP,
     });
-    p.drawText(heading, {
-      x: MARGIN,
-      y: Y(BAND_TOP + 26),
-      size: 13,
-      font: bold,
-      color: WHEAT_BRIGHT,
-    });
+    if (trackable(heading)) {
+      drawTracked(p, heading, {
+        x: MARGIN,
+        y: Y(BAND_TOP + 26),
+        size: TYPE.heading,
+        font: bold,
+        color: WHEAT_BRIGHT,
+        charSpace: 0.6,
+      });
+    } else {
+      p.drawText(heading, {
+        x: MARGIN,
+        y: Y(BAND_TOP + 26),
+        size: TYPE.heading,
+        font: bold,
+        color: WHEAT_BRIGHT,
+      });
+    }
     p.drawText(company.phone, {
       x: MARGIN,
       y: Y(BAND_TOP + 42),
-      size: 9.5,
+      size: TYPE.body,
       font: helv,
       color: WHITE,
     });
     // The phone number is the band's one big call-to-action — make the
     // drawn glyphs themselves the WhatsApp tap zone (see WHATSAPP_URL).
-    const phoneW = helv.widthOfTextAtSize(company.phone, 9.5);
+    const phoneW = helv.widthOfTextAtSize(company.phone, TYPE.body);
     addLinkAnnotation(
       kit,
       {
@@ -519,14 +648,14 @@ export async function createPdfKit(opts: {
     p.drawText(company.email, {
       x: MARGIN,
       y: Y(BAND_TOP + 57),
-      size: 9.5,
+      size: TYPE.body,
       font: helv,
       color: WHITE,
     });
     p.drawText(`${siteUrl.replace("https://", "")}  ·  ${company.legalName}`, {
       x: MARGIN,
       y: Y(BAND_TOP + 72),
-      size: 8,
+      size: TYPE.detail,
       font: helv,
       color: WHITE,
       opacity: 0.75,
@@ -552,27 +681,44 @@ export function drawMasthead(
     height: MAST_H,
     color: PINE_DEEP,
   });
-  page.drawText("SACHIN GOLD", {
+  drawTracked(page, "SACHIN GOLD", {
     x: MARGIN,
     y: Y(58),
-    size: 25,
+    size: TYPE.display,
     font: kit.bold,
     color: WHEAT_BRIGHT,
+    charSpace: TRACK.display,
   });
   if (opts.subline) {
-    page.drawText(opts.subline, {
-      x: MARGIN,
-      y: Y(80),
-      size: 8.5,
-      font: kit.helv,
-      color: WHITE,
-      opacity: 0.72,
-    });
+    // The legal name as a tracked micro line under the wordmark: a letterhead
+    // signature, not body copy — caps, gold, and one step above the footer
+    // strip so the three lines of the masthead read in one descending order.
+    const sub = opts.subline.toUpperCase();
+    if (trackable(sub)) {
+      drawTracked(page, sub, {
+        x: MARGIN,
+        y: Y(80),
+        size: TYPE.micro,
+        font: kit.helv,
+        color: WHITE,
+        opacity: 0.72,
+        charSpace: 1.1,
+      });
+    } else {
+      page.drawText(sub, {
+        x: MARGIN,
+        y: Y(80),
+        size: TYPE.micro,
+        font: kit.helv,
+        color: WHITE,
+        opacity: 0.72,
+      });
+    }
   }
   page.drawText(opts.tagline, {
     x: MARGIN,
-    y: Y(100),
-    size: 10.5,
+    y: Y(101),
+    size: TYPE.body,
     font: kit.helv,
     color: WHITE,
     opacity: 0.9,
@@ -606,7 +752,7 @@ export function drawStatsBand(kit: PdfKit, stats: [string, string][]) {
     kit.page.drawText(value, {
       x: cx,
       y: Y(MAST_H + 22),
-      size: 15,
+      size: TYPE.stat,
       font: kit.bold,
       color: PINE,
     });
@@ -615,12 +761,12 @@ export function drawStatsBand(kit: PdfKit, stats: [string, string][]) {
     // printed a wrapping label's lines in the wrong order: "Karnataka"
     // above "Locations across Maharashtra &".)
     const lines: string[] = [];
-    kit.wrapText(label, 7, kit.helv, colW - 24, (line) => lines.push(line));
+    kit.wrapText(label, TYPE.micro, kit.helv, colW - 24, (line) => lines.push(line));
     lines.forEach((line, li) => {
       kit.page.drawText(line, {
         x: cx,
         y: Y(MAST_H + 33 + li * 8.5),
-        size: 7,
+        size: TYPE.micro,
         font: kit.helv,
         color: INK,
         opacity: 0.7,

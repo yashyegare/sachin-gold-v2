@@ -34,18 +34,22 @@ const config: Config = {
         },
       },
       fontFamily: {
-        // Latin-first stacks: brand Latin type (Inter/Marcellus) renders
-        // every Latin glyph, and the Noto script fonts below pick up
-        // Devanagari/Kannada/Telugu/Tamil via unicode-range — headings in
-        // translated locales keep a serif voice (Noto Serif) instead of
-        // silently falling back to the browser default.
+        // Display type is the same family as body text, deliberately: Inter
+        // is a variable font, so `font-bold` on the wordmark and every
+        // heading resolves to a real 700 outline. Marcellus ships 400 only,
+        // which left the browser to synthesise the weight — the wordmark
+        // came out soft on a production build. The Noto Sans script fonts
+        // below pick up Devanagari/Kannada/Telugu/Tamil by unicode-range, so
+        // headings in translated locales still render (and still take a real
+        // bold) instead of falling back to the browser default.
         display: [
-          "var(--font-marcellus)",
-          "var(--font-noto-serif-devanagari)",
-          "var(--font-noto-serif-kannada)",
-          "var(--font-noto-serif-telugu)",
-          "var(--font-noto-serif-tamil)",
-          "serif",
+          "var(--font-inter)",
+          "var(--font-noto-sans-devanagari)",
+          "var(--font-noto-sans-kannada)",
+          "var(--font-noto-sans-telugu)",
+          "var(--font-noto-sans-tamil)",
+          "system-ui",
+          "sans-serif",
         ],
         sans: [
           "var(--font-inter)",

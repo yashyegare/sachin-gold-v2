@@ -3,19 +3,16 @@ import type { TeamMember } from "@/lib/types";
 // Real names and roles from the live site's About page. Photos migrated
 // via the image pipeline (npm run images, sharp).
 //
-// NOTE: the old repo also has assets/img/team/anna.jpg — a real, candid
-// photo of a man not referenced anywhere in the site's HTML or matched to
-// any name in about.html. It's processed and sitting at
-// /images/team/unconfirmed-anna.webp but deliberately NOT wired into this
-// array. "Anna" is a common respectful title for an elder/patriarch in
-// Marathi, so this could plausibly be the Founder (whose photo is
-// otherwise missing) — but that's a guess, not a fact. Confirm with the
-// client before using it as the Founder's photo.
+// The Founder's photo was supplied by the owner in October 2026 (a studio
+// portrait). It is framed head-through-chest and set into the 16:10 card by
+// scripts/encode-founder-portrait.mjs, so all three cards share one geometry
+// instead of the row breaking into a tall portrait beside two wide shots.
 export const team: TeamMember[] = [
   {
     name: "Shree Shivajirao Hanmantrao Hude",
     role: "Founder",
-    image: "", // TODO: no source photo existed on the old site — needs a new one
+    image: "/images/team/shri-sh-hude.webp",
+    imageShape: "landscape",
   },
   {
     name: "Mr. Sachin Shivajirao Hude",

@@ -48,6 +48,7 @@ export const company: CompanyInfo = {
   whatsapp: "919422952233", // same number, WhatsApp-enabled — already used on the live site
   email: "info@sachingold.com",
   salesEmail: "sales@sachingold.com",
+  coldStorageEmail: "coldstorages@sachingold.com",
   legalName: "Sachin International Proteins Private Limited",
   facilities: [
     {
@@ -89,7 +90,7 @@ export const siteUrl = "https://sachingold.com";
  *
  * Fill in what actually exists and the commercial-terms block on every
  * service page renders it (data/specs.ts explains the same rule for the
- * indicative grades and MOQs). While this array is empty that strip is
+ * indicative pack sizes and MOQs). While this array is empty that strip is
  * omitted entirely.
  */
 export const certifications: { label: string; value: string }[] = [

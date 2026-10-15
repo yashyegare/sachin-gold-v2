@@ -12,9 +12,14 @@ import {
   drawMasthead,
   drawStatsBand,
   INK,
+  LEAD,
+  OPACITY_BODY,
+  OPACITY_DETAIL,
   PINE,
+  TYPE,
   WHEAT_DARK,
   Y,
+  leadGap,
 } from "@/lib/pdf";
 
 /**
@@ -92,6 +97,7 @@ export async function renderProfilePdf(locale: string): Promise<Uint8Array> {
     subline: company.legalName,
     tagline: company.tagline,
   });
+
   drawStatsBand(kit, [
     [`${company.yearsOfExperience}+`, L(msgs.home.stats, "years", "Years of experience")],
     [`${company.locations.length}`, L(msgs.home.stats, "locations", "Locations")],
@@ -103,10 +109,10 @@ export async function renderProfilePdf(locale: string): Promise<Uint8Array> {
   kit.sectionTitle(L(msgs.about, "ourStoryTitle", "About the company"));
   kit.paragraph({
     text: [msgs.about.p1, msgs.about.p2].filter(Boolean).join(" "),
-    size: 9.5,
+    size: TYPE.body,
     font: kit.helv,
-    lineGap: 4.5,
-    opacity: 0.88,
+    lineGap: leadGap(TYPE.body),
+    opacity: OPACITY_BODY,
   });
 
   // ————— How we work — the localized process stages. ————————————————
@@ -116,79 +122,94 @@ export async function renderProfilePdf(locale: string): Promise<Uint8Array> {
     [msgs.about.process2Title, msgs.about.process2Desc],
     [msgs.about.process3Title, msgs.about.process3Desc],
     [msgs.about.process4Title, msgs.about.process4Desc],
+    [msgs.about.process5Title, msgs.about.process5Desc],
   ];
   const pdfLabels: Record<string, string> = msgs.about.pdfLabels ?? {};
   stages.forEach(([title, desc], i) => {
-    kit.ensureSpace(70);
+    kit.ensureSpace(58);
+    // Number and title share one baseline: kit.text puts the baseline at
+    // y + size, so the smaller marker needs dy to catch up. Before this the
+    // 11pt number sat half a point above the 10.5pt title beside it, and the
+    // marker was the louder of the two — a stage index should not outshout
+    // the thing it numbers.
     kit.text(String(i + 1).padStart(2, "0"), {
-      size: 11,
+      size: TYPE.body,
       font: kit.bold,
-      dy: 0,
+      color: WHEAT_DARK,
+      dy: TYPE.heading - TYPE.body,
     });
-    kit.text(title, { size: 10.5, font: kit.bold, dx: 26 });
-    kit.y += 17;
+    kit.text(title, { size: TYPE.heading, font: kit.bold, dx: 26 });
+    kit.y += Math.round(TYPE.heading * LEAD);
     kit.paragraph({
       text: desc,
-      size: 9,
+      size: TYPE.detail,
       font: kit.helv,
-      lineGap: 3.5,
-      opacity: 0.85,
+      lineGap: leadGap(TYPE.detail),
+      opacity: OPACITY_DETAIL,
       dx: 26,
     });
-    kit.y += 6;
+    kit.y += 4;
   });
 
   // ————— Services — stage titles + one-line summaries. ——————————————
   kit.sectionTitle(L(pdfLabels, "whatWeDo", "What we do"));
   for (const s of services) {
-    kit.ensureSpace(88);
+    kit.ensureSpace(84);
     const item = msgs.services.items[s.slug];
     kit.paragraph({
       text: item?.title || s.title,
-      size: 10.5,
+      size: TYPE.heading,
       font: kit.bold,
+      lineGap: leadGap(TYPE.heading),
     });
-    const summary = item?.stageNote || s.stageNote || s.shortDescription;
+    // Roman, not italic: this is the same detail role as the stage
+    // descriptions and the facility addresses, and switching one of them to
+    // oblique made the service block look like it belonged to another sheet.
     kit.paragraph({
-      text: summary,
-      size: 9,
-      font: kit.oblique,
-      opacity: 0.8,
-      lineGap: 3,
+      text: item?.stageNote || s.stageNote || s.shortDescription,
+      size: TYPE.detail,
+      font: kit.helv,
+      opacity: OPACITY_DETAIL,
+      lineGap: leadGap(TYPE.detail),
     });
     for (const advantage of (item?.advantages || s.advantages).slice(0, 3)) {
-      kit.bullet(advantage);
+      kit.bullet(advantage, {
+        size: TYPE.detail,
+        gap: 4,
+        opacity: OPACITY_DETAIL,
+      });
     }
-    kit.y += 8;
+    kit.y += 5;
   }
 
   // ————— Customers — exactly the site's logo-strip names. ———————————
   kit.sectionTitle(L(msgs.home.logos ?? {}, "eyebrow", "Trusted by"));
   kit.paragraph({
     text: customers.map((c) => c.name).join("  ·  "),
-    size: 9.5,
+    size: TYPE.body,
     font: kit.helv,
-    opacity: 0.85,
-    lineGap: 4,
+    opacity: OPACITY_BODY,
+    lineGap: leadGap(TYPE.body),
   });
 
   // ————— Facilities. —————————————————————————————————————————————————
   kit.sectionTitle(L(pdfLabels, "facilities", "Our facilities"));
   for (const f of company.facilities) {
-    kit.ensureSpace(56);
+    kit.ensureSpace(54);
     kit.paragraph({
       text: f.name,
-      size: 9.5,
+      size: TYPE.heading,
       font: kit.bold,
+      lineGap: leadGap(TYPE.heading),
     });
     kit.paragraph({
       text: `${f.address} · ${f.phone}`,
-      size: 8.5,
+      size: TYPE.detail,
       font: kit.helv,
-      opacity: 0.8,
-      lineGap: 2.5,
+      opacity: OPACITY_DETAIL,
+      lineGap: leadGap(TYPE.detail),
     });
-    kit.y += 6;
+    kit.y += 4;
   }
 
   // contactBand only records the heading — finish() stamps the band
@@ -489,8 +510,8 @@ export async function renderSpecPdf(
     }
   }
 
-  // ————— Commercial terms — the same grades, pack sizes, MOQ and lead
-  //       times the service page publishes (data/specs.ts). A buyer
+  // ————— Commercial terms — the same pack sizes, MOQ and lead times the
+  //       service page publishes (data/specs.ts). A buyer
   //       forwards this sheet internally, so the numbers have to travel
   //       with it; the product grid above is the index, this is the spec.
   //       Labels come from the message catalog, the trade notation stays
@@ -500,21 +521,19 @@ export async function renderSpecPdf(
     // Wrap everything up front: the first row's height is needed to keep
     // the section heading from being stranded alone at a page foot.
     const rows = specItems.map(({ product, spec }) => {
-      const grade: string[] = [];
-      kit.wrapText(spec.grade, 8, kit.helv, kit.w, (line) => grade.push(line));
       const packs: string[] = [];
       kit.wrapText(
         `${D.specPacks || "Pack sizes"}: ${spec.packs}`,
-        7.5,
-        kit.oblique,
+        8,
+        kit.helv,
         kit.w,
         (line) => packs.push(line),
       );
-      return { product, spec, grade, packs, h: 12 + grade.length * 9.5 + packs.length * 9 + 10 };
+      return { product, spec, packs, h: 12 + packs.length * 9.5 + 10 };
     });
     kit.ensureSpace(70 + (rows[0]?.h ?? 0));
-    kit.sectionTitle(D.specsTitle || "Grades, pack sizes, MOQ and lead time");
-    for (const { product, spec, grade, packs, h: rowH } of rows) {
+    kit.sectionTitle(D.specsTitle || "Pack sizes, MOQ and lead time");
+    for (const { product, spec, packs, h: rowH } of rows) {
       kit.ensureSpace(rowH);
       const yStart = kit.y;
       kit.page.drawText(product.name, {
@@ -532,7 +551,7 @@ export async function renderSpecPdf(
         font: kit.oblique,
         color: WHEAT_DARK,
       });
-      grade.forEach((line, li) => {
+      packs.forEach((line, li) => {
         kit.page.drawText(line, {
           x: kit.x0,
           y: Y(yStart + 20 + li * 9.5),
@@ -540,16 +559,6 @@ export async function renderSpecPdf(
           font: kit.helv,
           color: INK,
           opacity: 0.85,
-        });
-      });
-      packs.forEach((line, li) => {
-        kit.page.drawText(line, {
-          x: kit.x0,
-          y: Y(yStart + 21 + grade.length * 9.5 + li * 9),
-          size: 7.5,
-          font: kit.oblique,
-          color: INK,
-          opacity: 0.62,
         });
       });
       kit.y = yStart + rowH - 4;

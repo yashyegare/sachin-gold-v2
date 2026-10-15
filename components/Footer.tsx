@@ -45,7 +45,7 @@ export default async function Footer() {
             unoptimized
             className="h-[156px] w-auto rounded-[10px]"
           />
-          <p className="mt-4 font-display text-[3.6rem] leading-[1.05] text-ink">
+          <p className="mt-4 font-display text-[2.85rem] leading-[1.05] text-ink sm:text-[2.95rem] lg:text-[3.2rem] xl:text-[3.6rem]">
             Sachin <span className="text-wheat-dark">Gold</span>
           </p>
           <p className="mt-1.5 max-w-[16rem] text-sm leading-snug text-ink/60">

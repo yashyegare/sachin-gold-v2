@@ -11,7 +11,7 @@ import type { Product } from "@/lib/types";
  *
  * Links to the product's own row in its service page's commercial-terms
  * table (#spec-<slug>, see data/specs.ts), so a card is a route to a
- * decision — grade, pack size, MOQ, lead time — rather than a dead end. The
+ * decision — pack size, MOQ, lead time — rather than a dead end. The
  * whole card is the target; the closing line just makes that legible.
  */
 export default function ProductCard({

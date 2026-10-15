@@ -216,6 +216,15 @@ export default async function ContactPage({ params }: Props) {
                   {company.salesEmail}
                 </a>
               </p>
+              <p className={MUTED}>
+                {t("coldStorageEmail")}{" "}
+                <a
+                  href={`mailto:${company.coldStorageEmail}`}
+                  className="font-medium text-pine underline decoration-pine/30 underline-offset-2 transition-colors hover:decoration-pine"
+                >
+                  {company.coldStorageEmail}
+                </a>
+              </p>
             </div>
           </div>
 

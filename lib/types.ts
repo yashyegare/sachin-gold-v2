@@ -173,6 +173,8 @@ export interface CompanyInfo {
   whatsapp: string;
   email: string;
   salesEmail: string;
+  /** Inbox for cold-storage and warehousing enquiries. */
+  coldStorageEmail: string;
   /** Registered legal entity name, from the live site's contact page. */
   legalName: string;
   facilities: Facility[];

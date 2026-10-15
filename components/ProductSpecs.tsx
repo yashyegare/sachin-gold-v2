@@ -8,8 +8,8 @@ import { commercialTerms, type ProductSpec } from "@/data/specs";
 import type { Product } from "@/lib/types";
 
 /**
- * The commercial-terms block: grade, pack sizes, MOQ and lead time per
- * product, plus the shared dispatch / survey terms.
+ * The commercial-terms block: pack sizes, MOQ and lead time per product,
+ * plus the shared dispatch / survey terms.
  *
  * Rows carry `id="spec-<slug>"` so a product card anywhere on the site can
  * deep-link straight to its own terms, and `:target` tints the row the
@@ -50,9 +50,6 @@ export default function ProductSpecs({
                   {t("detail.specProduct")}
                 </th>
                 <th scope="col" className="py-3 pr-4 font-semibold">
-                  {t("detail.specGrade")}
-                </th>
-                <th scope="col" className="py-3 pr-4 font-semibold">
                   {t("detail.specPacks")}
                 </th>
                 <th scope="col" className="py-3 pr-4 font-semibold">
@@ -72,7 +69,7 @@ export default function ProductSpecs({
                 >
                   <th
                     scope="row"
-                    className="mb-3 block text-left font-display text-base font-normal text-ink md:mb-0 md:table-cell md:w-[16%] md:py-4 md:pr-4 md:align-top"
+                    className="mb-3 block text-left font-display text-base font-normal text-ink md:mb-0 md:table-cell md:w-[24%] md:py-4 md:pr-4 md:align-top"
                   >
                     {product.name}
                     <span className="mt-1 block text-[0.65rem] font-sans uppercase tracking-widest text-pine/70">
@@ -80,23 +77,18 @@ export default function ProductSpecs({
                     </span>
                   </th>
                   <SpecCell
-                    label={t("detail.specGrade")}
-                    className="md:w-[36%]"
-                    value={spec.grade}
-                  />
-                  <SpecCell
                     label={t("detail.specPacks")}
-                    className="md:w-[22%]"
+                    className="md:w-[36%]"
                     value={spec.packs}
                   />
                   <SpecCell
                     label={t("detail.specMoq")}
-                    className="md:w-[12%]"
+                    className="md:w-[18%]"
                     value={<span className="font-semibold text-pine-deep">{spec.moq}</span>}
                   />
                   <SpecCell
                     label={t("detail.specLead")}
-                    className="md:w-[14%]"
+                    className="md:w-[22%]"
                     value={spec.lead}
                   />
                 </tr>

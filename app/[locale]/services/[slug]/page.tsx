@@ -339,7 +339,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ————— Commercial terms — grade, pack size, MOQ and lead time for
+      {/* ————— Commercial terms — pack size, MOQ and lead time for
           each product in this line, then the shared dispatch / survey
           terms. This is what a bulk buyer needs in order to decide, and it
           was the biggest content gap on the site: no terms were published
