@@ -168,6 +168,8 @@
       "specPacks": "Pack sizes",
       "specMoq": "MOQ",
       "specLead": "Lead time",
+      "specGrades": "Quality grades",
+      "gradesOrder": "Grades are listed from premium to standard",
       "termsDispatch": "Dispatch",
       "termsSurvey": "Quality survey"
     },

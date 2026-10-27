@@ -4,17 +4,17 @@ import { useEffect, useRef } from "react";
 import { company } from "@/data/company";
 
 /**
- * First-visit brand splash — the real badge assembles itself on a warm
- * near-black curtain over the whole viewport, then the curtain lifts away to
+ * Brand splash — the real badge assembles itself on a warm near-black
+ * curtain over the whole viewport, then the curtain lifts away to
  * reveal the page. Rendered by the home page only.
  *
- * Who sees it: each browser tab, the first time it loads the homepage. All
- * the gating happens in the inline script in the root layout, which runs
+ * Who sees it: every load of the homepage, refresh included, in every tab.
+ * All the gating happens in the inline script in the root layout, which runs
  * BEFORE first paint and marks <html> with `data-splash` — so the curtain is
  * present at first paint instead of slamming over an already rendered page.
- * This component only writes the `sg-splash-seen` flag into `sessionStorage`
- * that makes it one moment per tab: a refresh or a new tab replays it, a
- * click-through to another page in the same tab does not.
+ * Nothing is remembered between loads: no storage flag decides whether this
+ * plays, so the only visitor who skips it is one whose browser asks for
+ * reduced motion.
  *
  * The artwork is not the supplied JPG: scripts/prepare-brand-mark.mjs keys
  * out the photo's white ground and splits the badge into the two layers
@@ -39,7 +39,6 @@ import { company } from "@/data/company";
  * LanguageGate waits on, so a first visit gets two beats in sequence
  * (brand moment, then the language card) rather than both at once.
  */
-export const SPLASH_SEEN_KEY = "sg-splash-seen";
 export const SPLASH_DONE_EVENT = "sg-splash-done";
 
 // Module scope, not a ref: React 18 StrictMode mounts, unmounts and remounts
@@ -55,13 +54,6 @@ export default function BrandSplash() {
     const root = document.documentElement;
     if (started || !root.hasAttribute("data-splash")) return;
     started = true;
-
-    try {
-      window.sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
-    } catch {
-      // Storage unavailable — the splash just replays next load, which is
-      // better than suppressing it for everyone whose browser blocks it.
-    }
 
     let finished = false;
     const finish = () => {

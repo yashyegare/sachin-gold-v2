@@ -12,9 +12,14 @@ import type { Product } from "@/lib/types";
  * plus the shared dispatch / survey terms.
  *
  * Rows carry `id="spec-<slug>"` so a product card anywhere on the site can
- * deep-link straight to its own terms, and `:target` tints the row the
- * visitor arrived for (globals.css) — without it an anchor jump lands on an
- * eight-row table with no clue which row was asked for.
+ * deep-link straight to its own terms.
+ *
+ * Where the owner sells a product under several quality grades, the grades
+ * are listed outright under the product's name — a buyer comparing two
+ * lines should not have to click to find out which grade they are quoting.
+ * The list lives in the product cell (grades belong to the product, not to
+ * a term) and the numbering carries the premium-to-standard order, stated
+ * once as a legend under the table.
  *
  * Values are indicative (see data/specs.ts) and `commercialTerms.note` says
  * so under the table; the labels translate, the trade notation does not.
@@ -25,6 +30,7 @@ export default function ProductSpecs({
   items: { product: Product; spec: ProductSpec }[];
 }) {
   const t = useTranslations("services");
+  const hasGrades = items.some((item) => (item.product.grades?.length ?? 0) > 0);
 
   return (
     <section className="section-standard border-t border-ink/10 bg-white">
@@ -61,40 +67,67 @@ export default function ProductSpecs({
               </tr>
             </thead>
             <tbody>
-              {items.map(({ product, spec }) => (
-                <tr
-                  key={product.slug}
-                  id={`spec-${product.slug}`}
-                  className="sg-spec scroll-mt-28 mb-4 block border border-ink/10 bg-linen/40 p-4 last:mb-0 md:mb-0 md:table-row md:border-0 md:border-b md:border-ink/10 md:bg-transparent md:p-0"
-                >
-                  <th
-                    scope="row"
-                    className="mb-3 block text-left font-display text-base font-normal text-ink md:mb-0 md:table-cell md:w-[24%] md:py-4 md:pr-4 md:align-top"
+              {items.map(({ product, spec }) => {
+                const grades = product.grades ?? [];
+
+                return (
+                  <tr
+                    key={product.slug}
+                    id={`spec-${product.slug}`}
+                    className="scroll-mt-28 mb-4 block border border-ink/10 bg-linen/40 p-4 last:mb-0 md:mb-0 md:table-row md:border-0 md:border-b md:border-ink/10 md:bg-transparent md:p-0"
                   >
-                    {product.name}
-                    <span className="mt-1 block text-[0.65rem] font-sans uppercase tracking-widest text-pine/70">
-                      {product.category}
-                    </span>
-                  </th>
-                  <SpecCell
-                    label={t("detail.specPacks")}
-                    className="md:w-[36%]"
-                    value={spec.packs}
-                  />
-                  <SpecCell
-                    label={t("detail.specMoq")}
-                    className="md:w-[18%]"
-                    value={<span className="font-semibold text-pine-deep">{spec.moq}</span>}
-                  />
-                  <SpecCell
-                    label={t("detail.specLead")}
-                    className="md:w-[22%]"
-                    value={spec.lead}
-                  />
-                </tr>
-              ))}
+                    <th
+                      scope="row"
+                      className="mb-3 block text-left font-display text-base font-normal text-ink md:mb-0 md:table-cell md:w-[24%] md:py-4 md:pr-4 md:align-top"
+                    >
+                      {product.name}
+                      <span className="mt-1 block text-[0.65rem] font-sans uppercase tracking-widest text-pine/70">
+                        {product.category}
+                      </span>
+                      {grades.length > 0 && (
+                        <Grades
+                          caption={t("detail.specGrades")}
+                          grades={grades}
+                        />
+                      )}
+                    </th>
+                    <SpecCell
+                      label={t("detail.specPacks")}
+                      className="md:w-[36%]"
+                      value={spec.packs}
+                    />
+                    <SpecCell
+                      label={t("detail.specMoq")}
+                      className="md:w-[18%]"
+                      value={
+                        <span className="font-semibold text-pine-deep">
+                          {spec.moq}
+                        </span>
+                      }
+                    />
+                    <SpecCell
+                      label={t("detail.specLead")}
+                      className="md:w-[22%]"
+                      value={spec.lead}
+                    />
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+
+          {/* The numbering in the grade lists is the premium ranking, so it
+              is stated once here instead of repeating a caption on every
+              row. Only pages that actually list grades carry it. */}
+          {hasGrades && (
+            <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-ink/50">
+              <span
+                aria-hidden="true"
+                className="mt-[0.55rem] h-px w-4 shrink-0 bg-wheat-dark"
+              />
+              {t("detail.gradesOrder")}
+            </p>
+          )}
         </Reveal>
 
         {/* Shared terms — stated once, under the per-product rows. */}
@@ -135,6 +168,43 @@ export default function ProductSpecs({
         </Reveal>
       </div>
     </section>
+  );
+}
+
+function Grades({
+  caption,
+  grades,
+}: {
+  caption: string;
+  grades: string[];
+}) {
+  const ranked = grades.length > 1;
+
+  return (
+    <div className="mt-3 border-l-2 border-wheat pl-3 font-sans">
+      <p className="text-[0.6rem] font-semibold uppercase tracking-widest text-ink/45">
+        {caption}
+      </p>
+      <ol className={ranked ? "mt-2 space-y-1.5" : "mt-1.5"}>
+        {grades.map((grade, index) => (
+          <li
+            key={grade}
+            className="flex items-baseline gap-2 text-xs leading-snug"
+          >
+            {ranked && (
+              <span className="w-4 shrink-0 font-display text-[0.65rem] tabular-nums text-wheat-dark">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            )}
+            {/* The top grade carries the brand's name, so it takes full
+                contrast; the grades below it recede one step. */}
+            <span className={index === 0 ? "text-ink" : "text-ink/65"}>
+              {grade}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }
 

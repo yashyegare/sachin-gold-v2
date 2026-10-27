@@ -213,19 +213,18 @@ export default async function LocaleLayout({
       <body className="flex min-h-screen flex-col font-sans">
         {/* Brand splash gate — see components/BrandSplash.tsx. Runs before
             first paint (first thing in <body>, so it is in the initial
-            flush) and marks <html> when this load is the first homepage load
-            in this browser tab. Doing it here rather than in the client
-            effect is what makes the curtain present at the first frame
-            instead of appearing over an already-painted page. Three exits,
-            all silent: not the homepage, reduced motion, or already seen in
-            this tab. `sessionStorage` is what makes it per-tab rather than
-            once-ever: a new tab, or a duplicate of this one, gets the brand
-            moment again, while a click-through from WhatsApp or Google in
-            the same tab does not. The storage key literal is repeated from
-            BrandSplash — an inline pre-paint script cannot import it. */}
+            flush) and marks <html> when this load should carry the curtain.
+            Doing it here rather than in the client effect is what makes the
+            curtain present at the first frame instead of appearing over an
+            already-painted page. Two exits, both silent: not the homepage,
+            or reduced motion. Nothing remembers the visitor — the brand
+            moment plays on every load of the homepage, refresh included,
+            which is the point of a curtain rather than a first-time welcome.
+            No storage read here means no per-tab or per-browser flag to
+            keep in step with BrandSplash any more. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(!/^(?:\\/(?:hi|mr|kn|te|ta))?\\/?$/.test(location.pathname))return;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;if(window.sessionStorage&&sessionStorage.getItem("sg-splash-seen"))return;document.documentElement.setAttribute("data-splash","1")}catch(e){}})();`,
+            __html: `(function(){try{if(!/^(?:\\/(?:hi|mr|kn|te|ta))?\\/?$/.test(location.pathname))return;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;document.documentElement.setAttribute("data-splash","1")}catch(e){}})();`,
           }}
         />
         {/* Skip link: first focusable element on every page, so keyboard

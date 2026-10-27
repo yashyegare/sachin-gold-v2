@@ -80,27 +80,27 @@ export const productSpecs: Record<string, ProductSpec> = {
   // ————— Processing: milled on our own Buhler lines, unpolished —————
   "toor-dal": {
     packs: "As per requirement",
-    moq: "10 MT",
+    moq: "25–30 TN",
     lead: "2–4 working days",
   },
   "chana-dal": {
     packs: "As per requirement",
-    moq: "10 MT",
+    moq: "25–30 TN",
     lead: "2–4 working days",
   },
   "urad-dal": {
     packs: "As per requirement",
-    moq: "10 MT",
+    moq: "25–30 TN",
     lead: "2–4 working days",
   },
   "moong-dal": {
     packs: "As per requirement",
-    moq: "10 MT",
+    moq: "25–30 TN",
     lead: "2–4 working days",
   },
   "besan-gram-flour": {
     packs: "As per requirement",
-    moq: "5 MT",
+    moq: "25–30 TN",
     lead: "2–3 working days",
   },
 

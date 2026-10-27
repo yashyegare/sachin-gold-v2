@@ -182,11 +182,12 @@
     --tw-prose-td-borders: rgba(22, 35, 28, 0.1);
   }
 
-  /* ————— First-visit brand splash (components/BrandSplash.tsx) —————
+  /* ————— Brand splash (components/BrandSplash.tsx) —————
 
-     One timeline, tuned in one place: the --sg-* delays below. The panel
-     lifts away at --sg-out + --sg-out-dur ≈ 4.0s, which is the number the
-     component's teardown timer matches.
+     Plays on every load of the home page. One timeline, tuned in one place:
+     the --sg-* delays below. The panel lifts away at --sg-out +
+     --sg-out-dur ≈ 4.0s, which is the number the component's teardown timer
+     matches.
 
      The element is always in the DOM on the home page but display:none
      unless the inline gate script in the layout has set [data-splash] on
@@ -940,17 +941,3 @@
   color: #0f4c2e;
 }
 
-/* ————— Spec table: the row a product card deep-linked to —————
-   Every product card points at #spec-<slug> on its service page. Landing on
-   an eight-row table with nothing marking the row you asked for is the usual
-   anchor-jump failure, so the target tints itself and keeps a gold edge. */
-.sg-spec {
-  transition:
-    background-color 0.5s var(--ease-brand),
-    box-shadow 0.5s var(--ease-brand);
-}
-
-.sg-spec:target {
-  background-color: rgba(217, 169, 60, 0.14);
-  box-shadow: inset 3px 0 0 #b68a1e;
-}

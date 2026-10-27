@@ -38,7 +38,7 @@ snapshot, so they can never disagree.
    Extensions → Apps Script, paste:
 
    ```javascript
-   const SITE = 'https://sachin-gold-v2.vercel.app'; // update at cutover
+   const SITE = 'https://sachingold.com'; // apex is canonical — keep it, not www or *.vercel.app
 
    function ping_() {
      const secret = PropertiesService.getScriptProperties()

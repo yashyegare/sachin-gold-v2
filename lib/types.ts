@@ -57,6 +57,12 @@ export interface Product {
   image: string;
   /** slug of the Service in data/services.ts this product belongs to */
   service: string;
+  /** This product's quality grades, owned by the brand rather than by us —
+   *  ordered most premium first. Absent for products the owner has not given
+   *  grade names for (and for the oil/DOC lines, which are sold by
+   *  specification instead). Rendered as an expandable list on the product's
+   *  row in the commercial-terms table. */
+  grades?: string[];
 }
 
 export interface TeamMember {

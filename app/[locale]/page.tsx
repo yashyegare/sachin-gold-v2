@@ -35,8 +35,8 @@ export default async function HomePage({ params }: Props) {
 
   return (
     <>
-      {/* First-visit brand curtain over the whole page (self-dismissing;
-          nothing for returning visitors). First in the tree so its markup
+      {/* Brand curtain over the whole page, on every load of this page
+          (self-dismissing). First in the tree so its markup
           arrives in the initial HTML flush. */}
       <BrandSplash />
 

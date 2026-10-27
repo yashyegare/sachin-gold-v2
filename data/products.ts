@@ -86,6 +86,7 @@ export const products: Product[] = [
     description: "Protein-rich, unpolished toor dal processed with precision.",
     image: "/images/products/toor-dal.webp",
     service: "pulses-processing",
+    grades: ["Sachin Gold", "Sachin Mango", "Sachin World Cup"],
   },
   {
     name: "Chana Dal",
@@ -94,6 +95,7 @@ export const products: Product[] = [
     description: "Split chana dal, milled to a consistent, super-fine grade.",
     image: "/images/products/chana-dal.webp",
     service: "pulses-processing",
+    grades: ["Sachin Gold"],
   },
   {
     name: "Urad Dal",
@@ -118,6 +120,7 @@ export const products: Product[] = [
     description: "Fine-milled, pure gram flour crafted from high-quality chana dal.",
     image: "/images/products/gram-flour.webp",
     service: "pulses-processing",
+    grades: ["Sachin Gold Fine", "Sachin Gold Gargara"],
   },
   {
     name: "Soya DOC",
