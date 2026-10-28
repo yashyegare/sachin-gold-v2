@@ -1,3 +1,4 @@
+import { splashGateScript } from "@/lib/splash";
 import type { Metadata, Viewport } from "next";
 import {
   Inter,
@@ -207,24 +208,16 @@ export default async function LocaleLayout({
 
   return (
     <html
+      suppressHydrationWarning
       lang={locale}
       className={`${inter.variable} ${marcellus.variable} ${notoSansDevanagari.variable} ${notoSansKannada.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSerifDevanagari.variable} ${notoSerifKannada.variable} ${notoSerifTelugu.variable} ${notoSerifTamil.variable}`}
     >
       <body className="flex min-h-screen flex-col font-sans">
-        {/* Brand splash gate — see components/BrandSplash.tsx. Runs before
-            first paint (first thing in <body>, so it is in the initial
-            flush) and marks <html> when this load should carry the curtain.
-            Doing it here rather than in the client effect is what makes the
-            curtain present at the first frame instead of appearing over an
-            already-painted page. Two exits, both silent: not the homepage,
-            or reduced motion. Nothing remembers the visitor — the brand
-            moment plays on every load of the homepage, refresh included,
-            which is the point of a curtain rather than a first-time welcome.
-            No storage read here means no per-tab or per-browser flag to
-            keep in step with BrandSplash any more. */}
+        {/* Set before paint; only a completed homepage splash counts as seen.
+            Storage failure still allows the CSS timeline to run safely. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(!/^(?:\\/(?:hi|mr|kn|te|ta))?\\/?$/.test(location.pathname))return;if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;document.documentElement.setAttribute("data-splash","1")}catch(e){}})();`,
+            __html: splashGateScript,
           }}
         />
         {/* Skip link: first focusable element on every page, so keyboard

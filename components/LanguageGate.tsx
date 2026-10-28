@@ -75,17 +75,17 @@ export default function LanguageGate() {
     }
 
     // Sequencing, not stacking: on a first visit the brand curtain owns the
-    // screen for its ~4s, and the gate starts its own short delay only once
+    // screen for its ~4.7s, and the gate starts its own short delay only once
     // that has lifted (see BrandSplash's sg-splash-done). The fallback is
     // longer than the curtain so the real event normally wins, and it keeps
-    // the gate alive if that event never arrives. 4600ms has to stay above
+    // the gate alive if that event never arrives. 5300ms has to stay above
     // the curtain's --sg-out + --sg-out-dur, or this card opens underneath a
     // panel that is still lifting.
     const waitingForSplash =
       document.documentElement.hasAttribute("data-splash");
     if (waitingForSplash) {
       window.addEventListener("sg-splash-done", onSplashDone, { once: true });
-      fallback = setTimeout(schedule, 4600);
+      fallback = setTimeout(schedule, 5300);
     } else {
       schedule();
     }
