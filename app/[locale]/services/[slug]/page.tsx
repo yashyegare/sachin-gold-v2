@@ -21,7 +21,7 @@ import { siteUrl } from "@/data/company";
 import { getLiveRateGroups } from "@/lib/rates-source";
 
 interface Props {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 // Static params for every locale × service combination — the whole
@@ -35,7 +35,7 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const service = getServiceBySlug(slug);

@@ -42,13 +42,14 @@ export function useCountUp(target: number, decimals = 0) {
     const duration = 1300;
     const stepMs = 33; // ~30fps — plenty smooth for a number tween
 
+    let timer: ReturnType<typeof setInterval> | undefined;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting) {
             observer.disconnect();
             const start = performance.now();
-            const timer = setInterval(() => {
+            timer = setInterval(() => {
               const p = Math.min(
                 (performance.now() - start) / duration,
                 1,
@@ -65,7 +66,7 @@ export function useCountUp(target: number, decimals = 0) {
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); clearInterval(timer); };
   }, [target, decimals]);
 
   return { ref, display };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pause, Play } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -37,21 +37,15 @@ export default function RatesTicker({
   const t = useTranslations("home.ratesStrip");
   const [paused, setPaused] = useState(false);
 
-  // Pause via keyboard when focus lands on a ticker link — Space/Enter
-  // users shouldn't have to chase a moving target.
-  useEffect(() => {
-    if (!paused) return;
-    const onBlur = () => setPaused(false);
-    window.addEventListener("focusout", onBlur);
-    return () => window.removeEventListener("focusout", onBlur);
-  }, [paused]);
-
+  const [focused, setFocused] = useState(false);
   if (rates.length === 0) return null;
 
   const sequence = [...rates, ...rates]; // seamless loop
 
   return (
-    <div className="border-b border-ink/10 bg-pine-deep print:hidden">
+    <div className="border-b border-ink/10 bg-pine-deep print:hidden"
+      onFocus={() => setFocused(true)}
+      onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 sm:px-6">
         <span className="flex shrink-0 items-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest text-wheat-bright">
           <span aria-hidden="true" className="relative flex h-2 w-2">
@@ -67,7 +61,7 @@ export default function RatesTicker({
         >
           <div
             className={`flex w-max items-center gap-8 whitespace-nowrap py-3 ${
-              paused ? "[animation-play-state:paused]" : "animate-ticker"
+              paused || focused ? "animate-ticker [animation-play-state:paused]" : "animate-ticker"
             }`}
           >
             {sequence.map((rate, i) => (

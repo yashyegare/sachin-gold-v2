@@ -24,7 +24,7 @@ export default async function WhySachinGold() {
           and touch-only visitors, so this is a plain static layer for
           them. Oversized (inset -8%) so the drift never exposes an edge. */}
       <div className="absolute -inset-[8%] opacity-25" aria-hidden="true">
-        <Parallax speed={0.06} className="h-full w-full">
+        <Parallax speed={0.06} className="relative h-full w-full">
           <BrandPhoto src="/images/home/aerial-plant.webp" alt="" sizes="100vw" />
         </Parallax>
         <div className="absolute inset-0 bg-gradient-to-b from-[#06130c]/60 via-[#06130c]/80 to-[#06130c]" />

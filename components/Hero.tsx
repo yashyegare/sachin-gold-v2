@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -11,9 +11,8 @@ import { Link } from "@/i18n/navigation";
  *
  * - Real crossfade between frames, each with its own copy (translated).
  * - **Bandwidth discipline (the Phase 2 principle, applied to the hero):**
- *   only the active slide and the upcoming one are mounted. The first
- *   paint downloads exactly one hero image — the other frames' files are
- *   not requested until their turn approaches.
+ *   only the active slide and upcoming one are mounted. The first
+ *   slide gets priority; the upcoming image can decode before its turn.
  * - Auto-advances every 3.5s; pauses while hovered, focused, or tapped,
  *   and via an explicit pause button — WCAG 2.2.2 requires a way to pause
  *   moving content that isn't hover-only.
@@ -44,9 +43,11 @@ const slideImages = [
 export default function Hero() {
   const t = useTranslations("home.hero");
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const paused = userPaused || hovered || focused;
   const [reducedMotion, setReducedMotion] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Respect prefers-reduced-motion: never autoplay.
   useEffect(() => {
@@ -62,32 +63,18 @@ export default function Hero() {
     [],
   );
 
-  // Manual jump: show the chosen frame and restart the clock, so a
-  // visitor who clicks a dot doesn't get switched away from it a second
-  // later by the old interval mid-tick.
-  const goTo = useCallback(
-    (i: number) => {
-      setIndex(i);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = setInterval(next, SLIDE_MS);
-      }
-    },
-    [next],
-  );
+  const goTo = useCallback((i: number) => setIndex(i), []);
 
-  // Autoplay interval — 1s tick drives the progress-bar fill via CSS;
-  // slide switch on interval completion. Disabled when paused.
+  // A single timer owner. Slide changes reset the delay without bypassing
+  // user pause, hover, focus, or reduced-motion preferences.
   useEffect(() => {
     if (paused || reducedMotion) return;
-    timerRef.current = setInterval(next, SLIDE_MS);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [paused, reducedMotion, next]);
+    const timer = setTimeout(next, SLIDE_MS);
+    return () => clearTimeout(timer);
+  }, [paused, reducedMotion, next, index]);
 
   // Which frames are mounted: the active one always; the upcoming one
-  // mounted mid-slide so it's decoded and ready the moment the crossfade
+  // mounted ahead of time so it is decoded when the crossfade
   // starts. Everything else is unmounted — its file is never requested.
   const mounted = new Set<number>([index]);
   if (!reducedMotion) mounted.add((index + 1) % slideKeys.length);
@@ -100,10 +87,12 @@ export default function Hero() {
       aria-roledescription="carousel"
       aria-label={t("ariaLabel")}
       className="relative isolate overflow-hidden bg-pine-deep grain-dark"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+      }}
     >
       {/* Background layers — only the mounted frames render; the active
           frame eases in over 300ms. Only the active slide is exposed to
@@ -119,11 +108,10 @@ export default function Hero() {
               }`}
             >
               <Image
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 src={slideImages[i]!}
                 alt=""
                 fill
-                priority={i === index}
+                priority={i === 0 && index === 0}
                 sizes="100vw"
                 className={`object-cover [filter:saturate(0.94)_contrast(1.05)_sepia(0.05)] ${
                   i === index && !reducedMotion ? "animate-kenburns" : ""
@@ -138,7 +126,7 @@ export default function Hero() {
       </div>
 
       <div className="mx-auto flex min-h-[34rem] max-w-6xl flex-col justify-center px-6 py-24">
-        <div className="max-w-2xl" aria-live="polite" aria-atomic="true">
+        <div className="max-w-2xl" aria-live={paused || reducedMotion ? "polite" : "off"} aria-atomic="true">
           {/* Copy keyed by slide so text re-animates on each change. */}
           <div key={index}>
             <p className="animate-fade-up text-sm font-medium uppercase tracking-wide text-wheat-bright">
@@ -180,23 +168,21 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Controls row: progress indicators + pause. Hidden entirely when
-            reduced motion is on. data-hero-controls: the floating WhatsApp
+        {/* Controls row: manual selectors remain available with reduced motion. data-hero-controls: the floating WhatsApp
             button watches this corner via IntersectionObserver and yields
             while it's visible. */}
-        {!reducedMotion && (
-          <div className="absolute inset-x-0 bottom-0" data-hero-controls>
+        <div className="absolute inset-x-0 bottom-0" data-hero-controls>
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pb-6">
               <div
-                role="tablist"
+                role="group"
                 aria-label={t("slidePicker")}
                 className="flex items-center gap-2"
               >
                 {slideKeys.map((key, i) => (
                   <button
                     key={key}
-                    role="tab"
-                    aria-selected={i === index}
+
+                    aria-pressed={i === index} data-slide-index={i}
                     aria-label={t("chooseSlide", {
                       index: i + 1,
                       total: slideKeys.length,
@@ -224,12 +210,13 @@ export default function Hero() {
 
               <button
                 type="button"
-                onClick={() => setPaused((p) => !p)}
-                aria-pressed={paused}
-                aria-label={paused ? t("play") : t("pause")}
+                onClick={() => setUserPaused((p) => !p)}
+                aria-pressed={userPaused}
+                aria-label={userPaused ? t("play") : t("pause")}
+                hidden={reducedMotion}
                 className="rounded-full border border-white/25 p-2.5 text-white/75 transition-colors hover:border-wheat-bright hover:text-wheat-bright"
               >
-                {paused ? (
+                {userPaused ? (
                   <svg
                     width="10"
                     height="10"
@@ -253,7 +240,6 @@ export default function Hero() {
               </button>
             </div>
           </div>
-        )}
       </div>
     </section>
   );

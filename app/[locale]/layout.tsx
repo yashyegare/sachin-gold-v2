@@ -2,15 +2,10 @@ import { splashGateScript } from "@/lib/splash";
 import type { Metadata, Viewport } from "next";
 import {
   Inter,
-  Marcellus,
   Noto_Sans_Devanagari,
   Noto_Sans_Kannada,
   Noto_Sans_Telugu,
   Noto_Sans_Tamil,
-  Noto_Serif_Devanagari,
-  Noto_Serif_Kannada,
-  Noto_Serif_Telugu,
-  Noto_Serif_Tamil,
 } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
@@ -31,70 +26,36 @@ import { routing, type Locale } from "@/i18n/routing";
 import { ogImageUrl, pageMetadata } from "@/i18n/seo";
 import "../globals.css";
 
-// Fonts: the Latin brand pair (Inter/Marcellus) plus the Noto families for
-// the four scripts the translated locales render. Marcellus and Inter
-// carry no Devanagari/Kannada/Telugu/Tamil glyphs — without these, all
-// headings and body text in hi/mr/kn/te/ta would silently fall back to
-// the browser default. Serif variants keep the display voice; Sans covers
-// body text. Each next/font export self-hosts only the glyphs its
-// unicode-range requires, so a locale downloads its own script's font and
-// no others.
+// Inter is the shared Latin face. Script fonts load only when their glyphs
+// are used; do not preload every language or unused display families.
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
 
-const marcellus = Marcellus({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-marcellus",
-  display: "swap",
-});
-
 const notoSansDevanagari = Noto_Sans_Devanagari({
+  preload: false,
   subsets: ["devanagari"],
   variable: "--font-noto-sans-devanagari",
   display: "swap",
 });
 const notoSansKannada = Noto_Sans_Kannada({
+  preload: false,
   subsets: ["kannada"],
   variable: "--font-noto-sans-kannada",
   display: "swap",
 });
 const notoSansTelugu = Noto_Sans_Telugu({
+  preload: false,
   subsets: ["telugu"],
   variable: "--font-noto-sans-telugu",
   display: "swap",
 });
 const notoSansTamil = Noto_Sans_Tamil({
+  preload: false,
   subsets: ["tamil"],
   variable: "--font-noto-sans-tamil",
-  display: "swap",
-});
-
-const notoSerifDevanagari = Noto_Serif_Devanagari({
-  subsets: ["devanagari"],
-  weight: ["400", "500", "600"],
-  variable: "--font-noto-serif-devanagari",
-  display: "swap",
-});
-const notoSerifKannada = Noto_Serif_Kannada({
-  subsets: ["kannada"],
-  weight: ["400", "500", "600"],
-  variable: "--font-noto-serif-kannada",
-  display: "swap",
-});
-const notoSerifTelugu = Noto_Serif_Telugu({
-  subsets: ["telugu"],
-  weight: ["400", "500", "600"],
-  variable: "--font-noto-serif-telugu",
-  display: "swap",
-});
-const notoSerifTamil = Noto_Serif_Tamil({
-  subsets: ["tamil"],
-  weight: ["400", "500", "600"],
-  variable: "--font-noto-serif-tamil",
   display: "swap",
 });
 
@@ -108,7 +69,7 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata" });
@@ -210,7 +171,7 @@ export default async function LocaleLayout({
     <html
       suppressHydrationWarning
       lang={locale}
-      className={`${inter.variable} ${marcellus.variable} ${notoSansDevanagari.variable} ${notoSansKannada.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable} ${notoSerifDevanagari.variable} ${notoSerifKannada.variable} ${notoSerifTelugu.variable} ${notoSerifTamil.variable}`}
+      className={`${inter.variable} ${notoSansDevanagari.variable} ${notoSansKannada.variable} ${notoSansTelugu.variable} ${notoSansTamil.variable}`}
     >
       <body className="flex min-h-screen flex-col font-sans">
         {/* Set before paint; only a completed homepage splash counts as seen.

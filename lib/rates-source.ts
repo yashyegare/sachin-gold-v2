@@ -1,7 +1,7 @@
 import "server-only";
+import { parseRateSnapshot } from "@/lib/rates-snapshot";
 import type { RateGroup } from "@/lib/types";
 import { rateGroups as staticRateGroups } from "@/data/rates";
-import { formatStamp } from "@/lib/rates-basis";
 
 /**
  * Live rates from the owner's Google Sheet — the same sheet the old site
@@ -42,104 +42,6 @@ export const RATES_REVALIDATE_SECONDS = 300;
  *  ~1 KB CSV and short enough to fail before the platform's own limit. */
 const RATES_FETCH_TIMEOUT_MS = 8000;
 
-// ————— Row key → product mapping (the only place sheet keys are known) —————
-
-/** Maps the employee's sheet keys to the canonical product names in
- *  data/rates.ts. A missing key = that product keeps its static value
- *  ("On request"). Unknown keys are ignored — new rows/columns in the
- *  sheet can't break anything. */
-const KEY_TO_PRODUCT: Record<string, string> = {
-  normal: "Soya DOC (Normal)",
-  highpro: "Soya DOC (High Pro)",
-  oil: "Soya Crude Oil",
-  refined: "Soya Refined Oil",
-  fatty: "Soya Fatty Oil",
-  acid: "Soya Acid Oil",
-  lecithin: "Soya Lecithin",
-  toor: "Toor Dal",
-  chana: "Chana Dal",
-  besan: "Besan Flour",
-};
-
-// ————— CSV parsing (RFC 4180 subset: quoted fields, escaped quotes) —————
-
-export function parseCsv(text: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let inQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        field += c;
-      }
-    } else if (c === '"') {
-      inQuotes = true;
-    } else if (c === ",") {
-      row.push(field);
-      field = "";
-    } else if (c === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-    } else if (c !== "\r") {
-      field += c;
-    }
-  }
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows;
-}
-
-function toNumber(v: string): number | undefined {
-  if (!v) return undefined;
-  const n = Number(v.replace(/[₹,\s]/g, ""));
-  return Number.isFinite(n) && n > 0 ? n : undefined;
-}
-
-/** "25/09/2026 07:36:21" → Date (unparseable → null).
- *
- *  The sheet writes wall-clock IST, so the offset is folded in by hand
- *  (minus 5:30) instead of letting the server's own timezone shift the
- *  timestamp by hours. Seconds are optional (the employee has written both
- *  shapes), and the match is deliberately not anchored at the end — a
- *  trailing token in the cell must not cost the page its "Updated" line. */
-function parseSheetTime(raw: string): Date | null {
-  const m = raw.match(
-    /^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?/,
-  );
-  if (!m) return null;
-  const ist = new Date(
-    Date.UTC(
-      Number(m[3]),
-      Number(m[2]) - 1,
-      Number(m[1]),
-      Number(m[4]) - 5,
-      Number(m[5]) - 30,
-      Number(m[6] ?? 0),
-    ),
-  );
-  return Number.isNaN(ist.getTime()) ? null : ist;
-}
-
-/** "25/09/2026 07:36:21" → "25 Sept 2026, 07:36 IST" (unparseable → null).
- *  Localised month names, but "en" from the PDF routes (WinAnsi font). */
-export function formatSheetTime(raw: string, locale = "en"): string | null {
-  const ist = parseSheetTime(raw);
-  return ist ? `${formatStamp(ist, locale, true)} IST` : null;
-}
-
 // ————— The overlay: live sheet values on top of the static shape —————
 
 export interface LiveRates {
@@ -149,10 +51,7 @@ export interface LiveRates {
    *  detail, because the rows it produces look identical to products that
    *  are genuinely quoted on request. */
   source: "sheet" | "fallback";
-  /** Newest per-row sheet timestamp across ALL groups, as a Date (null
-   *  when the sheet exposes no parseable time). The rates page surfaces
-   *  this as its prominent "Updated Xm ago" freshness signal — for a
-   *  commodities buyer, price age is the first thing they check. */
+  /** Oldest timestamp across priced rows; null if any priced row lacks a valid timestamp. */
   lastUpdated: Date | null;
 }
 
@@ -170,67 +69,7 @@ export async function getLiveRateGroups(
     });
     if (!res.ok) throw new Error(`sheet ${res.status}`);
     const csv = await res.text();
-    const rows = parseCsv(csv);
-    if (rows.length < 2) throw new Error("sheet empty");
-
-    const header = (rows[0] ?? []).map((h) => h.trim().toLowerCase());
-    const nameCol = header.indexOf("name");
-    const priceCol = header.indexOf("price");
-    const timeCol = header.indexOf("time");
-    if (nameCol === -1 || priceCol === -1) throw new Error("sheet columns");
-
-    const byProduct = new Map<string, { price: string; time: string }>();
-    for (const row of rows.slice(1)) {
-      const key = (row[nameCol] || "").trim().toLowerCase();
-      const product = KEY_TO_PRODUCT[key];
-      if (!product) continue;
-      byProduct.set(product, {
-        price: (row[priceCol] || "").trim(),
-        time: timeCol >= 0 ? (row[timeCol] || "").trim() : "",
-      });
-    }
-    if (byProduct.size === 0) throw new Error("no mapped rows");
-
-    // Newest parseable timestamp across all mapped rows — a single
-    // Date, independent of the per-group display strings below.
-    let lastUpdated: Date | null = null;
-    for (const { time } of byProduct.values()) {
-      const parsed = parseSheetTime(time);
-      if (parsed && (!lastUpdated || parsed > lastUpdated))
-        lastUpdated = parsed;
-    }
-
-    const groups: RateGroup[] = staticRateGroups.map((group) => {
-      const items = group.items.map((item) => {
-        const live = byProduct.get(item.product);
-        if (!live) return item;
-        const priceValue = toNumber(live.price);
-        return {
-          ...item,
-          // A blank or non-numeric cell keeps "On request" — never
-          // render "₹ NaN" or an empty price.
-          price:
-            priceValue !== undefined
-              ? `₹ ${priceValue.toLocaleString("en-IN")}`
-              : item.price,
-          ...(priceValue !== undefined ? { priceValue } : {}),
-        };
-      });
-
-      // Group "updated" = newest timestamp among items priced this pass.
-      let updatedOn: string | null = null;
-      for (const item of group.items) {
-        const t = byProduct.get(item.product)?.time;
-        if (!t) continue;
-        const formatted = formatSheetTime(t, locale);
-        if (formatted) {
-          updatedOn = formatted;
-          break; // sheet rows share one edit timestamp in practice
-        }
-      }
-      return { ...group, items, updatedOn };
-    });
-
+    const { groups, lastUpdated } = parseRateSnapshot(csv, locale);
     return { groups, source: "sheet", lastUpdated };
   } catch (error) {
     // Google down / sheet private / parse garbage / timed out — degrade

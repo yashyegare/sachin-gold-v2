@@ -9,9 +9,9 @@ import { notFound } from "next/navigation";
  */
 export async function GET(
   _request: Request,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   const bytes = await renderSpecPdf("en", slug);
   if (!bytes) notFound();
   return pdfResponse(bytes, `${slug}-spec.pdf`, "en");

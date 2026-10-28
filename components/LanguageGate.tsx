@@ -59,7 +59,10 @@ export default function LanguageGate() {
       const reduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      timer = setTimeout(() => setOpen(true), reduced ? 0 : 600);
+      timer = setTimeout(() => {
+        setOpen(true);
+        window.dispatchEvent(new Event("sg-lang-gate-opened"));
+      }, reduced ? 0 : 600);
     }
 
     function onSplashDone() {
@@ -100,7 +103,7 @@ export default function LanguageGate() {
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") choose("en");
+      if (e.key === "Escape") choose(locale as Locale);
     }
     document.addEventListener("keydown", onKey);
     return () => {
@@ -143,7 +146,7 @@ export default function LanguageGate() {
     >
       <button
         type="button"
-        onClick={() => choose("en")}
+        onClick={() => choose(locale as Locale)}
         aria-label={t("dismissAria")}
         className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full text-ink/35 transition-colors hover:bg-linen hover:text-ink"
       >

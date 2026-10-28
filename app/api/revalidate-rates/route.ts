@@ -66,16 +66,14 @@ export async function POST(request: Request) {
 
   const now = Date.now();
   if (now - lastAcceptedAt < MIN_GAP_MS) {
-    return NextResponse.json({
-      revalidated: false,
-      throttled: true,
-      retryAfterMs: MIN_GAP_MS - (now - lastAcceptedAt),
-    });
+    const remaining = MIN_GAP_MS - (now - lastAcceptedAt);
+    return NextResponse.json({ revalidated: false, throttled: true, retryAfterMs: remaining },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(remaining / 1000)) } });
   }
-  lastAcceptedAt = now;
 
   try {
-    revalidateTag(TAG);
+    revalidateTag(TAG, { expire: 0 });
+    lastAcceptedAt = now;
     return NextResponse.json({
       revalidated: true,
       tag: TAG,

@@ -1,3 +1,4 @@
+import { formatStamp } from "@/lib/rates-basis";
 import { notFound } from "next/navigation";
 import { company, siteUrl } from "@/data/company";
 import { services, getServiceBySlug } from "@/data/services";
@@ -323,7 +324,7 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
     kit.y += 7;
 
     for (const item of group.items) {
-      kit.ensureSpace(34);
+      kit.ensureSpace(item.updatedAt ? 46 : 34);
       const isFlagship = flagship && item.product.includes(flagship);
       // Product name (+ quiet flagship star on the DOC lines).
       kit.text(isFlagship ? `★ ${item.product}` : item.product, {
@@ -348,6 +349,12 @@ export async function renderRatesPdf(locale: string): Promise<Uint8Array> {
         dx: 12,
       });
       kit.y += 11;
+      if (item.updatedAt) {
+        kit.text(`${L("updated", "Updated")}: ${formatStamp(new Date(item.updatedAt), locale, true)} IST`, {
+          size: 7, font: kit.oblique, opacity: 0.6, dx: 12,
+        });
+        kit.y += 10;
+      }
       if (isFlagship) {
         kit.text(`★ ${flagship}`, {
           size: 7,

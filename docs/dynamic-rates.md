@@ -52,7 +52,12 @@ snapshot, so they can never disagree.
      }).getResponseCode();
    }
 
-   function onEdit() { ping_(); }        // fires on every edit
+   function ratesEdited() {
+     // A trailing edit must not be silently lost inside the debounce window.
+     const code = ping_();
+     if (code === 429) { Utilities.sleep(10500); return ping_(); }
+     return code;
+   } // installable edit trigger
    function tick()   { ping_(); }        // safety ping, every 15 min
    ```
 
@@ -61,18 +66,18 @@ snapshot, so they can never disagree.
    the value out of the script itself — anyone with *view* access to the
    sheet can read the code.
 
-   Then: clock icon (Triggers) → Add Trigger → function `tick` →
-   time-driven → every 15 minutes. `onEdit` fires by itself on every
-   edit; the timed `tick` is just belt-and-braces.
+   Run `ratesEdited` manually once and approve URL Fetch authorization.
+   Then open Triggers → Add Trigger → function `ratesEdited` → From
+   spreadsheet → On edit. This must be an **installable** trigger: a simple
+   `onEdit` trigger cannot call the authorized URL Fetch service.
+   Also add `tick` → time-driven → every 15 minutes as a safety net.
 
    Expect `200` with `{"revalidated":true}`. A `401` means the two secret
    values differ; `405` means something is calling the endpoint with GET
-   (only POST is accepted); `{"throttled":true}` is normal when edits
-   arrive faster than 10 seconds apart — the 5-minute ISR window still
-   catches up on its own.
+   (only POST is accepted); `429` with `Retry-After` means edits arrived within the ten-second debounce window; the installable handler retries once. ISR remains a fallback.
 
 4. **Update the mapping only if the sheet's product keys change** —
-   `KEY_TO_PRODUCT` in `lib/rates-source.ts` maps the sheet's `name`
+   `KEY_TO_PRODUCT` in `lib/rates-snapshot.ts` maps the sheet's `name`
    column (`normal`, `highpro`, `oil`, `refined`, `fatty`, `acid`,
    `lecithin`, `toor`, `chana`, `besan`) to the site's product names.
    New product rows in the sheet are ignored safely until mapped.
@@ -89,12 +94,14 @@ request" on the site — useful for items he doesn't want to publish.
 
 | File | Role |
 |---|---|
-| `lib/rates-source.ts` | Sheet fetch + CSV parse + overlay on the static fallback; the only file that knows the sheet's shape |
+| `lib/rates-source.ts` | Cached sheet fetch and outage fallback |
 | `data/rates.ts` | Static fallback + the canonical product/unit structure (unchanged) |
 | `app/api/revalidate-rates/route.ts` | The webhook (POST-only, `x-webhook-secret` header, timing-safe compare, 10s throttle) |
 | `app/[locale]/rates/page.tsx` | Table page (`revalidate = 300`) |
 | `app/[locale]/page.tsx` | Home ticker gate |
 | `lib/pdf-docs.ts` | The rate-card PDF reads the same live groups |
+
+Pure validation and overlay live in `lib/rates-parser.ts` and `lib/rates-snapshot.ts`, with regression tests in `tests/rates.test.ts`.
 
 ## Known trade-offs (deliberate)
 
@@ -102,6 +109,4 @@ request" on the site — useful for items he doesn't want to publish.
   for a public price list; it is not a channel for secrets.
 - **Google CSV export has no SLA** — hence the fallback + ISR design;
   worst case is a stale price for a few minutes, never a broken page.
-- **`updatedOn` takes the first timestamp found** in the group — the
-  sheet's rows share one edit timestamp in practice; if the employee
-  ever edits rows at different times, the shown date is the first row's.
+- **Freshness is conservative:** product rows retain their own validated timestamp; group and list summaries use the oldest priced row. A missing timestamp suppresses the summary.

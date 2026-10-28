@@ -52,14 +52,19 @@ export default function StickyContactButtons() {
       return;
     }
 
+    function onGateOpened() { setReady(false); }
+    window.addEventListener("sg-lang-gate-opened", onGateOpened);
     function onGateClosed() {
       setReady(true);
     }
     window.addEventListener("sg-lang-gate-closed", onGateClosed);
-    const fallback = setTimeout(() => setReady(true), 6000);
+    const fallback = setTimeout(() => {
+      if (!document.querySelector('[aria-labelledby="lang-gate-title"]')) setReady(true);
+    }, 8000);
     return () => {
       window.removeEventListener("sg-lang-gate-closed", onGateClosed);
       clearTimeout(fallback);
+      window.removeEventListener("sg-lang-gate-opened", onGateOpened);
     };
   }, []);
 
@@ -90,6 +95,8 @@ export default function StickyContactButtons() {
           load-bearing, not decorative. */}
       <Link
         href="/contact"
+        tabIndex={pairVisible ? 0 : -1}
+        aria-hidden={!pairVisible}
         aria-label={t("enquireLabel", { name: company.name })}
         className={`fixed bottom-24 right-5 z-40 flex h-12 items-center gap-2 rounded-full bg-pine pl-4 pr-5 text-sm font-semibold text-white shadow-[0_4px_10px_-4px_rgba(10,54,32,0.5),0_16px_32px_-10px_rgba(10,54,32,0.45)] transition-all duration-300 hover:-translate-y-px hover:bg-pine-deep ${hiddenClasses}`}
       >
@@ -99,6 +106,8 @@ export default function StickyContactButtons() {
 
       <a
         href={whatsappLink(company.whatsapp, t("message"))}
+        tabIndex={pairVisible ? 0 : -1}
+        aria-hidden={!pairVisible}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("label", { name: company.name })}

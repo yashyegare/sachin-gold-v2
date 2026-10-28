@@ -102,6 +102,7 @@ export default function ContactForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (status === "submitting") return;
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -157,11 +158,15 @@ export default function ContactForm() {
     formData.append("access_key", accessKey);
     formData.append("subject", "New enquiry from sachingold.com");
 
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12000);
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
+      if (!response.ok) throw new Error("Enquiry service unavailable");
       const result = await response.json();
       if (result.success) {
         setStatus("success");
@@ -172,6 +177,8 @@ export default function ContactForm() {
       }
     } catch {
       setStatus("error");
+    } finally {
+      window.clearTimeout(timeout);
     }
   }
 
@@ -237,6 +244,7 @@ export default function ContactForm() {
               id="message"
               name="message"
               rows={5}
+              maxLength={5000}
               required
               onBlur={handleBlur}
               aria-required="true"
@@ -416,6 +424,7 @@ function Field({
       <input
         id={name}
         name={name}
+        maxLength={name === "email" ? 254 : 200}
         type={type}
         required={required}
         onBlur={onBlur}

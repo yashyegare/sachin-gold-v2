@@ -4,7 +4,7 @@ import { ImageResponse } from "next/og";
 // maintain. Same language as the hero: pine gradient, wheat accent, serif
 // display. File convention: Next picks this up automatically for every
 // page that doesn't define its own OG image.
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export const alt = "Sachin Gold — Bulk Agro Commodity Trading & Processing";
 export const size = { width: 1200, height: 630 };

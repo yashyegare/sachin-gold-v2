@@ -29,9 +29,9 @@ export default function CountUpStat({
   const { ref, display } = useCountUp(number, decimals);
 
   return (
-    <p ref={ref} className={className}>
+    <p ref={ref} className={className} aria-label={`${prefix ?? ""}${number.toFixed(decimals)}${suffix ?? ""}`}>
       {prefix && <span aria-hidden="true">{prefix}</span>}
-      <span>{display}</span>
+      <span aria-hidden="true">{display}</span>
       {suffix && <span aria-hidden="true">{suffix}</span>}
     </p>
   );

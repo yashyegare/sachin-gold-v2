@@ -34,10 +34,10 @@
   },
   "home": {
     "ratesStrip": {
-      "live": "Live market rates",
+      "live": "Published rates",
       "items": "— Soya DOC, Soya Refined Oil, Toor Dal, Chana Dal",
       "view": "View current rates",
-      "today": "Today",
+      "today": "Published rates",
       "tickerPause": "Pause rate ticker",
       "tickerResume": "Resume rate ticker"
     },
@@ -319,7 +319,7 @@
   },
   "rates": {
     "eyebrow": "Market Rates",
-    "bannerToday": "Today's Rates",
+    "bannerToday": "Published rates",
     "bannerUpdated": "Updated {time}",
     "bannerCta": "View full rate card",
     "title": "Current Market Rates",

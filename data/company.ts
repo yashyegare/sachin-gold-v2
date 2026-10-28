@@ -81,7 +81,9 @@ export const company: CompanyInfo = {
 };
 
 // Canonical origin — used by metadata, JSON-LD, sitemap and robots.
-export const siteUrl = "https://sachingold.com";
+// Override per deployment during domain cutover; never infer the canonical
+// origin from an untrusted incoming Host header.
+export const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://sachingold.com").origin;
 
 /**
  * Licence and certification identifiers. EMPTY ON PURPOSE — nothing here was

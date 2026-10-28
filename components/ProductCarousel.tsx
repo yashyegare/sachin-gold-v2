@@ -47,7 +47,6 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     const ro = new ResizeObserver(updateEdges);
     ro.observe(el);
     return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products.length]);
 
   const scrollByCard = (direction: 1 | -1) => {

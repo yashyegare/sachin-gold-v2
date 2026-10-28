@@ -20,7 +20,9 @@ const base = process.env.SPLASH_TEST_URL || 'http://localhost:3100';
           const el = document.querySelector('.sg-splash');
           if (!el) return;
           const css = getComputedStyle(el);
-          window.splashFrames.push({ t: performance.now(), visible: css.display !== 'none' && css.visibility !== 'hidden', gate: !!document.querySelector('[aria-labelledby="lang-gate-title"]') });
+          const animation = el.getAnimations().find(a => a instanceof CSSAnimation && a.animationName === 'sg-splash-out');
+          const timeline = animation ? Number(animation.effect.getComputedTiming().endTime) : null;
+          window.splashFrames.push({ t: performance.now(), timeline, visible: css.display !== 'none' && css.visibility !== 'hidden', gate: !!document.querySelector('[aria-labelledby="lang-gate-title"]') });
         }, 25);
       }, { seen: options.seen, blocked: options.blocked });
       const page = await context.newPage();
@@ -33,7 +35,13 @@ const base = process.env.SPLASH_TEST_URL || 'http://localhost:3100';
       else {
         assert.ok(visible.length, name + ': visible');
         const duration = visible.at(-1).t - visible[0].t;
-        assert.ok(duration >= 4400 && duration <= 5000, name + ': duration ' + duration);
+        // Assert the browser's actual animation timeline is within the product
+        // requirement. Wall-clock sampling gets 800ms of scheduling/first-paint
+        // tolerance on shared CI runners; it must still detect a replay/stall.
+        const timelines = result.frames.map(f => f.timeline).filter(t => t !== null);
+        assert.ok(timelines.length > 0, name + ': CSS animation started');
+        assert.ok(timelines.every(t => t >= 4000 && t <= 5000), name + ': 4–5s CSS timeline');
+        assert.ok(duration >= 4400 && duration <= 5500, name + ': sampled visible duration ' + duration);
         assert.equal(result.done, 1, name + ': completion once');
         assert.ok(!visible.some(f => f.gate), name + ': language gate waits');
         console.log(name + ': ' + Math.round(duration) + 'ms');

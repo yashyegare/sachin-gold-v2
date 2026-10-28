@@ -34,6 +34,9 @@ export function useReveal<T extends HTMLElement>() {
       return;
     }
 
+    // Add the hidden state only after this component can reveal itself.
+    // A CSS timeout is a final escape hatch if observer delivery fails.
+    el.classList.add("reveal-pending");
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -47,7 +50,10 @@ export function useReveal<T extends HTMLElement>() {
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      el.classList.remove("reveal-pending");
+    };
   }, []);
 
   return ref;
