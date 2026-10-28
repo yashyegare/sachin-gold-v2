@@ -29,6 +29,7 @@ import Reveal from "@/components/Reveal";
 export interface RateRowView {
   product: string;
   flagship: boolean;
+  updatedOn: string | null;
   /** The line as the desk quotes it. */
   quoted: { price: string; unit: string };
   enquiryHref: string;
@@ -166,6 +167,7 @@ export default function RatesTables({
                         >
                           <td className="px-2 py-4 font-medium text-ink first:pl-0 print:py-2.5">
                             {row.product}
+                            {row.updatedOn && <span className="mt-1 block text-xs font-normal text-ink/60">{t("bannerUpdated", { time: row.updatedOn })}</span>}
                             {row.flagship && (
                               <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
                                 {t("flagship")}
@@ -213,6 +215,7 @@ export default function RatesTables({
                     >
                       <p className="font-display text-base text-ink">
                         {row.product}
+                        {row.updatedOn && <span className="mt-1 block text-xs font-normal text-ink/60">{t("bannerUpdated", { time: row.updatedOn })}</span>}
                         {row.flagship && (
                           <span className="ml-2 inline-block rounded-full border border-wheat-dark/50 px-1.5 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark">
                             {t("flagship")}

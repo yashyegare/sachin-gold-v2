@@ -4,7 +4,7 @@ import { company } from "@/data/company";
 import { formatStamp } from "@/lib/rates-basis";
 
 interface Props {
-  /** Newest sheet timestamp across all groups (already IST→Date in
+  /** Oldest priced-row timestamp across all groups (already IST→Date in
    *  lib/rates-source.ts). Null renders nothing while the feed is live. */
   lastUpdated: Date | null;
   /** False when the sheet fetch failed and every row below is the static

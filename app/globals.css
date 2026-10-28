@@ -651,22 +651,19 @@
     }
   }
 
-  /* Scroll-reveal (lib/useReveal.ts) — hidden until .is-revealed lands.
-     Under prefers-reduced-motion the global rule collapses the transition
-     and the hook adds .is-revealed immediately, so content is never
-     hidden from motion-sensitive visitors. */
-  .reveal {
+  /* Content stays visible without JavaScript. The observer opts into motion. */
+  .reveal { opacity: 1; transform: none; }
+  .reveal.reveal-pending:not(.is-revealed) {
     opacity: 0;
     transform: translateY(16px);
-    transition:
-      opacity 0.6s var(--ease-brand),
-      transform 0.6s var(--ease-brand);
+    animation: reveal-fail-open 0s 2.5s forwards;
   }
-
   .reveal.is-revealed {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    transition: opacity 0.6s var(--ease-brand), transform 0.6s var(--ease-brand);
   }
+  @keyframes reveal-fail-open { to { opacity: 1; transform: none; } }
 
   /* ————— Design system: rhythm, photo grade, shape rule —————
 

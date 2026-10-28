@@ -16,7 +16,7 @@ const intlMiddleware = createMiddleware(routing);
 const METADATA_ROUTE =
   /\/(?:opengraph-image|twitter-image|facebook-image|instagram-image|icon|apple-icon|manifest|favicon)$/;
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   if (METADATA_ROUTE.test(request.nextUrl.pathname)) {
     return NextResponse.next();
   }

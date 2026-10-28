@@ -29,7 +29,7 @@ import RatesFreshness from "@/components/RatesFreshness";
 import RatesTables from "@/components/RatesTables";
 
 interface Props {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 // Group-heading anchors (photo + icon) live with the table itself in
@@ -45,7 +45,7 @@ const FLAGSHIP = "Soya DOC";
 export async function generateMetadata({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "rates" });
@@ -124,7 +124,7 @@ export default async function RatesPage({ params }: Props) {
   // fresh the numbers are when they read it, and the disclaimer travels
   // with them — a forwarded screenshot is the one copy we can't keep
   // attached to the page.
-  const istStamp = lastUpdated ? formatStamp(lastUpdated, locale) : null;
+  const istStamp = lastUpdated ? formatStamp(lastUpdated, locale, true) : null;
   const shareText = (heading: string, lines: string[]): string =>
     `*${company.name} — ${t("title")}*\n\n*${heading}*\n${lines.join("\n")}${
       istStamp ? `\n\n${t("fresh.shareStamp", { time: istStamp })}` : ""
@@ -138,7 +138,7 @@ export default async function RatesPage({ params }: Props) {
       const lines = group.items
         .filter((item) => item.priceValue !== undefined)
         .map(
-          (item) => `• ${item.product}: ${item.price} (${basisLabel(item)})`,
+          (item) => `• ${item.product}: ${item.price} (${basisLabel(item)})${item.updatedAt ? ` — ${formatStamp(new Date(item.updatedAt), locale, true)} IST` : ""}`,
         );
       return {
         key: gi === 0 ? ("soya" as const) : ("dals" as const),
@@ -163,6 +163,7 @@ export default async function RatesPage({ params }: Props) {
     enquiryHref: enquireLineLink(group.title),
     rows: group.items.map((rate) => ({
       product: rate.product,
+      updatedOn: rate.updatedAt ? `${formatStamp(new Date(rate.updatedAt), locale, true)} IST` : null,
       flagship: rate.product.startsWith(FLAGSHIP),
       // An unpriced line says "On request" in the reader's language; the
       // English literal in data/rates.ts is only the PDF's copy.

@@ -18,9 +18,9 @@ export function generateStaticParams() {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { locale: string; slug: string } },
+  { params }: { params: Promise<{ locale: string; slug: string }> },
 ) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
   assertLocale(locale);
   const bytes = await renderSpecPdf(locale, slug);
   if (!bytes) notFound();

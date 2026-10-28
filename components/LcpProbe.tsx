@@ -37,7 +37,6 @@ export default function LcpProbe() {
           const src = el.getAttribute("src") ?? el.getAttribute("srcset");
           return `${tag}${clsStr}${src ? ` [src=${src.slice(0, 60)}]` : ""}`;
         };
-        // eslint-disable-next-line no-console
         console.info(
           `[LCP] ${(entry.renderTime ?? entry.loadTime ?? entry.startTime).toFixed(0)}ms → ${describe(node)}${entry.url ? ` (${entry.url.slice(0, 60)})` : ""}`,
         );

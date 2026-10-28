@@ -14,7 +14,7 @@ import {
 // global definition) before fontkit fixes it for both `next start` and
 // the build-time prerender workers.
 import "regenerator-runtime/runtime.js";
-/* eslint-disable @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any -- the UMD build must be required, not imported, so it evaluates after regenerator-runtime above */
+/* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any -- the UMD build must be required, not imported, so it evaluates after regenerator-runtime above */
 const fontkit = require("@pdf-lib/fontkit/dist/fontkit.umd.js") as any;
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

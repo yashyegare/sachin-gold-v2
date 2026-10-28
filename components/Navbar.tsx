@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname as useNextPathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, Globe } from "lucide-react";
 import Image from "next/image";
@@ -195,7 +194,8 @@ function LanguageSwitcher() {
  */
 export default function Navbar() {
   const t = useTranslations("nav");
-  const nextPathname = useNextPathname();
+  // Use the locale-stripped pathname on both SSR rewrites and the browser.
+  const nextPathname = useI18nPathname();
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const servicesRef = useRef<HTMLLIElement>(null);

@@ -14,9 +14,9 @@ export function generateStaticParams() {
 
 export async function GET(
   _request: Request,
-  { params }: { params: { locale: string } },
+  { params }: { params: Promise<{ locale: string }> },
 ) {
-  const { locale } = params;
+  const { locale } = await params;
   assertLocale(locale);
   return pdfResponse(
     await renderProfilePdf(locale),

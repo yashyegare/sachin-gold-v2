@@ -158,6 +158,8 @@ export interface RateItem {
    *  this in later automatically activates pricing rich-results — no
    *  component changes. Currency is assumed INR. */
   priceValue?: number;
+  /** Validated source timestamp for this exact product, as ISO UTC. */
+  updatedAt?: string | null;
 }
 
 export interface RateGroup {
