@@ -3,87 +3,68 @@
 import { useEffect, useRef } from "react";
 import { company } from "@/data/company";
 
-/**
- * Brand splash — the real badge assembles itself on a warm near-black
- * curtain over the whole viewport, then the curtain lifts away to
- * reveal the page. Rendered by the home page only.
- *
- * Who sees it: every load of the homepage, refresh included, in every tab.
- * All the gating happens in the inline script in the root layout, which runs
- * BEFORE first paint and marks <html> with `data-splash` — so the curtain is
- * present at first paint instead of slamming over an already rendered page.
- * Nothing is remembered between loads: no storage flag decides whether this
- * plays, so the only visitor who skips it is one whose browser asks for
- * reduced motion.
- *
- * The artwork is not the supplied JPG: scripts/prepare-brand-mark.mjs keys
- * out the photo's white ground and splits the badge into the two layers
- * below, so the laurel can come down onto the shield instead of the whole
- * mark just appearing.
- *
- * Why it can't get in the way:
- * - The whole timeline is CSS (globals.css), driven by animation-delay, so
- *   it never waits on React hydration or a slow JS bundle.
- * - Every animation ends in the "gone" state with fill-mode `both`, so the
- *   curtain is off-screen and non-interactive at ~4.0s even if this effect
- *   never runs. A visitor with JS broken still reaches the site.
- * - `prefers-reduced-motion`: the inline script never sets the attribute
- *   and the CSS hides the element outright — two independent paths to "no
- *   splash".
- * - Click, tap or any keypress cuts it short via `.is-skipped`.
- * - It is `aria-hidden` and `pointer-events: none`: a decorative brand
- *   moment, not a dialog. No focus trap, nothing announced, no Escape to
- *   press — the page behind it is the content.
- *
- * It also dispatches `sg-splash-done` when the curtain leaves, which the
- * LanguageGate waits on, so a first visit gets two beats in sequence
- * (brand moment, then the language card) rather than both at once.
- */
+/** First homepage visit per browser. CSS owns the 4.7s timeline, including
+ * before hydration; completion records the visit and releases LanguageGate. */
 export const SPLASH_DONE_EVENT = "sg-splash-done";
 
-// Module scope, not a ref: React 18 StrictMode mounts, unmounts and remounts
-// this effect once in dev, and a ref-guarded one-shot would be torn down by
-// the fake unmount — which is exactly what made the curtain vanish before it
-// was ever visible. The flag survives the remount; the timeline runs once.
-let started = false;
+declare global {
+  interface Window {
+    __sgSplashActive?: boolean;
+    __sgSplashStartedAt?: number;
+  }
+}
 
 export default function BrandSplash() {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = document.documentElement;
-    if (started || !root.hasAttribute("data-splash")) return;
-    started = true;
+    const overlay = overlayRef.current;
+    if (!overlay || !window.__sgSplashActive) return;
+    // Full-root hydration recovery can replace <html> and drop its attribute.
+    // The initial script's window state survives that replacement.
+    root.setAttribute("data-splash", "1");
+    if (window.__sgSplashStartedAt != null) {
+      const elapsed = performance.now() - window.__sgSplashStartedAt;
+      for (const animation of overlay.getAnimations({ subtree: true })) {
+        animation.currentTime = elapsed;
+      }
+    }
 
     let finished = false;
     const finish = () => {
-      if (finished) return;
+      if (finished || !root.hasAttribute("data-splash")) return;
       finished = true;
+      window.__sgSplashActive = false;
+      try {
+        localStorage.setItem("sg-splash-seen", "1");
+      } catch {
+        // Storage blocked: still finish, and allow playback on the next load.
+      }
       root.removeAttribute("data-splash");
-      window.removeEventListener("pointerdown", skip);
-      window.removeEventListener("keydown", skip);
       window.dispatchEvent(new Event(SPLASH_DONE_EVENT));
     };
-
-    // Any intent to move on cuts the curtain short: the exit animation
-    // restarts at 350ms (the [data-splash] .is-skipped rule) and the
-    // teardown follows it.
-    const skip = () => {
-      if (overlayRef.current?.classList.contains("is-skipped")) return;
-      overlayRef.current?.classList.add("is-skipped");
-      clearTimeout(teardown);
-      teardown = setTimeout(finish, 370);
+    const onEnd = (event: AnimationEvent) => {
+      if (event.target === overlay && event.animationName === "sg-splash-out") {
+        finish();
+      }
     };
-    window.addEventListener("pointerdown", skip);
-    window.addEventListener("keydown", skip);
+    overlay.addEventListener("animationend", onEnd);
 
-    // CSS owns the motion; this timer only tears the element down after it
-    // has left. 4000ms = --sg-out + --sg-out-dur in globals.css.
-    //
-    // Deliberately NOT cleared on unmount: nothing here touches component
-    // state, so a stray finish() after a mid-animation navigation is simply
-    // an attribute removal and an event nobody listens to.
-    let teardown = setTimeout(finish, 4000);
+    // Attach to the actual CSS clock, not hydration time. A delayed bundle
+    // may arrive after the animation has already finished. Its filled animation
+    // still exposes currentTime, so that case completes immediately as well.
+    const animation = overlay.getAnimations().find(
+      (item) => item instanceof CSSAnimation && item.animationName === "sg-splash-out",
+    );
+    const end = Number(animation?.effect?.getComputedTiming().endTime ?? 4700);
+    const elapsed = Number(animation?.currentTime ?? 0);
+    const teardown = window.setTimeout(finish, Math.max(0, end - elapsed) + 50);
+
+    return () => {
+      window.clearTimeout(teardown);
+      overlay.removeEventListener("animationend", onEnd);
+    };
   }, []);
 
   return (

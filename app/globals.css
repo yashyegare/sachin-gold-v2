@@ -182,32 +182,9 @@
     --tw-prose-td-borders: rgba(22, 35, 28, 0.1);
   }
 
-  /* ————— Brand splash (components/BrandSplash.tsx) —————
-
-     Plays on every load of the home page. One timeline, tuned in one place:
-     the --sg-* delays below. The panel lifts away at --sg-out +
-     --sg-out-dur ≈ 4.0s, which is the number the component's teardown timer
-     matches.
-
-     The element is always in the DOM on the home page but display:none
-     unless the inline gate script in the layout has set [data-splash] on
-     <html> before first paint. That ordering is the whole trick: the
-     curtain exists at the very first frame instead of slamming over an
-     already-painted page. (An attribute, not a class, because <html>
-     already carries React's font-variable className — React owns that
-     attribute's value and this one is nobody else's to fight over.) */
+  /* First homepage visit: CSS starts at first paint and exits after 4.7s,
+     even if hydration is late or unavailable. BrandSplash observes completion. */
   .sg-splash {
-    /* 4.0s end to end, one beat at a time: shield lands, laurel descends onto
-       it, a sheen crosses the foil, the rule draws out from the centre and
-       fills as the honest "this will end" cue, the caption rises — then the
-       lockup settles and the curtain lifts at --sg-out and is fully gone at
-       --sg-out + --sg-out-dur. Both halves of that sum are mirrored by the
-       teardown timer in BrandSplash.tsx — change one, change the other.
-       The build-up is deliberately front-loaded: the last element settles at
-       2.0s and the lift starts at 3.15s, so 1.15s of the 4.0s is dwell on a
-       complete mark. That is where the extra second actually lands — not in
-       more movement. It also keeps the opening frame from being an empty dark
-       panel, which is what a 0.15s first delay read as. */
     --sg-shield: 0.05s;
     --sg-laurel: 0.35s;
     --sg-sheen: 0.75s;
@@ -216,7 +193,7 @@
     --sg-bar-dur: 0.6s;
     --sg-meta: 1.5s;
     --sg-meta-dur: 0.5s;
-    --sg-out: 3.3s;
+    --sg-out: 4s;
     --sg-out-dur: 0.7s;
     /* The lockup starts leaving 150ms before the panel does, so the badge is
        already fading when the lift begins instead of being sliced by it. */
@@ -409,11 +386,6 @@
     /* The gold in the caption is the only place the brand colour appears as
        text here — the wordmark itself is already in the artwork. */
     color: rgba(231, 192, 112, 0.85);
-  }
-
-  /* Click / tap / any key: cut straight to the exit. */
-  html[data-splash] .sg-splash.is-skipped {
-    animation: sg-splash-out 0.35s var(--ease-brand) both;
   }
 
   @keyframes sg-splash-settle {

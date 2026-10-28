@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "images": "node scripts/process-images.mjs"
+    "images": "node scripts/process-images.mjs",
+    "test:splash": "node scripts/test-splash.cjs"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
@@ -29,6 +30,7 @@
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.35",
+    "playwright": "^1.64.1",
     "postcss": "^8.4.38",
     "sharp": "^0.35.4",
     "tailwindcss": "^3.4.4",
