@@ -15,6 +15,9 @@ export const routing = defineRouting({
   defaultLocale: "en",
   // English serves at / (no prefix); the other five are always prefixed.
   localePrefix: "as-needed",
+  // The shared metadata helper owns canonical-origin hreflang. Avoid a
+  // second set of Link headers derived from a preview/incoming hostname.
+  alternateLinks: false,
 });
 
 // Locale type for the whole app — derive, never hand-write.

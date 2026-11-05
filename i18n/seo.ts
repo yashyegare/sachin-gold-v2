@@ -1,3 +1,4 @@
+import { getSeoSettings } from "../config/seo.mjs";
 import type { Metadata } from "next";
 import { company, siteUrl } from "@/data/company";
 import { routing, type Locale } from "./routing";
@@ -68,17 +69,8 @@ export function absoluteUrl(locale: string, path: string): string {
   return `${siteUrl}${joinUrl(prefixOf(locale), path)}`;
 }
 
-/**
- * A meta description is truncated by Google around 160 characters, and a
- * page that exceeds it gets a machine-written summary instead. Cutting at
- * the last whole word keeps the sentence readable in every script.
- */
-function clampDescription(text: string): string {
-  if (text.length <= 160) return text;
-  const cut = text.slice(0, 160).lastIndexOf(" ");
-  return `${text.slice(0, cut > 80 ? cut : 157).trimEnd()}…`;
-}
-
+// Google chooses snippets dynamically; preserve complete, localized copy
+// instead of imposing an arbitrary character limit or inserting an ellipsis.
 export function pageMetadata({
   locale,
   path,
@@ -92,14 +84,15 @@ export function pageMetadata({
   description: string;
   type?: "website" | "article";
 }): Metadata {
-  const canonical = joinUrl(prefixOf(locale), path);
+  const canonical = absoluteUrl(locale, path);
+  const settings = getSeoSettings();
 
   const languages: Record<string, string> = {};
   for (const code of routing.locales) {
-    languages[code] = joinUrl(prefixOf(code), path);
+    languages[code] = absoluteUrl(code, path);
   }
   // x-default: the URL a locale-unknown visitor is negotiated to.
-  languages["x-default"] = joinUrl("", path);
+  languages["x-default"] = absoluteUrl(routing.defaultLocale, path);
 
   const image = ogImageUrl(locale);
   // <title> goes through the layout's `%s | Sachin Gold` template; og:title
@@ -108,7 +101,7 @@ export function pageMetadata({
   const socialTitle = title
     ? `${title} | ${company.name}`
     : `${company.name} | ${company.tagline}`;
-  const summary = clampDescription(description);
+  const summary = description.trim().replace(/\s+/g, " ");
 
   return {
     metadataBase: new URL(siteUrl),
@@ -117,6 +110,14 @@ export function pageMetadata({
     // homepage then ships with no <title> at all.
     ...(title ? { title } : {}),
     description: summary,
+    verification: {
+      ...(settings.verification.google ? { google: settings.verification.google } : {}),
+      ...(settings.verification.bing ? { other: { 'msvalidate.01': settings.verification.bing } } : {}),
+    },
+    robots: {
+      index: !settings.isPreview, follow: true,
+      googleBot: { index: !settings.isPreview, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
+    },
     alternates: { canonical, languages },
     openGraph: {
       type,
@@ -125,6 +126,7 @@ export function pageMetadata({
       title: socialTitle,
       description: summary,
       locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE[routing.defaultLocale],
+      alternateLocale: routing.locales.filter(code => code !== locale).map(code => OG_LOCALE[code]),
       images: [{ url: image, ...OG_SIZE, alt: OG_ALT }],
     },
     twitter: {

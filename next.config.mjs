@@ -1,3 +1,4 @@
+import { seoHeaders, seoRedirects } from "./config/seo.mjs";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
@@ -22,6 +23,7 @@ const nextConfig = {
   // HSTS at the edge automatically.)
   async headers() {
     return [
+      ...seoHeaders(),
       {
         source: "/(.*)",
         headers: [
@@ -50,6 +52,7 @@ const nextConfig = {
   // the nearest real content instead of to a path V2 has no route for.
   async redirects() {
     return [
+      ...seoRedirects(),
       { source: "/index.html", destination: "/", permanent: true },
       { source: "/about.html", destination: "/about", permanent: true },
       { source: "/services.html", destination: "/services", permanent: true },

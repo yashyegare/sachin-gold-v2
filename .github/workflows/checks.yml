@@ -34,6 +34,7 @@ jobs:
         run: |
           npm run start -- --port 3100 > server.log 2>&1 &
           node -e "(async()=>{for(let i=0;i<30;i++){try{if((await fetch('http://localhost:3100')).ok)return}catch{}await new Promise(r=>setTimeout(r,1000))}process.exit(1)})()"
+      - run: npm run test:seo
       - run: npm run test:browser
       - run: npm run test:splash
       - uses: actions/upload-artifact@v4

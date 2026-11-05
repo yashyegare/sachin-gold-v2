@@ -13,6 +13,7 @@ import {
 import { useTranslations } from "next-intl";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
+import { trackConversion } from "@/lib/conversions";
 
 type Status = "idle" | "submitting" | "success" | "handoff" | "error";
 type FieldErrors = Record<string, string>;
@@ -122,6 +123,7 @@ export default function ContactForm() {
       return;
     }
 
+    trackConversion("enquiry_form_submit");
     setStatus("submitting");
 
     if (!accessKey) {
@@ -150,6 +152,7 @@ export default function ContactForm() {
       )}&body=${encodeURIComponent(body)}`;
       setErrors({});
       setHandoffHref(href);
+      trackConversion("enquiry_email_handoff");
       setStatus("handoff");
       window.location.href = href;
       return;
@@ -169,13 +172,16 @@ export default function ContactForm() {
       if (!response.ok) throw new Error("Enquiry service unavailable");
       const result = await response.json();
       if (result.success) {
+        trackConversion("enquiry_form_success");
         setStatus("success");
         form.reset();
         setErrors({});
       } else {
+        trackConversion("enquiry_form_error");
         setStatus("error");
       }
     } catch {
+      trackConversion("enquiry_form_error");
       setStatus("error");
     } finally {
       window.clearTimeout(timeout);

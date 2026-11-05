@@ -1,3 +1,4 @@
+import { getSeoSettings } from "../config/seo.mjs";
 import type { CompanyInfo } from "@/lib/types";
 
 // Real contact details, pulled directly from the live site's contact.html
@@ -83,7 +84,7 @@ export const company: CompanyInfo = {
 // Canonical origin — used by metadata, JSON-LD, sitemap and robots.
 // Override per deployment during domain cutover; never infer the canonical
 // origin from an untrusted incoming Host header.
-export const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://sachingold.com").origin;
+export const siteUrl = getSeoSettings().origin;
 
 /**
  * Licence and certification identifiers. EMPTY ON PURPOSE — nothing here was
