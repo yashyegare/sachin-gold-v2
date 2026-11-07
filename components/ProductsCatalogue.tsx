@@ -23,22 +23,42 @@ export default function ProductsCatalogue({
   products: Product[];
 }) {
   const t = useTranslations("services");
+  const ux = useTranslations("buyerUx");
+  const [query, setQuery] = useState("");
   const categories = [...new Set(products.map((p) => p.category))];
   const [active, setActive] = useState<string | null>(null);
 
-  const visible = active
-    ? products.filter((p) => p.category === active)
-    : products;
+  const visible = products.filter(
+    (p) =>
+      (!active || p.category === active) &&
+      `${p.name} ${p.category}`
+        .toLocaleLowerCase()
+        .includes(query.trim().toLocaleLowerCase()),
+  );
 
   const chipClass = (selected: boolean) =>
-    `rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+    `min-h-11 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
       selected
         ? "border-pine bg-pine text-white"
         : "border-ink/15 bg-white text-ink/70 hover:border-pine/40 hover:text-pine"
     }`;
 
   return (
-    <div>
+    <div data-product-catalogue>
+      <label
+        className="mb-5 block max-w-md text-sm font-medium text-ink"
+        htmlFor="catalogue-search"
+      >
+        {ux("searchProducts")}
+        <input
+          id="catalogue-search"
+          type="search"
+          maxLength={100}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          className="sg-search mt-2"
+        />
+      </label>
       <div
         role="group"
         aria-label={t("catalogueFilterAria")}
@@ -66,10 +86,31 @@ export default function ProductsCatalogue({
         ))}
       </div>
 
-      <ul className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 flex items-center gap-4 text-sm text-ink/70">
+        <p role="status">{ux("results", { count: visible.length })}</p>
+        {(query || active) && (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setActive(null);
+            }}
+            className="min-h-11 font-semibold text-pine underline underline-offset-4"
+          >
+            {ux("reset")}
+          </button>
+        )}
+      </div>
+      {visible.length === 0 && (
+        <p className="mt-6 border border-ink/10 bg-linen p-5">{ux("empty")}</p>
+      )}
+      <ul className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {visible.map((product) => (
           <li key={product.slug} className="h-full">
-            <ProductCard product={product} termsLabel={t("catalogueTermsLink")} />
+            <ProductCard
+              product={product}
+              termsLabel={t("catalogueTermsLink")}
+            />
           </li>
         ))}
       </ul>

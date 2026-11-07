@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, type FormEvent, type FocusEvent, type ReactNode } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  type FormEvent,
+  type FocusEvent,
+  type ReactNode,
+} from "react";
 import {
   ArrowRight,
   CircleCheck,
@@ -11,6 +18,8 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { quoteFromForm } from "@/lib/enquiry";
+import EnquiryBuilder from "@/components/EnquiryBuilder";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 import { trackConversion } from "@/lib/conversions";
@@ -72,22 +81,37 @@ const FIELD_OK_CLASS = "border-ink/25";
 export default function ContactForm() {
   const t = useTranslations("contactForm");
   const tc = useTranslations("contact");
+  const ux = useTranslations("buyerUx");
+  const [quoteReady, setQuoteReady] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [handoffHref, setHandoffHref] = useState("");
   const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
 
-  function validateField(name: string, value: string): string | null {
+  useEffect(() => {
+    if (status === "success" || status === "handoff")
+      resultRef.current?.focus();
+  }, [status]);
+
+  function validateField(
+    name: string,
+    value: string,
+    ready = quoteReady,
+  ): string | null {
     if (name === "name" && !value.trim()) return t("requiredError");
     if (name === "email") {
       if (!value.trim()) return t("requiredError");
       if (!EMAIL_RE.test(value.trim())) return t("emailError");
     }
-    if (name === "message" && !value.trim()) return t("requiredError");
+    if (name === "message" && !value.trim() && !ready)
+      return t("requiredError");
     return null;
   }
 
-  function handleBlur(event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleBlur(
+    event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
     const { name, value } = event.currentTarget;
     const message = validateField(name, value);
     setErrors((prev) => {
@@ -109,7 +133,11 @@ export default function ContactForm() {
     const formData = new FormData(form);
     const nextErrors: FieldErrors = {};
     for (const name of REQUIRED_FIELDS) {
-      const message = validateField(name, String(formData.get(name) ?? ""));
+      const message = validateField(
+        name,
+        String(formData.get(name) ?? ""),
+        Boolean(quoteFromForm(formData)),
+      );
       if (message) nextErrors[name] = message;
     }
     if (Object.keys(nextErrors).length > 0) {
@@ -123,6 +151,32 @@ export default function ContactForm() {
       return;
     }
 
+    const composedQuote = quoteFromForm(formData);
+    const detailKeys = [
+      "requirement_type",
+      "product",
+      "quantity",
+      "quantity_unit",
+      "destination",
+      "pickup",
+      "storage_days",
+    ];
+    if (
+      !["product", "quantity", "destination", "pickup", "storage_days"].some(
+        (key) => String(formData.get(key) ?? "").trim(),
+      )
+    ) {
+      detailKeys.forEach((key) => formData.delete(key));
+    }
+    const details = detailKeys
+      .map((key) => [key, String(formData.get(key) ?? "").trim()])
+      .filter(([, value]) => value)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    formData.set(
+      "message",
+      `${String(formData.get("message") || "")}\n\n${composedQuote || details}`,
+    );
     trackConversion("enquiry_form_submit");
     setStatus("submitting");
 
@@ -175,6 +229,7 @@ export default function ContactForm() {
         trackConversion("enquiry_form_success");
         setStatus("success");
         form.reset();
+        setQuoteReady(false);
         setErrors({});
       } else {
         trackConversion("enquiry_form_error");
@@ -189,9 +244,11 @@ export default function ContactForm() {
   }
 
   return (
-    <div>
+    <div id="enquiry" className="scroll-mt-28" data-contact-form>
       {status === "success" ? (
         <div
+          ref={resultRef}
+          tabIndex={-1}
           role="status"
           className="animate-fade-in border border-pine/25 bg-pine/[0.04] p-6 text-ink"
         >
@@ -201,6 +258,7 @@ export default function ContactForm() {
           </p>
           <p className="mt-2 text-sm leading-relaxed text-ink/80">
             {t("successBody")}
+            <span className="mt-2 block">{ux("successNext")}</span>
           </p>
           <button
             type="button"
@@ -223,6 +281,17 @@ export default function ContactForm() {
             aria-hidden="true"
           />
 
+          <EnquiryBuilder
+            onReadyChange={(ready) => {
+              setQuoteReady(ready);
+              if (ready)
+                setErrors((previous) => {
+                  const next = { ...previous };
+                  delete next.message;
+                  return next;
+                });
+            }}
+          />
           <div className="grid gap-5 sm:grid-cols-2">
             <Field
               label={t("name")}
@@ -245,15 +314,19 @@ export default function ContactForm() {
             <Field label={t("phone")} name="phone" type="tel" />
           </div>
           <div>
-            <Label htmlFor="message" label={t("requirement")} required />
+            <Label
+              htmlFor="message"
+              label={t("requirement")}
+              required={!quoteReady}
+            />
             <textarea
               id="message"
               name="message"
               rows={5}
               maxLength={5000}
-              required
+              required={!quoteReady}
               onBlur={handleBlur}
-              aria-required="true"
+              aria-required={!quoteReady}
               aria-invalid={Boolean(errors.message)}
               aria-describedby={errors.message ? "message-error" : undefined}
               placeholder={t("requirementPlaceholder")}
@@ -261,11 +334,15 @@ export default function ContactForm() {
                 errors.message ? FIELD_ERROR_CLASS : FIELD_OK_CLASS
               }`}
             />
-            {errors.message && <FieldError id="message-error">{errors.message}</FieldError>}
+            {errors.message && (
+              <FieldError id="message-error">{errors.message}</FieldError>
+            )}
           </div>
 
           {status === "handoff" && (
             <div
+              ref={resultRef}
+              tabIndex={-1}
               role="status"
               className="animate-fade-in border border-wheat/45 bg-wheat/[0.07] px-4 py-4"
             >
@@ -295,7 +372,11 @@ export default function ContactForm() {
               role="alert"
               className="flex items-start gap-2.5 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
             >
-              <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <TriangleAlert
+                size={16}
+                className="mt-0.5 shrink-0"
+                aria-hidden="true"
+              />
               {t("error")}
             </p>
           )}
@@ -307,7 +388,11 @@ export default function ContactForm() {
           >
             {status === "submitting" ? (
               <>
-                <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+                <Loader2
+                  size={15}
+                  className="animate-spin"
+                  aria-hidden="true"
+                />
                 {t("sending")}
               </>
             ) : (
@@ -338,7 +423,13 @@ export default function ContactForm() {
               company.whatsapp,
               "Hi Sachin Gold, I have a bulk enquiry.",
             )}
-            icon={<MessageSquareText size={17} strokeWidth={1.75} aria-hidden="true" />}
+            icon={
+              <MessageSquareText
+                size={17}
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            }
             label={tc("pillWhatsapp")}
             value={company.phone}
             external

@@ -140,9 +140,9 @@ function LanguageSwitcher() {
           size={15}
           strokeWidth={1.5}
           aria-hidden="true"
-          className="hidden sm:block"
+          className="shrink-0"
         />
-        {t("language")}
+        <span className="sr-only min-[400px]:not-sr-only">{t("language")}</span>
         <ChevronDown
           size={13}
           strokeWidth={1.5}
@@ -169,9 +169,7 @@ function LanguageSwitcher() {
                 onClick={() => setOpen(false)}
                 aria-current={code === locale ? "true" : undefined}
                 className={`block rounded-sm px-3 py-2 text-sm transition-colors hover:bg-linen hover:text-pine focus:bg-linen focus:text-pine ${
-                  code === locale
-                    ? "font-semibold text-pine"
-                    : "text-ink/75"
+                  code === locale ? "font-semibold text-pine" : "text-ink/75"
                 }`}
               >
                 {localeNames[code]}
@@ -274,7 +272,7 @@ export default function Navbar() {
         className="h-0.5 w-full bg-gradient-to-r from-pine-deep via-wheat to-pine-deep"
         aria-hidden="true"
       />
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:gap-6 sm:px-6">
         {/* The mark + wordmark — the gold-foil Sachin Gold badge used across
             the site (public/images/brand/sachin-badge.webp). */}
         <Link
@@ -485,7 +483,7 @@ export default function Navbar() {
             {companyPhoneDisplay}
           </a>
           <Link
-            href="/contact"
+            href="/contact#enquiry"
             className={`whitespace-nowrap rounded-sm px-5 py-2.5 text-sm font-semibold text-white shadow-elevated-sm transition-all hover:-translate-y-px hover:shadow-elevated ${
               isActive("/contact") ? "bg-pine-deep" : "bg-pine"
             }`}
@@ -495,7 +493,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile: language + toggle */}
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="flex shrink-0 items-center gap-1 lg:hidden">
           <LanguageSwitcher />
           <button
             type="button"
@@ -578,7 +576,9 @@ export default function Navbar() {
                     <Link
                       href={`/services/${slug}`}
                       aria-current={
-                        nextPathname === `/services/${slug}` ? "page" : undefined
+                        nextPathname === `/services/${slug}`
+                          ? "page"
+                          : undefined
                       }
                       className={`block py-2 text-sm ${
                         nextPathname === `/services/${slug}`
@@ -616,7 +616,7 @@ export default function Navbar() {
             </li>
             <li className="py-4">
               <Link
-                href="/contact"
+                href="/contact#enquiry"
                 className="block rounded-sm bg-pine px-4 py-3 text-center text-sm font-medium text-white"
               >
                 {t("cta")}

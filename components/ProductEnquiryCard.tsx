@@ -1,3 +1,4 @@
+import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { whatsappLink } from "@/lib/whatsapp";
@@ -14,6 +15,7 @@ import type { Product } from "@/lib/types";
  */
 export default function ProductEnquiryCard({ product }: { product: Product }) {
   const t = useTranslations("rates");
+  const ux = useTranslations("buyerUx");
   const hasImage = product.image.length > 0;
 
   return (
@@ -56,6 +58,16 @@ export default function ProductEnquiryCard({ product }: { product: Product }) {
           {t("enquire")}
           <ArrowRight size={13} aria-hidden="true" />
         </a>
+        <Link
+          href={{
+            pathname: "/contact",
+            query: { product: product.slug },
+            hash: "enquiry",
+          }}
+          className="inline-flex min-h-11 items-center text-xs font-medium text-pine underline underline-offset-4"
+        >
+          {ux("quoteTitle")}
+        </Link>
       </div>
     </div>
   );

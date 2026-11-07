@@ -27,7 +27,7 @@ export default async function CTA({
   title,
   description,
   ctaLabel,
-  ctaHref = "/contact",
+  ctaHref = "/contact#enquiry",
 }: CTAProps) {
   const t = await getTranslations("home.cta");
   const resolvedTitle = title ?? t("title");
