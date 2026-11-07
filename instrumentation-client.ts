@@ -14,9 +14,9 @@ if (!window.va) {
 document.addEventListener('click', event => {
   if (!(event.target instanceof Element)) return;
   const link = event.target.closest<HTMLAnchorElement>('a[href]');
-  if (!link) return;
+  if (!link || link.hasAttribute('data-conversion-managed')) return;
   const name = classifyConversion(link.href, window.location.origin);
   if (!name) return;
-  const source = link.closest('header') ? 'header' : link.closest('footer') ? 'footer' : link.classList.contains('fixed') ? 'floating' : 'content';
+  const source = link.closest('header') ? 'header' : link.closest('footer') ? 'footer' : (link.classList.contains('fixed') || link.closest('.sg-mobile-contact')) ? 'floating' : 'content';
   trackConversion(name, source);
 }, { capture: true });

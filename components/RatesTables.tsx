@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
+import CopyRateButton from "@/components/CopyRateButton";
 import {
   ArrowRight,
   Droplets,
@@ -67,18 +69,83 @@ const groupIconsByIndex: Record<number, typeof Droplets> = {
 const ROW_CTA =
   "inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border border-ink/15 bg-white px-3 py-1.5 text-xs font-semibold text-ink/70 shadow-elevated-sm transition-all duration-200 [transition-timing-function:var(--ease-brand)] group-hover:border-whatsapp/40 hover:-translate-y-px hover:border-whatsapp hover:bg-whatsapp hover:text-white hover:shadow-elevated";
 
-export default function RatesTables({
-  groups,
-}: {
-  groups: RateGroupView[];
-}) {
+export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
   const t = useTranslations("rates");
+  const ux = useTranslations("buyerUx");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<string | null>(null);
+  const visibleGroups = groups
+    .map((group, sourceIndex) => ({
+      ...group,
+      sourceIndex,
+      rows: group.rows.filter(
+        (row) =>
+          (!category || category === group.title) &&
+          row.product
+            .toLocaleLowerCase()
+            .includes(query.trim().toLocaleLowerCase()),
+      ),
+    }))
+    .filter((group) => group.rows.length > 0);
+  const count = visibleGroups.reduce(
+    (sum, group) => sum + group.rows.length,
+    0,
+  );
 
   return (
     <>
-      {groups.map((group, gi) => {
-        const GroupIcon = groupIconsByIndex[gi] ?? Wheat;
-        const groupImage = groupImagesByIndex[gi];
+      <div className="mb-8 space-y-4 print:hidden" data-rate-search>
+        <label
+          htmlFor="rates-search"
+          className="block max-w-md text-sm font-medium text-ink"
+        >
+          {ux("searchRates")}
+          <input
+            id="rates-search"
+            type="search"
+            maxLength={100}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="sg-search mt-2"
+          />
+        </label>
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={ux("searchRates")}
+        >
+          {[null, ...groups.map((group) => group.title)].map((value) => (
+            <button
+              key={value ?? "all"}
+              type="button"
+              aria-pressed={category === value}
+              onClick={() => setCategory(value)}
+              className="sg-filter"
+            >
+              {value ?? ux("all")}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-4 text-sm text-ink/70">
+          <p role="status">{ux("results", { count })}</p>
+          {(query || category) && (
+            <button
+              type="button"
+              className="min-h-11 font-semibold text-pine underline underline-offset-4"
+              onClick={() => {
+                setQuery("");
+                setCategory(null);
+              }}
+            >
+              {ux("reset")}
+            </button>
+          )}
+        </div>
+        {count === 0 && <p className="bg-linen p-5">{ux("empty")}</p>}
+      </div>
+      {visibleGroups.map((group, gi) => {
+        const GroupIcon = groupIconsByIndex[group.sourceIndex] ?? Wheat;
+        const groupImage = groupImagesByIndex[group.sourceIndex];
         return (
           <Reveal key={group.title} className={gi > 0 ? "mt-14" : ""}>
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-4">
@@ -167,7 +234,11 @@ export default function RatesTables({
                         >
                           <td className="px-2 py-4 font-medium text-ink first:pl-0 print:py-2.5">
                             {row.product}
-                            {row.updatedOn && <span className="mt-1 block text-xs font-normal text-ink/60">{t("bannerUpdated", { time: row.updatedOn })}</span>}
+                            {row.updatedOn && (
+                              <span className="mt-1 block text-xs font-normal text-ink/60">
+                                {t("bannerUpdated", { time: row.updatedOn })}
+                              </span>
+                            )}
                             {row.flagship && (
                               <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
                                 {t("flagship")}
@@ -185,6 +256,7 @@ export default function RatesTables({
                           {/* Labelled chip, right-aligned in a column that
                               hugs it. */}
                           <td className="w-px py-3 pl-3 pr-0 text-right print:hidden">
+                            <CopyRateButton row={row} />
                             <a
                               href={row.enquiryHref}
                               target="_blank"
@@ -215,7 +287,11 @@ export default function RatesTables({
                     >
                       <p className="font-display text-base text-ink">
                         {row.product}
-                        {row.updatedOn && <span className="mt-1 block text-xs font-normal text-ink/60">{t("bannerUpdated", { time: row.updatedOn })}</span>}
+                        {row.updatedOn && (
+                          <span className="mt-1 block text-xs font-normal text-ink/60">
+                            {t("bannerUpdated", { time: row.updatedOn })}
+                          </span>
+                        )}
                         {row.flagship && (
                           <span className="ml-2 inline-block rounded-full border border-wheat-dark/50 px-1.5 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark">
                             {t("flagship")}
@@ -232,18 +308,21 @@ export default function RatesTables({
                           </span>{" "}
                           <span className="text-ink/50">{row.quoted.unit}</span>
                         </p>
-                        <a
-                          href={row.enquiryHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={t("enquireAria", {
-                            product: row.product,
-                          })}
-                          className={`${ROW_CTA} min-h-[44px] shrink-0 justify-center px-3.5 active:bg-whatsapp active:text-white`}
-                        >
-                          <MessageCircle size={14} aria-hidden="true" />
-                          {t("enquire")}
-                        </a>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          <CopyRateButton row={row} />
+                          <a
+                            href={row.enquiryHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={t("enquireAria", {
+                              product: row.product,
+                            })}
+                            className={`${ROW_CTA} min-h-[44px] shrink-0 justify-center px-3.5 active:bg-whatsapp active:text-white`}
+                          >
+                            <MessageCircle size={14} aria-hidden="true" />
+                            {t("enquire")}
+                          </a>
+                        </div>
                       </div>
                     </li>
                   );

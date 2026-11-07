@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { MessageSquareText } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { MessageSquareText, PhoneCall } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
 import { company } from "@/data/company";
 import { whatsappLink } from "@/lib/whatsapp";
 
@@ -27,6 +27,9 @@ import { whatsappLink } from "@/lib/whatsapp";
  */
 export default function StickyContactButtons() {
   const t = useTranslations("home.float");
+  const ux = useTranslations("buyerUx");
+  const pathname = usePathname();
+  const [obstructed, setObstructed] = useState(false);
   const [heroControlsVisible, setHeroControlsVisible] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -52,14 +55,17 @@ export default function StickyContactButtons() {
       return;
     }
 
-    function onGateOpened() { setReady(false); }
+    function onGateOpened() {
+      setReady(false);
+    }
     window.addEventListener("sg-lang-gate-opened", onGateOpened);
     function onGateClosed() {
       setReady(true);
     }
     window.addEventListener("sg-lang-gate-closed", onGateClosed);
     const fallback = setTimeout(() => {
-      if (!document.querySelector('[aria-labelledby="lang-gate-title"]')) setReady(true);
+      if (!document.querySelector('[aria-labelledby="lang-gate-title"]'))
+        setReady(true);
     }, 8000);
     return () => {
       window.removeEventListener("sg-lang-gate-closed", onGateClosed);
@@ -70,35 +76,103 @@ export default function StickyContactButtons() {
 
   useEffect(() => {
     const controls = document.querySelector("[data-hero-controls]");
-    if (!controls || typeof IntersectionObserver === "undefined") return;
+    if (!controls || typeof IntersectionObserver === "undefined") {
+      setHeroControlsVisible(false);
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => setHeroControlsVisible(entries[0]?.isIntersecting ?? false),
       { threshold: 0.5 },
     );
     io.observe(controls);
     return () => io.disconnect();
-  }, []);
+  }, [pathname]);
 
   // Both courtesies must clear before the pair appears: language gate
   // closed (first visit) AND home hero controls scrolled away.
-  const pairVisible = ready && !heroControlsVisible;
+  useEffect(() => {
+    let frame = 0;
+    function check() {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const nodes = document.querySelectorAll("footer, [data-contact-form]");
+        const visible = Array.from(nodes).some((node) => {
+          const rect = node.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        });
+        const focused = document.activeElement?.matches(
+          "input, textarea, select",
+        );
+        const overlayOpen = Boolean(
+          document.querySelector('#mobile-nav, [aria-modal="true"]'),
+        );
+        setObstructed(visible || Boolean(focused) || overlayOpen);
+      });
+    }
+    check();
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    document.addEventListener("click", check);
+    document.addEventListener("focusin", check);
+    document.addEventListener("focusout", check);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+      document.removeEventListener("click", check);
+      document.removeEventListener("focusin", check);
+      document.removeEventListener("focusout", check);
+    };
+  }, [pathname]);
+
+  const pairVisible = ready && !heroControlsVisible && !obstructed;
   const hiddenClasses = pairVisible
     ? "translate-y-0 opacity-100"
     : "pointer-events-none translate-y-24 opacity-0";
 
   return (
     <>
+      <nav
+        aria-label={ux("enquire")}
+        inert={!pairVisible}
+        aria-hidden={!pairVisible}
+        className={`sg-mobile-contact fixed inset-x-3 bottom-3 z-40 grid grid-cols-3 divide-x divide-ink/10 rounded-lg border border-pine/20 bg-white text-xs font-semibold text-pine shadow-elevated transition-all duration-200 md:hidden ${hiddenClasses}`}
+      >
+        <a
+          href={`tel:${company.phone.replace(/[^+\d]/g, "")}`}
+          className="flex min-h-14 flex-col items-center justify-center gap-1"
+        >
+          <PhoneCall size={18} aria-hidden="true" />
+          {ux("call")}
+        </a>
+        <a
+          href={whatsappLink(company.whatsapp, t("message"))}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex min-h-14 flex-col items-center justify-center gap-1"
+        >
+          <MessageSquareText size={18} aria-hidden="true" />
+          {ux("whatsapp")}
+        </a>
+        <Link
+          href="/contact#enquiry"
+          className="flex min-h-14 flex-col items-center justify-center gap-1"
+        >
+          <MessageSquareText size={18} aria-hidden="true" />
+          {ux("enquire")}
+        </Link>
+      </nav>
       {/* Enquiry — internal link to the contact page/form, for visitors
           who'd rather not open WhatsApp. Pill shape (icon + short label)
           rather than an icon-only circle: unlike the WhatsApp glyph,
           "enquire" has no universally recognized icon, so the label is
           load-bearing, not decorative. */}
       <Link
-        href="/contact"
+        href="/contact#enquiry"
         tabIndex={pairVisible ? 0 : -1}
         aria-hidden={!pairVisible}
         aria-label={t("enquireLabel", { name: company.name })}
-        className={`fixed bottom-24 right-5 z-40 flex h-12 items-center gap-2 rounded-full bg-pine pl-4 pr-5 text-sm font-semibold text-white shadow-[0_4px_10px_-4px_rgba(10,54,32,0.5),0_16px_32px_-10px_rgba(10,54,32,0.45)] transition-all duration-300 hover:-translate-y-px hover:bg-pine-deep ${hiddenClasses}`}
+        className={`hidden md:flex fixed bottom-24 right-5 z-40 h-12 items-center gap-2 rounded-full bg-pine pl-4 pr-5 text-sm font-semibold text-white shadow-[0_4px_10px_-4px_rgba(10,54,32,0.5),0_16px_32px_-10px_rgba(10,54,32,0.45)] transition-all duration-300 hover:-translate-y-px hover:bg-pine-deep ${hiddenClasses}`}
       >
         <MessageSquareText size={18} strokeWidth={2} aria-hidden="true" />
         {t("enquireText")}
@@ -111,7 +185,7 @@ export default function StickyContactButtons() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("label", { name: company.name })}
-        className={`fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_4px_10px_-4px_rgba(19,110,66,0.55),0_16px_32px_-10px_rgba(37,211,102,0.55)] transition-all duration-300 hover:scale-105 hover:bg-[#20bd5a] ${hiddenClasses}`}
+        className={`hidden md:flex fixed bottom-5 right-5 z-40 h-14 w-14 items-center justify-center rounded-full bg-[#25D366] p-3.5 text-white shadow-[0_4px_10px_-4px_rgba(19,110,66,0.55),0_16px_32px_-10px_rgba(37,211,102,0.55)] transition-all duration-300 hover:scale-105 hover:bg-[#20bd5a] ${hiddenClasses}`}
       >
         <svg
           width="24"
