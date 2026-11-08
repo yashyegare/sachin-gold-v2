@@ -109,6 +109,10 @@ export default function StickyContactButtons() {
         setObstructed(visible || Boolean(focused) || overlayOpen);
       });
     }
+    // Streaming content, images and fonts can move the footer without a scroll
+    // or window resize. Recheck after document layout changes as well.
+    const layoutObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(check);
+    layoutObserver?.observe(document.body);
     check();
     window.addEventListener("scroll", check, { passive: true });
     window.addEventListener("resize", check);
@@ -116,6 +120,7 @@ export default function StickyContactButtons() {
     document.addEventListener("focusin", check);
     document.addEventListener("focusout", check);
     return () => {
+      layoutObserver?.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", check);
       window.removeEventListener("resize", check);

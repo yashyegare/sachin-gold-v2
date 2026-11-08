@@ -177,6 +177,17 @@ const base = process.env.SPLASH_TEST_URL || "http://localhost:3100";
           .getAttribute("aria-hidden") === "false",
     );
     assert.equal(await dock.locator("a").count(), 3);
+    // Reproduce streamed content expanding after the initial footer check.
+    // Restoring content must reveal the dock without a scroll, click or resize.
+    await page.evaluate(() => {
+      document.querySelector("main").style.display = "none";
+      window.dispatchEvent(new Event("scroll"));
+    });
+    await page.waitForFunction(() => document.querySelector(".sg-mobile-contact").getAttribute("aria-hidden") === "true");
+    await page.evaluate(() => document.querySelector("main").style.removeProperty("display"));
+    await page.waitForFunction(() => document.querySelector(".sg-mobile-contact").getAttribute("aria-hidden") === "false");
+    console.log("PASS dock recovers after content layout shifts without user input");
+
     await page.locator('button[aria-controls="mobile-nav"]').click();
     await page.waitForFunction(() => document.querySelector(".sg-mobile-contact").getAttribute("aria-hidden") === "true");
     await page.locator('button[aria-controls="mobile-nav"]').click();
