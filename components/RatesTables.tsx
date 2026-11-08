@@ -13,20 +13,7 @@ import {
 import { useTranslations } from "next-intl";
 import Reveal from "@/components/Reveal";
 
-/**
- * The rate tables, as one client island: the row enquiry chips and the
- * per-group update stamps need the same translated strings, so the table
- * cannot be a server-rendered block.
- *
- * Actions here follow one rule — a loud enquiry per line group, and a
- * restrained labelled chip per row. Eleven identical green buttons turned
- * the price list into a button grid and made the numbers harder to read
- * than the WhatsApp flow they were meant to serve, so the row chip is
- * white-on-hairline until you point at it. It keeps the same per-product
- * prefilled message (built on the server, so the copy stays in one place)
- * and the row text stays selectable: a buyer at a mandi reads the number
- * out or copies it, they do not press the row.
- */
+/** Searchable rates with category-level enquiries and per-product copy actions. */
 
 export interface RateRowView {
   product: string;
@@ -34,7 +21,6 @@ export interface RateRowView {
   updatedOn: string | null;
   /** The line as the desk quotes it. */
   quoted: { price: string; unit: string };
-  enquiryHref: string;
 }
 
 export interface RateGroupView {
@@ -56,18 +42,6 @@ const groupIconsByIndex: Record<number, typeof Droplets> = {
   0: Droplets,
   1: Wheat,
 };
-
-/**
- * The per-row enquiry chip. Labelled, not glyph-only — "Enquire" has to be
- * readable for the button to mean anything to a first-time visitor. It
- * stays quiet at rest (white, hairline border, ink text) so eleven of them
- * still scan as a price list rather than a button grid, and only fills
- * WhatsApp green under the pointer. Row hover nudges the border alone:
- * colouring the text there would out-specify the button's own hover and
- * leave dark ink on a green fill.
- */
-const ROW_CTA =
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border border-ink/15 bg-white px-3 py-1.5 text-xs font-semibold text-ink/70 shadow-elevated-sm transition-all duration-200 [transition-timing-function:var(--ease-brand)] group-hover:border-whatsapp/40 hover:-translate-y-px hover:border-whatsapp hover:bg-whatsapp hover:text-white hover:shadow-elevated";
 
 export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
   const t = useTranslations("rates");
@@ -219,7 +193,7 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                         scope="col"
                         className="w-px py-3 pl-6 text-right font-semibold print:hidden"
                       >
-                        <span className="sr-only">{t("enquire")}</span>
+                        <span className="sr-only">{ux("copy")}</span>
                       </th>
                     </tr>
                   </thead>
@@ -253,22 +227,9 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                               {row.quoted.unit}
                             </span>
                           </td>
-                          {/* Labelled chip, right-aligned in a column that
-                              hugs it. */}
+                          {/* Keep the copy action next to its rate. */}
                           <td className="w-px py-3 pl-3 pr-0 text-right print:hidden">
                             <CopyRateButton row={row} />
-                            <a
-                              href={row.enquiryHref}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              aria-label={t("enquireAria", {
-                                product: row.product,
-                              })}
-                              className={ROW_CTA}
-                            >
-                              <MessageCircle size={13} aria-hidden="true" />
-                              {t("enquire")}
-                            </a>
                           </td>
                         </tr>
                       );
@@ -310,18 +271,6 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                         </p>
                         <div className="flex shrink-0 flex-col items-end gap-1">
                           <CopyRateButton row={row} />
-                          <a
-                            href={row.enquiryHref}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={t("enquireAria", {
-                              product: row.product,
-                            })}
-                            className={`${ROW_CTA} min-h-[44px] shrink-0 justify-center px-3.5 active:bg-whatsapp active:text-white`}
-                          >
-                            <MessageCircle size={14} aria-hidden="true" />
-                            {t("enquire")}
-                          </a>
                         </div>
                       </div>
                     </li>

@@ -171,7 +171,6 @@ export default async function RatesPage({ params }: Props) {
         price: rate.priceValue === undefined ? t("onRequest") : rate.price,
         unit: basisLabel(rate),
       },
-      enquiryHref: enquireLink(rate.product),
     })),
   }));
 
