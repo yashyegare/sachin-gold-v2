@@ -253,12 +253,12 @@ const base = process.env.SPLASH_TEST_URL || "http://localhost:3100";
     }
     await page.goto(base + "/");
     assert.equal(
-      await page.locator(".sg-logo-static .sg-logo-half").count(),
+      await page.locator(".sg-customer-half:not([aria-hidden])").count(),
       1,
     );
     assert.equal(
       await page
-        .locator(".sg-logo-track")
+        .locator(".sg-customer-track")
         .evaluate((node) => getComputedStyle(node).animationName),
       "none",
     );

@@ -116,7 +116,9 @@
     "logos": {
       "tagline": "Trusted by leading brands across the industry",
       "eyebrow": "Our Customers",
-      "description": "Grain, pulses and oil-seed products from Sachin Gold reach some of India's largest food and agribusiness companies."
+      "description": "Grain, pulses and oil-seed products from Sachin Gold reach some of India's largest food and agribusiness companies.",
+      "pause": "Pause customer logos",
+      "play": "Play customer logos"
     },
     "cta": {
       "title": "Looking to source in bulk?",
