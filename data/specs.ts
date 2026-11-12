@@ -3,7 +3,10 @@ import { getProductsByService } from "@/data/products";
 /**
  * Commercial terms — the numbers a bulk buyer actually decides on.
  *
- * READ THIS BEFORE SHIPPING. Nothing in this file came from the old site or
+ * Owner-confirmed corrections: jaggery ships as 10 kg per DAG; cotton seed
+ * oil cake and tamarind ship in 50 kg bags (material unspecified).
+ *
+ * READ THIS BEFORE SHIPPING. Other indicative terms did not come from the old site or
  * from the owner; the old site published no terms at all. The MOQs, pack
  * sizes and lead times below are ordinary market practice for a Maharashtra
  * soya-and-dal trader. They are therefore *indicative*, and the UI says so
@@ -57,12 +60,12 @@ export const productSpecs: Record<string, ProductSpec> = {
     lead: "4–6 working days",
   },
   jaggery: {
-    packs: "30 / 50 kg PP bag",
+    packs: "10 kg per DAG",
     moq: "25 MT",
     lead: "3–5 working days",
   },
   "cotton-seed-oil-cake": {
-    packs: "30 / 50 kg PP bag",
+    packs: "50 kg bag",
     moq: "25 MT",
     lead: "3–5 working days",
   },
@@ -72,7 +75,7 @@ export const productSpecs: Record<string, ProductSpec> = {
     lead: "2–4 working days",
   },
   tamarind: {
-    packs: "30 / 50 kg PP bag",
+    packs: "50 kg bag",
     moq: "25 MT",
     lead: "4–6 working days",
   },

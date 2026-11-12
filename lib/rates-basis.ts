@@ -3,13 +3,12 @@ import type { RateItem } from "@/lib/types";
 /**
  * Price basis maths for the rates table.
  *
- * The sheet quotes one line per metric ton, another per 10 kg pack and a
- * third per kg. Each row prints the line exactly as the desk quotes it, in
+ * The sheet quotes DOC per metric ton and oils, dals and flour per kg. Each row prints the line exactly as the desk quotes it, in
  * the reader's language — `unitLabel` folds the unit and its qualifier into
  * one phrase so a table cell and the WhatsApp share text say the same thing.
  */
 
-/** `unit` and its qualifier as one phrase: "per 10 kg, ex-plant". */
+/** `unit` and its qualifier as one phrase: "per kg, ex-plant". */
 export function unitLabel(
   item: Pick<RateItem, "unit" | "unitNote">,
 ): string {
