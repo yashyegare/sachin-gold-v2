@@ -1,0 +1,33 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const base=process.env.SPLASH_TEST_URL||'http://localhost:3100';
+(async()=>{const browser=await chromium.launch();try{
+ const page=await browser.newPage({viewport:{width:390,height:844},reducedMotion:'reduce'});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ let embeds=0;
+ await page.route('https://www.youtube-nocookie.com/embed/**',r=>{embeds++;return r.fulfill({contentType:'text/html',body:'<!doctype html><title>Mock video player</title><button>Play</button>'});});
+ await page.goto(base+'/about');
+ const panel=page.locator('[data-facility-video]');await panel.scrollIntoViewIfNeeded();
+ assert.equal(await panel.locator('iframe').count(),0);
+ assert.equal(embeds,0,'no video provider before explicit play');
+ assert.equal(await panel.getByRole('button',{name:'Watch the facility tour',exact:true}).isVisible(),true);
+ await page.waitForFunction(()=>document.querySelector('[data-facility-video] img')?.naturalWidth>0);
+ assert.equal(await panel.getByText('Watch the facility tour',{exact:true}).isVisible(),true,'caption visible without hover');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ const before=await panel.locator('.aspect-video').boundingBox();
+ await panel.getByRole('button',{name:'Watch the facility tour',exact:true}).focus();await page.keyboard.press('Enter');
+ await panel.locator('iframe').waitFor();await page.waitForFunction(()=>document.activeElement?.tagName==='IFRAME');
+ assert.equal(await panel.locator('iframe').getAttribute('allowfullscreen'),'');
+ assert.match(await panel.locator('iframe').getAttribute('src'),/youtube-nocookie.com\/embed\/v8zIFCYXlDs\?autoplay=1/);
+ await page.frameLocator('[data-facility-video] iframe').getByRole('button',{name:'Play',exact:true}).waitFor();
+ assert.equal(embeds,1);
+ assert.ok(await panel.getByRole('link',{name:'Watch our facility tour on YouTube'}).isVisible());
+ const after=await panel.locator('.aspect-video').boundingBox();assert.ok(Math.abs(before.height-after.height)<1,'player reserves poster dimensions');
+ console.log('PASS visible poster/play/caption, click-only embed, keyboard focus, no layout shift and YouTube fallback');
+ for(const locale of ['hi','mr','kn','te','ta']){await page.goto(base+'/'+locale+'/about');const block=page.locator('[data-facility-video]');assert.equal(await block.locator('button').count(),1);assert.ok(await block.locator('button').getAttribute('aria-label'));}
+ await page.context().clearCookies();
+ await page.setViewportSize({width:1280,height:900});await page.goto(base+'/about');await panel.scrollIntoViewIfNeeded();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+ const nojs=await browser.newContext({javaScriptEnabled:false});const plain=await nojs.newPage();await plain.goto(base+'/about');assert.equal(await plain.locator('[data-facility-video] a[href="https://youtu.be/v8zIFCYXlDs"]').count(),1);await nojs.close();
+ assert.deepEqual(errors,[]);console.log('PASS translated labels, desktop/mobile width, no-JS external link and no runtime errors');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1});

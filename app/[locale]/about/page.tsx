@@ -1,3 +1,4 @@
+import FacilityVideo from "@/components/FacilityVideo";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
@@ -517,46 +518,7 @@ export default async function AboutPage({ params }: Props) {
                 </Link>
               </div>
 
-              {/* The facility-tour video's actual YouTube thumbnail frame
-                  (pulled from the video itself into
-                  /images/facility/facility-tour-poster.webp) — a preview
-                  should show the video, not a stand-in photo. The heavy
-                  pine gradient of the old treatment is gone: over a real
-                  frame, the play chip, hairline border and hover lift
-                  carry the affordance, with only a whisper of scrim for
-                  play-button contrast. */}
-              <a
-                href="https://youtu.be/v8zIFCYXlDs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative flex aspect-video items-center justify-center overflow-hidden border border-ink/10 shadow-elevated-lg transition-all duration-300 [transition-timing-function:var(--ease-brand)] hover:-translate-y-1 hover:shadow-elevated-deep"
-              >
-                <BrandPhoto
-                  src="/images/facility/facility-tour-poster.webp"
-                  alt=""
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  imageClassName="transition-transform duration-700 group-hover:scale-[1.03]"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-pine-deep/20 transition-colors duration-300 [transition-timing-function:var(--ease-brand)] group-hover:bg-pine-deep/5"
-                />
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-wheat shadow-elevated ring-4 ring-white/25 transition-transform duration-300 [transition-timing-function:var(--ease-brand)] group-hover:scale-105">
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
-                    fill="white"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 3l12 7-12 7V3z" />
-                  </svg>
-                </span>
-                <span className="absolute bottom-4 left-0 right-0 text-center text-xs font-medium uppercase tracking-widest text-white/0 transition-colors duration-200 group-hover:text-white/80">
-                  {t("videoCaption")}
-                </span>
-                <span className="sr-only">{t("videoSr")}</span>
-              </a>
+              <FacilityVideo />
             </div>
           </Reveal>
         </div>

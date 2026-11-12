@@ -15,7 +15,8 @@
     "test:seo": "node scripts/test-seo.cjs",
     "test:ux": "node scripts/test-buyer-ux.cjs",
     "test:polish": "node scripts/test-polish.cjs",
-    "test:optimization": "node scripts/test-optimization.cjs"
+    "test:optimization": "node scripts/test-optimization.cjs",
+    "test:facility": "node scripts/test-facility-video.cjs"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",

@@ -53,7 +53,7 @@ export default function Testimonial({
       </figure>
 
       {testimonial.video && (
-        <div className="relative aspect-video overflow-hidden border border-t-0 border-ink/10 shadow-elevated-lg md:aspect-auto md:aspect-video md:border-l-0 md:border-t">
+        <div className="relative w-full min-w-0 self-center overflow-hidden border border-t-0 border-ink/10 shadow-elevated-lg md:border-l-0 md:border-t">
           {/* The poster gets one of the site's two curtain reveals — the
               below-fold, non-LCP moment that suits an observer-gated
               clip-path entrance. The curtain is fail-open: a delayed CSS
