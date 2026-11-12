@@ -24,3 +24,7 @@ Production routing, email provider credentials, Zoho configuration, prices and c
 ## Interface polish
 
 Shared product/service cards use consistent corners and keyboard focus, persistent service action labels, and restrained touch feedback. Form errors revalidate while correcting an invalid field; the form announces busy state and restores name-field focus when starting another enquiry. Mobile navigation includes keyboard looping, Escape focus return, same-page link closure, desktop-breakpoint scroll unlock, and a reduced-motion-aware opening transition. Repeating download glows and the rate-indicator pulse are removed; customer marquee behavior and splash remain unchanged. `npm run test:polish` covers the new menu and form recovery paths and runs in CI.
+
+## Approved splash revision
+
+Black-and-gold crest and wordmark layout matches the approved revised-motion concept. Original shield/laurel assets assemble, wordmark lines rise through masks, and a single sheen crosses the badge. Content fades before a bottom-to-top curtain reveals the homepage. CSS duration is 4.7 seconds, including the 0.8-second curtain exit. The existing initial-HTML gate, completion event and storage key are unchanged, preserving first-visit-only behavior, reduced-motion bypass and language-prompt sequencing. No video or animation library is loaded. Portrait and short landscape layouts have separate responsive proportions.
