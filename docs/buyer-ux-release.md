@@ -28,3 +28,5 @@ Shared product/service cards use consistent corners and keyboard focus, persiste
 ## Approved splash revision
 
 Black-and-gold crest and wordmark layout matches the approved revised-motion concept. Original shield/laurel assets assemble, wordmark lines rise through masks, and a single sheen crosses the badge. Content fades before a bottom-to-top curtain reveals the homepage. CSS duration is 4.7 seconds, including the 0.8-second curtain exit. The existing initial-HTML gate, completion event and storage key are unchanged, preserving first-visit-only behavior, reduced-motion bypass and language-prompt sequencing. No video or animation library is loaded. Portrait and short landscape layouts have separate responsive proportions.
+
+Splash playback update: every full homepage load/reload now plays the 4.7-second splash, regardless of the old sg-splash-seen storage marker. Internal client-side navigation does not trigger it; reduced-motion bypass and non-homepage behavior remain unchanged. No storage reads/writes are required for playback.

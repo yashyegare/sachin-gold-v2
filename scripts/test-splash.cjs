@@ -45,22 +45,36 @@ const base = process.env.SPLASH_TEST_URL || 'http://localhost:3100';
         assert.equal(result.done, 1, name + ': completion once');
         assert.ok(!visible.some(f => f.gate), name + ': language gate waits');
         console.log(name + ': ' + Math.round(duration) + 'ms');
-        if (!options.blocked) {
-          assert.equal(await page.evaluate(() => localStorage.getItem('sg-splash-seen')), '1');
-          await page.reload();
-          assert.equal(await page.locator('.sg-splash').isVisible(), false, name + ': reload skips');
+        if (options.reload) {
+          await page.reload({waitUntil: 'domcontentloaded'});
+          await page.waitForTimeout(6000);
+          const repeat = await page.evaluate(() => ({frames: window.splashFrames, done: window.doneCount}));
+          const replay = repeat.frames.filter(frame => frame.visible);
+          assert.ok(replay.length, name + ': reload replays');
+          assert.equal(repeat.done, 1, name + ': reload completes once');
+          const duration = replay.at(-1).t - replay[0].t;
+          assert.ok(duration >= 4400 && duration <= 5500, name + ': reload timing ' + duration);
         }
       }
       console.log('PASS ' + name);
       await context.close();
     }
-    await visit('first visit and incidental input', { input: true });
+    await visit('first visit and incidental input', { input: true, reload: true });
     await visit('mobile Marathi homepage', { path: '/mr', mobile: true });
-    await visit('returning visitor', { seen: true, skip: true });
+    await visit('returning visitor', { seen: true });
     await visit('reduced motion', { reduced: true, skip: true });
     await visit('non-homepage', { path: '/about', skip: true });
     await visit('storage blocked', { blocked: true });
     await visit('delayed hydration', { delay: true });
     await visit('JavaScript bundle unavailable', { noBundle: true });
+    const context = await browser.newContext();
+    await context.addInitScript(() => localStorage.setItem('sg-lang-choice', 'en'));
+    const page = await context.newPage();
+    await page.goto(base + '/about');
+    await page.locator('header a[aria-label="Sachin Gold — home"]').click();
+    await page.waitForURL(base + '/');
+    assert.equal(await page.locator('.sg-splash').isVisible(), false, 'SPA return does not replay');
+    await context.close();
+    console.log('PASS internal navigation to homepage skips splash');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

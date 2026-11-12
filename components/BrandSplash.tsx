@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 import { company } from "@/data/company";
 
-/** First homepage visit per browser. CSS owns the 4.7s timeline, including
- * before hydration; completion records the visit and releases LanguageGate. */
+/** Every full homepage load. CSS owns the 4.7s timeline, including
+ * before hydration; completion releases LanguageGate. */
 export const SPLASH_DONE_EVENT = "sg-splash-done";
 
 declare global {
@@ -36,11 +36,6 @@ export default function BrandSplash() {
       if (finished || !root.hasAttribute("data-splash")) return;
       finished = true;
       window.__sgSplashActive = false;
-      try {
-        localStorage.setItem("sg-splash-seen", "1");
-      } catch {
-        // Storage blocked: still finish, and allow playback on the next load.
-      }
       root.removeAttribute("data-splash");
       window.dispatchEvent(new Event(SPLASH_DONE_EVENT));
     };
