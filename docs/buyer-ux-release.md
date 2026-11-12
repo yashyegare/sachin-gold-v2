@@ -20,3 +20,7 @@ Run `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run build`, `
 The new browser suite covers quote validation and channel payloads, product prefilling, clipboard denial, download failure/retry, mobile dock visibility, responsive widths, all locales and runtime errors. Existing browser tests cover provider rejection, timeout and retry. Enquiry provider requests are mocked and WhatsApp destinations are intercepted; no real enquiries are delivered.
 
 Production routing, email provider credentials, Zoho configuration, prices and commercial terms are unchanged. This branch should be reviewed and merged before production release.
+
+## Interface polish
+
+Shared product/service cards use consistent corners and keyboard focus, persistent service action labels, and restrained touch feedback. Form errors revalidate while correcting an invalid field; the form announces busy state and restores name-field focus when starting another enquiry. Mobile navigation includes keyboard looping, Escape focus return, same-page link closure, desktop-breakpoint scroll unlock, and a reduced-motion-aware opening transition. Repeating download glows and the rate-indicator pulse are removed; customer marquee behavior and splash remain unchanged. `npm run test:polish` covers the new menu and form recovery paths and runs in CI.

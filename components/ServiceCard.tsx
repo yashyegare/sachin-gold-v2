@@ -17,7 +17,7 @@ export default async function ServiceCard({ service }: { service: Service }) {
   return (
     <Link
       href={service.href}
-      className="group block border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
+      className="sg-content-card group block border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-linen">
         {hasImage ? (
@@ -45,7 +45,7 @@ export default async function ServiceCard({ service }: { service: Service }) {
         {/* Hidden until hover on desktop — but always visible on touch
             devices (no hover there) and for keyboard focus, so the cue
             isn't inaccessible on exactly the devices buyers actually use. */}
-        <span className="mt-4 inline-flex items-center gap-1 text-sm text-wheat-dark transition-all duration-200 opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-x-1 [@media(hover:hover)]:group-hover:opacity-100">
+        <span className="mt-4 inline-flex items-center gap-1 text-sm text-wheat-dark transition-all duration-200 opacity-100 [@media(hover:hover)]:opacity-100 [@media(hover:hover)]:group-hover:translate-x-1 [@media(hover:hover)]:group-hover:opacity-100">
           {t("learnMore")}
           <ArrowRight size={12} strokeWidth={1.5} aria-hidden="true" />
         </span>

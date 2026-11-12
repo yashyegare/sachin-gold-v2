@@ -873,7 +873,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .sg-dl {
-    animation: sg-dl-glow 3.4s ease-in-out infinite;
+    animation: none;
   }
 
   @keyframes sg-dl-glow {
@@ -953,3 +953,20 @@
 @media (min-width: 640px) and (max-width: 1023px) { .sg-customer-half { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 1024px) and (prefers-reduced-motion: reduce) { .sg-customer-half { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
 @media print { .sg-customer-track { width: 100%; display: block; animation: none; } .sg-customer-half { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); } .sg-customer-half[aria-hidden="true"], .sg-customer-controls { display: none; } }
+
+/* Shared interaction finish: quiet surfaces, dependable focus and touch targets. */
+.sg-content-card { border-radius: 6px; overflow: hidden; background: white; transition: border-color 180ms, box-shadow 180ms, transform 180ms; }
+.sg-content-card:focus-visible, .sg-content-card:focus-within { border-color: #0f4c2e; box-shadow: 0 0 0 3px rgb(15 76 46 / 10%); }
+button, a, input, select, textarea { -webkit-tap-highlight-color: rgb(15 76 46 / 12%); }
+[data-contact-form] button[type="submit"], a.sg-dl { min-height: 48px; }
+[data-contact-form] input, [data-contact-form] textarea, [data-contact-form] select { scroll-margin-top: 7rem; }
+#mobile-nav a { border-radius: 4px; transition: background-color 160ms, color 160ms; }
+#mobile-nav a:active { background-color: #f6f4ee; }
+#mobile-nav a[aria-current="page"] { font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) {
+  .sg-mobile-menu { animation: sg-menu-enter 180ms var(--ease-brand) both; }
+  @keyframes sg-menu-enter { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .sg-content-card:hover, .sg-content-card:hover img { transform: none; }
+}

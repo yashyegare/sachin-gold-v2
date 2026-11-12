@@ -29,7 +29,7 @@ export default function ProductCard({
         pathname: `/services/${product.service}`,
         hash: `spec-${product.slug}`,
       }}
-      className="group flex h-full flex-col border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
+      className="sg-content-card group flex h-full flex-col border border-ink/10 transition-all hover:-translate-y-0.5 hover:border-pine hover:shadow-elevated"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-linen">
         {hasImage ? (

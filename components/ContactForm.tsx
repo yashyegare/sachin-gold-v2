@@ -262,7 +262,7 @@ export default function ContactForm() {
           </p>
           <button
             type="button"
-            onClick={() => setStatus("idle")}
+            onClick={() => {setStatus("idle"); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('[name="name"]')?.focus());}}
             className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-pine underline-offset-4 transition-colors hover:text-pine-deep hover:underline"
           >
             {t("another")}
@@ -270,7 +270,17 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <form onSubmit={handleSubmit}
+          aria-busy={status === "submitting"}
+          onInput={event => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) return;
+            if (errors[input.name]) {
+              const error = validateField(input.name, input.value);
+              setErrors(previous => { const next = {...previous}; if (error) next[input.name] = error; else delete next[input.name]; return next; });
+            }
+            if (status === "error" || status === "handoff") {setStatus("idle"); setHandoffHref("");}
+          }} noValidate className="space-y-5">
           {/* Honeypot: visually hidden, tabbable-off, ignored by screen readers */}
           <input
             type="checkbox"

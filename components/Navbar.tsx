@@ -196,6 +196,7 @@ export default function Navbar() {
   const nextPathname = useI18nPathname();
   const [servicesOpen, setServicesOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
   const servicesRef = useRef<HTMLLIElement>(null);
   const servicesButtonRef = useRef<HTMLButtonElement>(null);
   const {
@@ -220,6 +221,7 @@ export default function Navbar() {
         // focus dangles where it was and keyboard users lose their place.
         if (servicesOpen) servicesButtonRef.current?.focus();
         setServicesOpen(false);
+        if (mobileOpen) mobileToggleRef.current?.focus();
         setMobileOpen(false);
       }
     }
@@ -244,7 +246,7 @@ export default function Navbar() {
     };
     // servicesOpen is read by the Escape handler to decide whether to return
     // focus — keep it fresh without re-binding listeners every toggle.
-  }, [servicesOpen]);
+  }, [servicesOpen, mobileOpen]);
 
   // Close both panels on route change.
   useEffect(() => {
@@ -259,6 +261,23 @@ export default function Navbar() {
     return () => {
       document.body.style.overflow = "";
     };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const media = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => { if (media.matches) setMobileOpen(false); };
+    function keepMenuFocus(event: KeyboardEvent) {
+      if (event.key !== "Tab") return;
+      const toggle = mobileToggleRef.current;
+      const links = Array.from(document.querySelectorAll<HTMLElement>("#mobile-nav a[href]"));
+      const last = links.at(-1);
+      if (event.shiftKey && document.activeElement === toggle) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); toggle?.focus(); }
+    }
+    media.addEventListener("change", closeOnDesktop);
+    document.addEventListener("keydown", keepMenuFocus);
+    return () => { media.removeEventListener("change", closeOnDesktop); document.removeEventListener("keydown", keepMenuFocus); };
   }, [mobileOpen]);
 
   function isActive(href: string) {
@@ -499,6 +518,7 @@ export default function Navbar() {
             type="button"
             className="flex h-11 w-11 items-center justify-center"
             aria-expanded={mobileOpen}
+            ref={mobileToggleRef}
             aria-controls="mobile-nav"
             aria-label={mobileOpen ? t("close") : t("menu")}
             onClick={() => setMobileOpen((open) => !open)}
@@ -528,8 +548,9 @@ export default function Navbar() {
       {mobileOpen && (
         <nav
           id="mobile-nav"
+          onClick={event => { if ((event.target as Element).closest("a")) setMobileOpen(false); }}
           aria-label="Primary"
-          className="animate-fade-in max-h-[calc(100vh-4.5rem)] overflow-y-auto border-t border-ink/10 bg-white lg:hidden"
+          className="sg-mobile-menu max-h-[calc(100dvh-4.5rem)] overflow-y-auto border-t border-ink/10 bg-white lg:hidden"
         >
           <ul className="flex flex-col divide-y divide-ink/10 px-6 pb-4">
             <li className="py-1">
@@ -580,7 +601,7 @@ export default function Navbar() {
                           ? "page"
                           : undefined
                       }
-                      className={`block py-2 text-sm ${
+                      className={`flex min-h-11 items-center py-2 text-sm ${
                         nextPathname === `/services/${slug}`
                           ? "text-pine"
                           : "text-ink/60 hover:text-pine"

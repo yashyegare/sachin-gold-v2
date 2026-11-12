@@ -49,7 +49,7 @@ export default function RatesTicker({
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 sm:px-6">
         <span className="flex shrink-0 items-center gap-2 py-3 text-xs font-semibold uppercase tracking-widest text-wheat-bright">
           <span aria-hidden="true" className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-wheat-bright opacity-60" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-wheat-bright opacity-60" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-wheat-bright" />
           </span>
           {t("today")}
