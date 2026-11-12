@@ -45,7 +45,7 @@ export async function generateMetadata({
     locale,
     path: "/about",
     title: t("title"),
-    description: t("p1").slice(0, 155),
+    description: t("p1"),
   });
 }
 

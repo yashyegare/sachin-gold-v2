@@ -42,7 +42,7 @@ export async function generateMetadata({
   if (!service) return { title: "Service" };
   const t = await getTranslations({ locale, namespace: "services" });
   const title = t(`items.${service.slug}.title`);
-  const description = t(`items.${service.slug}.description`).slice(0, 155);
+  const description = t(`items.${service.slug}.description`);
 
   return pageMetadata({
     locale,
@@ -71,6 +71,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   if (!service) notFound();
 
   const t = await getTranslations("services");
+  const ux = await getTranslations("optimization");
   const products = getProductsByService(service.slug);
   const specItems = getSpecsForService(service.slug);
   const otherServices = services.filter((s) => s.slug !== service.slug);
@@ -119,9 +120,9 @@ export default async function ServiceDetailPage({ params }: Props) {
       const item = wanted.get(productName);
       if (item?.priceValue !== undefined) {
         bannerItems.push({ product: item.product, price: item.price });
-        bannerUpdatedOn ??= groups.find((g) =>
-          g.items.some((i) => i.product === item.product),
-        )?.updatedOn ?? null;
+        bannerUpdatedOn ??=
+          groups.find((g) => g.items.some((i) => i.product === item.product))
+            ?.updatedOn ?? null;
       }
     }
   }
@@ -244,10 +245,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 : "grid-cols-2"
             }`}
           >
-            {t.raw(`stats.${service.slug}`).map(
-              (
-                stat: { v: string; l: string },
-              ) => (
+            {t
+              .raw(`stats.${service.slug}`)
+              .map((stat: { v: string; l: string }) => (
                 <Reveal
                   key={stat.l}
                   className="px-4 py-10 text-center first:pl-0 last:pr-0 sm:py-12"
@@ -259,8 +259,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     {stat.l}
                   </p>
                 </Reveal>
-              ),
-            )}
+              ))}
           </div>
         </section>
       )}
@@ -297,10 +296,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   01→05 value chain). Same treatment as the services
                   overview page. */}
               <ul className="mt-8 space-y-4">
-                {t.raw(`items.${service.slug}.advantages`).map(
-                  (
-                    advantage: string,
-                  ) => (
+                {t
+                  .raw(`items.${service.slug}.advantages`)
+                  .map((advantage: string) => (
                     <li
                       key={advantage}
                       className="flex items-start gap-3 text-ink/75"
@@ -313,8 +311,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                       />
                       <span>{advantage}</span>
                     </li>
-                  ),
-                )}
+                  ))}
               </ul>
             </div>
           </Reveal>
@@ -346,6 +343,38 @@ export default async function ServiceDetailPage({ params }: Props) {
           anywhere. Values are indicative (see data/specs.ts) and labelled
           as such on the page. */}
       {specItems.length > 0 && <ProductSpecs items={specItems} />}
+      <section
+        className="section-standard border-t border-ink/10 bg-linen/50"
+        aria-labelledby="prepare-enquiry-title"
+      >
+        <div className="mx-auto max-w-4xl px-6">
+          <h2
+            id="prepare-enquiry-title"
+            className="font-display text-display-md text-ink"
+          >
+            {ux("prepare")}
+          </h2>
+          <ul className="mt-6 list-disc space-y-3 pl-5 text-ink/80">
+            <li>{ux("requirement")}</li>
+            <li>{ux("destination")}</li>
+            <li>{ux("confirm")}</li>
+          </ul>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link
+              href="/contact#enquiry"
+              className="inline-flex min-h-12 items-center rounded-sm bg-pine px-5 text-sm font-semibold text-white hover:bg-pine-deep"
+            >
+              {ux("enquire")}
+            </Link>
+            <Link
+              href="/rates"
+              className="inline-flex min-h-12 items-center px-2 text-sm font-semibold text-pine underline underline-offset-4"
+            >
+              {ux("rates")}
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* ————— Locations — chips with a pin icon read as "operational
           network"; translated short form. */}
@@ -358,10 +387,9 @@ export default async function ServiceDetailPage({ params }: Props) {
             />
           </Reveal>
           <ul className="mt-8 flex flex-wrap gap-3">
-            {t.raw(`items.${service.slug}.locations`).map(
-              (
-                location: string,
-              ) => (
+            {t
+              .raw(`items.${service.slug}.locations`)
+              .map((location: string) => (
                 <li
                   key={location}
                   className="flex items-center gap-2 rounded-full border border-ink/10 bg-linen px-4 py-2 text-sm text-ink/75"
@@ -374,8 +402,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   />
                   <span>{location}</span>
                 </li>
-              ),
-            )}
+              ))}
           </ul>
         </div>
       </section>

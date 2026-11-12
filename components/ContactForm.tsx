@@ -82,7 +82,10 @@ export default function ContactForm() {
   const t = useTranslations("contactForm");
   const tc = useTranslations("contact");
   const ux = useTranslations("buyerUx");
+  const optimization = useTranslations("optimization");
+  const [recoveryHref, setRecoveryHref] = useState("");
   const [quoteReady, setQuoteReady] = useState(false);
+  const startedRef = useRef(false);
   const resultRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -177,7 +180,11 @@ export default function ContactForm() {
       "message",
       `${String(formData.get("message") || "")}\n\n${composedQuote || details}`,
     );
+    setRecoveryHref(
+      whatsappLink(company.whatsapp, String(formData.get("message"))),
+    );
     trackConversion("enquiry_form_submit");
+    if (composedQuote) trackConversion("enquiry_quote_submit");
     setStatus("submitting");
 
     if (!accessKey) {
@@ -217,26 +224,36 @@ export default function ContactForm() {
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 12000);
+    let failureReason: "http" | "provider" | "timeout" | "network" = "network";
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         body: formData,
         signal: controller.signal,
       });
-      if (!response.ok) throw new Error("Enquiry service unavailable");
+      if (!response.ok) {
+        failureReason = "http";
+        throw new Error("Enquiry service unavailable");
+      }
+      failureReason = "provider";
       const result = await response.json();
       if (result.success) {
         trackConversion("enquiry_form_success");
+        if (composedQuote) trackConversion("enquiry_quote_success");
         setStatus("success");
         form.reset();
         setQuoteReady(false);
         setErrors({});
       } else {
-        trackConversion("enquiry_form_error");
+        trackConversion("enquiry_form_error", "form", "provider");
         setStatus("error");
       }
     } catch {
-      trackConversion("enquiry_form_error");
+      trackConversion(
+        "enquiry_form_error",
+        "form",
+        controller.signal.aborted ? "timeout" : failureReason,
+      );
       setStatus("error");
     } finally {
       window.clearTimeout(timeout);
@@ -262,7 +279,15 @@ export default function ContactForm() {
           </p>
           <button
             type="button"
-            onClick={() => {setStatus("idle"); requestAnimationFrame(() => document.querySelector<HTMLInputElement>('[name="name"]')?.focus());}}
+            onClick={() => {
+              setStatus("idle");
+              startedRef.current = false;
+              requestAnimationFrame(() =>
+                document
+                  .querySelector<HTMLInputElement>('[name="name"]')
+                  ?.focus(),
+              );
+            }}
             className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-pine underline-offset-4 transition-colors hover:text-pine-deep hover:underline"
           >
             {t("another")}
@@ -270,17 +295,39 @@ export default function ContactForm() {
           </button>
         </div>
       ) : (
-        <form onSubmit={handleSubmit}
+        <form
+          onSubmit={handleSubmit}
           aria-busy={status === "submitting"}
-          onInput={event => {
+          onInput={(event) => {
+            if (!startedRef.current) {
+              startedRef.current = true;
+              trackConversion("enquiry_form_start");
+            }
             const input = event.target;
-            if (!(input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement)) return;
+            if (
+              !(
+                input instanceof HTMLInputElement ||
+                input instanceof HTMLTextAreaElement
+              )
+            )
+              return;
             if (errors[input.name]) {
               const error = validateField(input.name, input.value);
-              setErrors(previous => { const next = {...previous}; if (error) next[input.name] = error; else delete next[input.name]; return next; });
+              setErrors((previous) => {
+                const next = { ...previous };
+                if (error) next[input.name] = error;
+                else delete next[input.name];
+                return next;
+              });
             }
-            if (status === "error" || status === "handoff") {setStatus("idle"); setHandoffHref("");}
-          }} noValidate className="space-y-5">
+            if (status === "error" || status === "handoff") {
+              setStatus("idle");
+              setHandoffHref("");
+            }
+          }}
+          noValidate
+          className="space-y-5"
+        >
           {/* Honeypot: visually hidden, tabbable-off, ignored by screen readers */}
           <input
             type="checkbox"
@@ -387,7 +434,19 @@ export default function ContactForm() {
                 className="mt-0.5 shrink-0"
                 aria-hidden="true"
               />
-              {t("error")}
+              <span>
+                {t("error")}
+                {recoveryHref && (
+                  <a
+                    href={recoveryHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 flex min-h-11 items-center font-semibold underline underline-offset-4"
+                  >
+                    {optimization("recovery")}
+                  </a>
+                )}
+              </span>
             </p>
           )}
 

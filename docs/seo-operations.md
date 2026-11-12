@@ -1,5 +1,7 @@
 # SEO operations — existing pages only
 
+Later code-only improvements and deferred owner actions are documented in [seo-enquiry-followup.md](seo-enquiry-followup.md). The scope below describes the original technical SEO release.
+
 ## Scope
 
 No product pages, location pages, articles, page content, page layouts, navigation or visual components were created or rewritten. Existing page files and translation catalogs are unchanged. Work is limited to metadata/indexing configuration, the machine-readable sitemap, analytics events, tests and this runbook.

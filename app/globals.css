@@ -712,3 +712,9 @@ button, a, input, select, textarea { -webkit-tap-highlight-color: rgb(15 76 46 /
 @media (hover: none), (prefers-reduced-motion: reduce) {
   .sg-content-card:hover, .sg-content-card:hover img { transform: none; }
 }
+
+.sg-splash-skip { display: none; }
+html[data-splash] .sg-splash-skip { display: inline-flex; position: fixed; z-index: 101; top: max(28px, env(safe-area-inset-top)); right: max(28px, env(safe-area-inset-right)); min-height: 44px; align-items: center; padding: 0 16px; border: 1px solid rgb(226 190 108 / 50%); border-radius: 4px; background: #080c0a; color: #f6f1e4; font-size: 13px; }
+.sg-splash-skip:hover { border-color: #e2be6c; color: #e2be6c; }
+.sg-splash-skip:focus-visible { outline: 2px solid #e2be6c; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce), print { html[data-splash] .sg-splash-skip { display: none; } }

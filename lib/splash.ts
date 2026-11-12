@@ -15,16 +15,26 @@ export const splashGateScript = `
     window.addEventListener("animationstart", start);
     // Observe CSS completion before hydration too. Otherwise a late hydration
     // recovery can remount the overlay and replay an already finished splash.
-    function done(event) {
-      if (event.animationName !== "sg-splash-out" ||
-          !event.target.classList.contains("sg-splash")) return;
+    function finish() {
       window.removeEventListener("animationend", done);
       window.removeEventListener("animationstart", start);
+      document.removeEventListener("click", skip);
       if (!document.documentElement.hasAttribute("data-splash")) return;
       window.__sgSplashActive = false;
       document.documentElement.removeAttribute("data-splash");
       window.dispatchEvent(new Event("sg-splash-done"));
     }
+    function done(event) {
+      if (event.animationName === "sg-splash-out" && event.target.classList.contains("sg-splash")) finish();
+    }
+    function skip(event) {
+      if (!event.target.closest || !event.target.closest("[data-splash-skip]")) return;
+      event.preventDefault();
+      finish();
+      var content = document.getElementById("main-content");
+      if (content) content.focus({preventScroll:true});
+    }
+    document.addEventListener("click", skip);
     window.addEventListener("animationend", done);
   } catch (e) {}
 })();

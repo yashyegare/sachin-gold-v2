@@ -1,3 +1,4 @@
+import { ratesJsonLd } from "@/lib/rates-schema";
 import type { Metadata } from "next";
 import {
   ArrowRight,
@@ -9,7 +10,6 @@ import {
   TimerReset,
 } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { siteUrl } from "@/data/company";
 import CTA from "@/components/CTA";
 import PageIntro from "@/components/PageIntro";
 import Reveal from "@/components/Reveal";
@@ -62,37 +62,6 @@ export async function generateMetadata({
 // Deliberately emits nothing while prices are "On request": Google must
 // never see placeholder pricing. English-only for now (same policy as
 // the FAQ schema): the numbers are locale-neutral once real rates land.
-function ratesJsonLd(groups: Awaited<ReturnType<typeof getLiveRateGroups>>["groups"]) {
-  if (!groups.some((g) => g.items.some((i) => i.priceValue !== undefined)))
-    return null;
-  return {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    itemListElement: groups.flatMap((group, gi) =>
-      group.items
-        .filter((item) => item.priceValue !== undefined)
-        .map((item, ii) => ({
-          "@type": "ListItem",
-          position: gi * 10 + ii + 1,
-          item: {
-            "@type": "Product",
-            name: `${item.product} — ${company.name}`,
-            description: `Bulk ${item.product} (${item.unit}) from ${company.legalName}, Udgir, Maharashtra.`,
-            brand: { "@type": "Brand", name: company.name },
-            offers: {
-              "@type": "Offer",
-              priceCurrency: "INR",
-              price: item.priceValue,
-              availability: "https://schema.org/InStock",
-              areaServed: "IN",
-              url: `${siteUrl}/rates`,
-            },
-          },
-        })),
-    ),
-  };
-}
-
 export default async function RatesPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -103,8 +72,11 @@ export default async function RatesPage({ params }: Props) {
   // that the feed is down, so a buyer can't mistake our outage for "no
   // published prices". Cached 5 min; the /api/revalidate-rates webhook
   // refreshes instantly on sheet edits.
-  const { groups: rateGroups, lastUpdated, source } =
-    await getLiveRateGroups(locale);
+  const {
+    groups: rateGroups,
+    lastUpdated,
+    source,
+  } = await getLiveRateGroups(locale);
   const jsonLd = ratesJsonLd(rateGroups);
 
   // Unit + qualifier in the reader's language. data/rates.ts keeps its own
@@ -138,7 +110,8 @@ export default async function RatesPage({ params }: Props) {
       const lines = group.items
         .filter((item) => item.priceValue !== undefined)
         .map(
-          (item) => `• ${item.product}: ${item.price} (${basisLabel(item)})${item.updatedAt ? ` — ${formatStamp(new Date(item.updatedAt), locale, true)} IST` : ""}`,
+          (item) =>
+            `• ${item.product}: ${item.price} (${basisLabel(item)})${item.updatedAt ? ` — ${formatStamp(new Date(item.updatedAt), locale, true)} IST` : ""}`,
         );
       return {
         key: gi === 0 ? ("soya" as const) : ("dals" as const),
@@ -163,7 +136,9 @@ export default async function RatesPage({ params }: Props) {
     enquiryHref: enquireLineLink(group.title),
     rows: group.items.map((rate) => ({
       product: rate.product,
-      updatedOn: rate.updatedAt ? `${formatStamp(new Date(rate.updatedAt), locale, true)} IST` : null,
+      updatedOn: rate.updatedAt
+        ? `${formatStamp(new Date(rate.updatedAt), locale, true)} IST`
+        : null,
       flagship: rate.product.startsWith(FLAGSHIP),
       // An unpriced line says "On request" in the reader's language; the
       // English literal in data/rates.ts is only the PDF's copy.
@@ -314,8 +289,14 @@ export default async function RatesPage({ params }: Props) {
             sheet is exactly the copy that outlives the day's rate — it has
             to carry the same wording the screen does. */}
         <div className="mt-10 flex items-start gap-2.5 rounded-sm border border-ink/10 bg-linen px-4 py-3 print:border-ink/25 print:bg-transparent">
-          <Info size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-pine" />
-          <p className="text-xs leading-relaxed text-ink/65">{t("disclaimer")}</p>
+          <Info
+            size={14}
+            aria-hidden="true"
+            className="mt-0.5 shrink-0 text-pine"
+          />
+          <p className="text-xs leading-relaxed text-ink/65">
+            {t("disclaimer")}
+          </p>
         </div>
 
         <p className="mt-6 text-xs text-ink/45 print:hidden">
@@ -332,8 +313,8 @@ export default async function RatesPage({ params }: Props) {
         {/* Print-only footer: this page gets printed at counters, so the
             print view identifies its source. */}
         <p className="mt-8 hidden border-t border-ink/10 pt-4 text-xs text-ink/50 print:block">
-          {company.legalName} — {company.phone} — {company.email} —
-          {" "}www.sachingold.com
+          {company.legalName} — {company.phone} — {company.email} —{" "}
+          www.sachingold.com
         </p>
       </section>
 

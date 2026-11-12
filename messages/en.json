@@ -613,5 +613,15 @@
     "whatsapp": "WhatsApp",
     "enquire": "Enquire",
     "successNext": "We aim to reply within 24 hours. For urgent requirements, call or WhatsApp us below."
+  },
+  "optimization": {
+    "skip": "Skip intro",
+    "prepare": "Prepare your enquiry",
+    "requirement": "Tell us the product or service, grade and required quantity.",
+    "destination": "Include the delivery city, pickup location or storage period where relevant.",
+    "confirm": "Rates, packaging and dispatch timing are reconfirmed in writing at booking.",
+    "rates": "Published rates",
+    "enquire": "Send an enquiry",
+    "recovery": "Send your requirement on WhatsApp"
   }
 }
