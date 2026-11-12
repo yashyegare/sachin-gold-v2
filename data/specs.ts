@@ -3,12 +3,13 @@ import { getProductsByService } from "@/data/products";
 /**
  * Commercial terms — the numbers a bulk buyer actually decides on.
  *
- * Owner-confirmed corrections: jaggery ships as 10 kg per DAG; cotton seed
+ * Owner-confirmed lead time across all products: 1–2 days.
+ * Owner-confirmed packaging: jaggery ships as 10 kg per DAG; cotton seed
  * oil cake, tamarind and soyabean ship in 50 kg bags (material unspecified).
  *
  * READ THIS BEFORE SHIPPING. Other indicative terms did not come from the old site or
  * from the owner; the old site published no terms at all. The MOQs, pack
- * sizes and lead times below are ordinary market practice for a Maharashtra
+ * sizes and MOQs below are ordinary market practice for a Maharashtra
  * soya-and-dal trader. They are therefore *indicative*, and the UI says so
  * on every page that renders them (`services.detail.specsNote`).
  *
@@ -42,101 +43,101 @@ export const productSpecs: Record<string, ProductSpec> = {
   soyabean: {
     packs: "50 kg bag",
     moq: "25 MT",
-    lead: "4–6 working days",
+    lead: "1–2 days",
   },
   bajra: {
     packs: "30 / 50 kg PP bag",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   jowar: {
     packs: "30 / 50 kg PP bag",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   corn: {
     packs: "30 / 50 kg PP bag",
     moq: "25 MT",
-    lead: "4–6 working days",
+    lead: "1–2 days",
   },
   jaggery: {
     packs: "10 kg per DAG",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "cotton-seed-oil-cake": {
     packs: "50 kg bag",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "masoor-dal": {
     packs: "30 / 50 kg PP bag",
     moq: "25 MT",
-    lead: "2–4 working days",
+    lead: "1–2 days",
   },
   tamarind: {
     packs: "50 kg bag",
     moq: "25 MT",
-    lead: "4–6 working days",
+    lead: "1–2 days",
   },
 
   // ————— Processing: milled on our own Buhler lines, unpolished —————
   "toor-dal": {
     packs: "As per requirement",
     moq: "25–30 TN",
-    lead: "2–4 working days",
+    lead: "1–2 days",
   },
   "chana-dal": {
     packs: "As per requirement",
     moq: "25–30 TN",
-    lead: "2–4 working days",
+    lead: "1–2 days",
   },
   "urad-dal": {
     packs: "As per requirement",
     moq: "25–30 TN",
-    lead: "2–4 working days",
+    lead: "1–2 days",
   },
   "moong-dal": {
     packs: "As per requirement",
     moq: "25–30 TN",
-    lead: "2–4 working days",
+    lead: "1–2 days",
   },
   "besan-gram-flour": {
     packs: "As per requirement",
     moq: "25–30 TN",
-    lead: "2–3 working days",
+    lead: "1–2 days",
   },
 
   // ————— Extraction: soya crushing and refining at the Main Plant —————
   "soya-doc": {
     packs: "50 kg PP bag · 1 MT jumbo · loose bulk",
     moq: "30 MT",
-    lead: "2–3 working days",
+    lead: "1–2 days",
   },
   "soya-crude-oil": {
     packs: "Bulk tanker",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "soya-refined-oil": {
     packs: "Bulk tanker",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "soya-acid-oil": {
     packs: "Bulk tanker",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "soya-fatty-oil": {
     packs: "Bulk tanker",
     moq: "25 MT",
-    lead: "3–5 working days",
+    lead: "1–2 days",
   },
   "soya-lecithin": {
     packs: "Bulk tanker",
     moq: "25 MT",
-    lead: "4–6 working days",
+    lead: "1–2 days",
   },
 };
 

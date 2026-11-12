@@ -177,7 +177,12 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                 at a mandi, so that layout is primary, not an afterthought. */}
             <div className="mt-5">
               <div className="hidden md:block print:block">
-                <table className="w-full border-collapse text-sm print:text-xs">
+                <table className="w-full table-fixed border-collapse text-sm print:text-xs">
+                  <colgroup>
+                    <col className="w-[46%] print:w-[55%]" />
+                    <col className="w-[38%] print:w-[45%]" />
+                    <col className="w-[16%] print:hidden" />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-ink/15 text-left text-[0.7rem] uppercase tracking-widest text-ink/50">
                       <th scope="col" className="py-3 pr-2 font-semibold">
@@ -185,13 +190,13 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                       </th>
                       <th
                         scope="col"
-                        className="py-3 pl-2 text-right font-semibold"
+                        className="py-3 pl-4 pr-4 text-right font-semibold"
                       >
                         {t("rateHeader")}
                       </th>
                       <th
                         scope="col"
-                        className="w-px py-3 pl-6 text-right font-semibold print:hidden"
+                        className="py-3 pl-3 text-right font-semibold print:hidden"
                       >
                         <span className="sr-only">{ux("copy")}</span>
                       </th>
@@ -206,29 +211,31 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                             index % 2 === 1 ? "bg-linen/40" : ""
                           }`}
                         >
-                          <td className="px-2 py-4 font-medium text-ink first:pl-0 print:py-2.5">
-                            {row.product}
+                          <td className="px-2 py-4 align-top font-medium text-ink first:pl-0 print:py-2.5">
+                            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                              <span>{row.product}</span>
+                              {row.flagship && (
+                                <span className="rounded-full border border-wheat-dark/50 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
+                                  {t("flagship")}
+                                </span>
+                              )}
+                            </div>
                             {row.updatedOn && (
                               <span className="mt-1 block text-xs font-normal text-ink/60">
                                 {t("bannerUpdated", { time: row.updatedOn })}
                               </span>
                             )}
-                            {row.flagship && (
-                              <span className="ml-2.5 inline-block -translate-y-px rounded-full border border-wheat-dark/50 px-2 py-0.5 align-middle text-[0.6rem] font-semibold uppercase tracking-wider text-wheat-dark print:hidden">
-                                {t("flagship")}
-                              </span>
-                            )}
                           </td>
-                          <td className="whitespace-nowrap px-2 py-4 text-right print:py-2.5">
-                            <span className="font-semibold tabular-nums text-ink">
+                          <td className="px-4 py-4 align-top text-right print:py-2.5">
+                            <span className="block font-semibold tabular-nums text-ink">
                               {row.quoted.price}
                             </span>{" "}
-                            <span className="text-ink/50">
+                            <span className="mt-1 block text-xs leading-relaxed text-ink/60">
                               {row.quoted.unit}
                             </span>
                           </td>
                           {/* Keep the copy action next to its rate. */}
-                          <td className="w-px py-3 pl-3 pr-0 text-right print:hidden">
+                          <td className="py-2 pl-3 pr-0 align-top text-right print:hidden">
                             <CopyRateButton row={row} />
                           </td>
                         </tr>
@@ -259,15 +266,15 @@ export default function RatesTables({ groups }: { groups: RateGroupView[] }) {
                           </span>
                         )}
                       </p>
-                      {/* Price and action share the card's foot: the name
-                          gets the full width it needs, and the chip clears
-                          44px as a touch target. */}
-                      <div className="mt-3 flex items-end justify-between gap-3">
+                      {/* Price and basis stack consistently; copy keeps its own column. */}
+                      <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                         <p className="text-sm text-ink">
-                          <span className="font-semibold tabular-nums">
+                          <span className="block font-semibold tabular-nums">
                             {row.quoted.price}
                           </span>{" "}
-                          <span className="text-ink/50">{row.quoted.unit}</span>
+                          <span className="mt-1 block text-xs leading-relaxed text-ink/60">
+                            {row.quoted.unit}
+                          </span>
                         </p>
                         <div className="flex shrink-0 flex-col items-end gap-1">
                           <CopyRateButton row={row} />
