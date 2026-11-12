@@ -4,7 +4,7 @@ import { getProductsByService } from "@/data/products";
  * Commercial terms — the numbers a bulk buyer actually decides on.
  *
  * Owner-confirmed corrections: jaggery ships as 10 kg per DAG; cotton seed
- * oil cake and tamarind ship in 50 kg bags (material unspecified).
+ * oil cake, tamarind and soyabean ship in 50 kg bags (material unspecified).
  *
  * READ THIS BEFORE SHIPPING. Other indicative terms did not come from the old site or
  * from the owner; the old site published no terms at all. The MOQs, pack
@@ -40,7 +40,7 @@ export interface ProductSpec {
 export const productSpecs: Record<string, ProductSpec> = {
   // ————— Trading: raw commodities, cleaned at our own lines —————
   soyabean: {
-    packs: "30 / 50 kg PP bag",
+    packs: "50 kg bag",
     moq: "25 MT",
     lead: "4–6 working days",
   },
