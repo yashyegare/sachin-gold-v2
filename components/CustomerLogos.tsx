@@ -11,7 +11,7 @@ import { customers } from "@/data/customers";
  * to speak for themselves, and its own linen surface so it reads as a
  * deliberate beat in the page.
  *
- * Desktop uses a pausable running card strip; phones and reduced-motion
+ * Desktop uses a continuous running card strip; phones and reduced-motion
  * visitors get a static grid with each customer shown once.
  */
 export default async function CustomerLogos() {
@@ -47,7 +47,7 @@ export default async function CustomerLogos() {
         </Reveal>
       </div>
 
-      <CustomerLogoTrack pauseLabel={t("pause")} playLabel={t("play")}>
+      <CustomerLogoTrack>
         {roster()}
         {roster(true)}
       </CustomerLogoTrack>
